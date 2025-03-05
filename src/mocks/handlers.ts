@@ -1,4 +1,4 @@
-import { http, graphql, HttpResponse } from 'msw';
+import { http, HttpResponse, graphql } from 'msw';
 import {
   accountFixture,
   productsFixture,
