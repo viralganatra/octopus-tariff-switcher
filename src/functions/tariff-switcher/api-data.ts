@@ -1,12 +1,12 @@
+import { formatISO } from 'date-fns';
 import { Graffle } from 'graffle';
 import { z } from 'zod';
-import { formatISO } from 'date-fns';
 import { API_GRAPHQL, API_PRODUCTS } from '../../constants/api';
-import { logger } from '../../utils/logger';
-import { getMsFromApiIsoString, roundTo4Digits } from '../../utils/helpers';
-import { getData } from '../../utils/fetch';
-import { UnknownTariffError } from '../../errors/unknown-tariff-error';
 import { UnknownProductError } from '../../errors/unknown-product-error';
+import { UnknownTariffError } from '../../errors/unknown-tariff-error';
+import { getData } from '../../utils/fetch';
+import { getMsFromApiIsoString, roundTo4Digits } from '../../utils/helpers';
+import { logger } from '../../utils/logger';
 
 const [TARIFF_AGILE, TARIFF_COSY] = ['Agile Octopus', 'Cosy Octopus'] as const;
 const [TARIFF_CODE_AGILE, TARIFF_CODE_COSY] = ['AGILE-', 'COSY-'] as const;
@@ -147,7 +147,12 @@ export async function getAccountInfo() {
     throw new UnknownTariffError(`Current tariff is neither Agile nor Cosy, it is: ${tariffCode}`);
   }
 
-  return { currentTariff, regionCode, deviceId, currentStandingCharge: normalisedStandingCharge };
+  return {
+    currentTariff,
+    regionCode,
+    deviceId,
+    currentStandingCharge: normalisedStandingCharge,
+  };
 }
 
 export async function getTodaysConsumptionInHalfHourlyRates({ deviceId }: { deviceId: string }) {
@@ -201,7 +206,9 @@ export async function getTodaysConsumptionInHalfHourlyRates({ deviceId }: { devi
 
   const { smartMeterTelemetry } = schema.parse(result);
 
-  logger.info('Got half hourly consumption data from API', { apiResponse: smartMeterTelemetry });
+  logger.info('Got half hourly consumption data from API', {
+    apiResponse: smartMeterTelemetry,
+  });
 
   const data = smartMeterTelemetry.map(({ costDeltaWithTax, ...halfHourlyUnitRate }) => ({
     ...halfHourlyUnitRate,
@@ -254,7 +261,9 @@ export async function getTodaysUnitRatesByTariff({ tariffCode, productCode }: Ta
 
   logger.info(
     `Getting todays unit rates for tariff code: ${tariffCode} and product code: ${productCode}`,
-    { apiResponse: results[0] },
+    {
+      apiResponse: results[0],
+    },
   );
 
   const unitRatesWithMs = results.map(({ value_inc_vat, ...halfHourlyUnitRate }) => ({
@@ -286,7 +295,9 @@ async function getTodaysStandingCharge({ tariffCode, productCode }: TariffSelect
 
   logger.info(
     `Got today's standing charge for tariff code: ${tariffCode} and product code: ${productCode} from API`,
-    { apiResponse: results },
+    {
+      apiResponse: results,
+    },
   );
 
   const todaysStandingCharge = roundTo4Digits(results[0].value_inc_vat);
@@ -314,7 +325,9 @@ export async function getPotentialRatesAndStandingChargeByTariff({
     );
   });
 
-  logger.info(`Found matching product based on ${tariff}`, { data: currentProduct });
+  logger.info(`Found matching product based on ${tariff}`, {
+    data: currentProduct,
+  });
 
   // There should always be a product for Agile or Cosy
   if (!currentProduct) {

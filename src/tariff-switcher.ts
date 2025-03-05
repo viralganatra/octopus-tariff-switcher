@@ -1,12 +1,12 @@
-import { logger } from './utils/logger';
 import {
   getAccountInfo,
   getOppositeTariff,
-  getTodaysConsumptionInHalfHourlyRates,
   getPotentialRatesAndStandingChargeByTariff,
+  getTodaysConsumptionInHalfHourlyRates,
 } from './functions/tariff-switcher/api-data';
 import { getPotentialCost, getTotalCost } from './functions/tariff-switcher/cost-calculator';
 import { roundTo2Digits } from './utils/helpers';
+import { logger } from './utils/logger';
 
 export async function tariffSwitcher() {
   try {

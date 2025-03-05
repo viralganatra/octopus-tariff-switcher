@@ -1,4 +1,8 @@
-import { graphql, http, HttpResponse } from 'msw';
+import { http, HttpResponse, graphql } from 'msw';
+import { UnknownProductError } from '../../../errors/unknown-product-error';
+import { UnknownTariffError } from '../../../errors/unknown-tariff-error';
+import { accountFixture } from '../../../mocks/fixtures';
+import { server } from '../../../mocks/node';
 import {
   getAccountInfo,
   getOppositeTariff,
@@ -7,10 +11,6 @@ import {
   getTodaysUnitRatesByTariff,
   getToken,
 } from '../api-data';
-import { server } from '../../../mocks/node';
-import { accountFixture } from '../../../mocks/fixtures';
-import { UnknownTariffError } from '../../../errors/unknown-tariff-error';
-import { UnknownProductError } from '../../../errors/unknown-product-error';
 
 describe('API Data', () => {
   beforeEach(() => {
@@ -130,7 +130,9 @@ describe('API Data', () => {
     const dispatchRequest = vi.fn();
     server.events.on('request:start', dispatchRequest);
 
-    const consumption = await getTodaysConsumptionInHalfHourlyRates({ deviceId: 'deviceId' });
+    const consumption = await getTodaysConsumptionInHalfHourlyRates({
+      deviceId: 'deviceId',
+    });
 
     // @ts-ignore
     const serverRequest = dispatchRequest.mock.calls[0][0].request;
@@ -190,7 +192,10 @@ describe('API Data', () => {
     );
 
     const data = () =>
-      getPotentialRatesAndStandingChargeByTariff({ tariff: 'Agile Octopus', regionCode: 'A' });
+      getPotentialRatesAndStandingChargeByTariff({
+        tariff: 'Agile Octopus',
+        regionCode: 'A',
+      });
 
     await expect(data).rejects.toThrowError(UnknownProductError);
   });

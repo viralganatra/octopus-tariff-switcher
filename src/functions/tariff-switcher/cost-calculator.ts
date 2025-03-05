@@ -31,9 +31,9 @@ export function getTotalCost({
   let totalConsumptionInPence = 0;
 
   // Gather total consumption for the day based upon the half hourly intervals
-  unitRates.forEach(({ unitCostInPence }) => {
-    totalConsumptionInPence += unitCostInPence;
-  });
+  for (const unitRate of unitRates) {
+    totalConsumptionInPence += unitRate.unitCostInPence;
+  }
 
   return roundTo4Digits(totalConsumptionInPence + standingCharge);
 }

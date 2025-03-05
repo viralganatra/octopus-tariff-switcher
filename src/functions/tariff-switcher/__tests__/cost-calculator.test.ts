@@ -1,5 +1,5 @@
-import { getPotentialCost, getTotalCost } from '../cost-calculator';
 import { MatchingRateError } from '../../../errors/matching-rate-error';
+import { getPotentialCost, getTotalCost } from '../cost-calculator';
 
 describe('Cost Calculator', () => {
   it('should calculate the total cost based on the unit rates and service charge', () => {
