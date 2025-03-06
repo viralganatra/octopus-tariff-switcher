@@ -1,16 +1,27 @@
 import { http, HttpResponse } from 'msw';
+import type { APIGatewayProxyEvent, Context } from 'aws-lambda';
 import { server } from '../mocks/node';
 import { tariffSwitcher } from '../tariff-switcher';
 
 describe('Tariff Switcher', () => {
+  const proxy = {} as APIGatewayProxyEvent;
+  const context = {} as Context;
+
   beforeEach(() => {
     vi.setSystemTime(new Date(2025, 2, 3));
   });
 
   it('should switch the tariff if it is cheaper that the current tariff', async () => {
-    const data = await tariffSwitcher();
+    const data = await tariffSwitcher(proxy, context);
 
-    expect(data).toBe(false);
+    expect(data).toMatchInlineSnapshot(`
+      {
+        "body": "{
+        "message": "Not switching from Agile Octopus to Cosy Octopus, as today's cost £0.80 is cheaper than £0.89"
+      }",
+        "statusCode": 200,
+      }
+    `);
   });
 
   it('should not switch the tariff if it is more expensive than the current tariff', async () => {
@@ -80,8 +91,15 @@ describe('Tariff Switcher', () => {
       ),
     );
 
-    const data = await tariffSwitcher();
+    const data = await tariffSwitcher(proxy, context);
 
-    expect(data).toBe(true);
+    expect(data).toMatchInlineSnapshot(`
+      {
+        "body": "{
+        "message": "Going to switch from Agile Octopus to Cosy Octopus, as today's cost £0.80 is more expensive than £0.61"
+      }",
+        "statusCode": 200,
+      }
+    `);
   });
 });
