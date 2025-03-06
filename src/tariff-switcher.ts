@@ -1,3 +1,4 @@
+import type { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
 import {
   getAccountInfo,
   getOppositeTariff,
@@ -7,8 +8,14 @@ import {
 import { getPotentialCost, getTotalCost } from './functions/tariff-switcher/cost-calculator';
 import { roundTo2Digits } from './utils/helpers';
 import { logger } from './utils/logger';
+import { formatResponse } from './utils/format-response';
 
-export async function tariffSwitcher() {
+export async function tariffSwitcher(
+  event: APIGatewayProxyEvent,
+  context: Context,
+): Promise<APIGatewayProxyResult> {
+  logger.addContext(context);
+
   try {
     const { deviceId, currentStandingCharge, regionCode, currentTariff } = await getAccountInfo();
     const oppositeTariff = getOppositeTariff(currentTariff);
@@ -37,20 +44,30 @@ export async function tariffSwitcher() {
     // Add 2p buffer as not worth switching
     const potentialCostInPounds = roundTo2Digits((potentialCost + 2) / 100).toFixed(2);
 
+    let message: string;
+
     if (potentialCostInPounds < todaysConsumptionCostInPounds) {
-      logger.info(
-        `Going to switch from ${currentTariff} to ${oppositeTariff}, as today's cost £${todaysConsumptionCostInPounds} is more expensive than £${potentialCostInPounds}`,
-      );
+      message = `Going to switch from ${currentTariff} to ${oppositeTariff}, as today's cost £${todaysConsumptionCostInPounds} is more expensive than £${potentialCostInPounds}`;
     } else {
-      logger.info(
-        `Not switching from ${currentTariff} to ${oppositeTariff}, as today's cost £${todaysConsumptionCostInPounds} is cheaper than £${potentialCostInPounds}`,
-      );
+      message = `Not switching from ${currentTariff} to ${oppositeTariff}, as today's cost £${todaysConsumptionCostInPounds} is cheaper than £${potentialCostInPounds}`;
     }
 
-    return potentialCostInPounds < todaysConsumptionCostInPounds;
-  } catch (error) {
-    logger.error('Error', error as Error);
+    logger.info(message);
 
-    throw error;
+    return formatResponse(200, { message });
+  } catch (error) {
+    let message: string;
+
+    if (error instanceof Error) {
+      const err = error.toString();
+
+      message = error.message;
+
+      logger.error(err, error);
+    } else {
+      message = String(error);
+    }
+
+    return formatResponse(500, { message });
   }
 }

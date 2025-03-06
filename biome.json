@@ -7,7 +7,7 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "ignore": []
+    "ignore": [".sst", "sst-env.d.ts"]
   },
   "formatter": {
     "enabled": true,

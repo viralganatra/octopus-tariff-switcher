@@ -1,3 +1,1 @@
-import { tariffSwitcher } from './src/tariff-switcher';
-
-tariffSwitcher();
+export { tariffSwitcher } from './src/tariff-switcher';
