@@ -5,12 +5,15 @@
   "version": "1.0.0",
   "description": "Smart Tarrif Calculator",
   "scripts": {
-    "start": "tsx --env-file=.env handler.ts",
-    "typecheck": "tsc -b",
+    "deploy:dev": "sst deploy --stage development",
+    "deploy:prod": "sst deploy --stage production",
+    "dev": "sst dev",
     "format": "biome format --write",
     "lint": "biome lint",
     "prepare": "husky",
-    "test": "vitest"
+    "sso": "aws sso login --sso-session=octopus",
+    "test": "vitest",
+    "typecheck": "tsc -b"
   },
   "type": "module",
   "dependencies": {
@@ -18,16 +21,18 @@
     "date-fns": "^4.1.0",
     "graffle": "8.0.0-next.157",
     "graphql": "^16.10.0",
+    "sst": "3.9.27",
     "zod": "^3.24.2"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "@total-typescript/ts-reset": "^0.6.1",
+    "@types/aws-lambda": "8.10.147",
     "@types/node": "^22.13.9",
     "husky": "^9.1.7",
     "lint-staged": "^15.4.3",
     "msw": "^2.7.3",
-    "tsx": "^4.19.3",
+    "sst": "^3.9.27",
     "typescript": "^5.8.2",
     "vitest": "^3.0.7"
   },

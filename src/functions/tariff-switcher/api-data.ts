@@ -1,6 +1,7 @@
 import { formatISO } from 'date-fns';
 import { Graffle } from 'graffle';
 import { z } from 'zod';
+import { Resource } from 'sst';
 import { API_GRAPHQL, API_PRODUCTS } from '../../constants/api';
 import { UnknownProductError } from '../../errors/unknown-product-error';
 import { UnknownTariffError } from '../../errors/unknown-tariff-error';
@@ -48,7 +49,7 @@ export async function getToken() {
         token
       }
     }
-  `.send({ input: { APIKey: process.env.API_KEY } });
+  `.send({ input: { APIKey: Resource.ApiKey.value } });
 
   const data = schema.parse(result);
 
@@ -123,7 +124,7 @@ export async function getAccountInfo() {
           }
         }
       }
-    `.send({ accountNumber: process.env.ACC_NUMBER });
+    `.send({ accountNumber: Resource.AccNumber.value });
 
   const results = schema.parse(result);
 
@@ -155,7 +156,11 @@ export async function getAccountInfo() {
   };
 }
 
-export async function getTodaysConsumptionInHalfHourlyRates({ deviceId }: { deviceId: string }) {
+export async function getTodaysConsumptionInHalfHourlyRates({
+  deviceId,
+}: {
+  deviceId: string;
+}) {
   const token = await getToken();
 
   const today = formatISO(new Date(), { representation: 'date' });
