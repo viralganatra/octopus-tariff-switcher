@@ -11,7 +11,6 @@ import { logger } from '../../utils/logger';
 
 const [TARIFF_AGILE, TARIFF_COSY] = ['Agile Octopus', 'Cosy Octopus'] as const;
 const [TARIFF_CODE_AGILE, TARIFF_CODE_COSY] = ['AGILE-', 'COSY-'] as const;
-const BRAND_OCTOPUS = 'OCTOPUS_ENERGY';
 
 type Tariff = typeof TARIFF_AGILE | typeof TARIFF_COSY;
 
@@ -236,7 +235,7 @@ async function getAllProducts() {
     ),
   });
 
-  const data = await getData(API_PRODUCTS);
+  const data = await getData(`${API_PRODUCTS}?brand=OCTOPUS_ENERGY&is_business=false`);
 
   const { results } = schema.parse(data);
 
@@ -325,7 +324,6 @@ export async function getPotentialRatesAndStandingChargeByTariff({
   const currentProduct = allProducts.find((product) => {
     return (
       product.display_name === tariff &&
-      product.brand === BRAND_OCTOPUS &&
       product.direction === 'IMPORT'
     );
   });
