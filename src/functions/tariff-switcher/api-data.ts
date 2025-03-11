@@ -1,23 +1,22 @@
 import { formatISO } from 'date-fns';
-import { Graffle } from 'graffle';
-import { z } from 'zod';
-import { Resource } from 'sst';
-import { API_GRAPHQL, API_PRODUCTS } from '../../constants/api';
 import { UnknownProductError } from '../../errors/unknown-product-error';
 import { UnknownTariffError } from '../../errors/unknown-tariff-error';
-import { getData } from '../../utils/fetch';
 import { getMsFromApiIsoString, roundTo4Digits } from '../../utils/helpers';
 import { logger } from '../../utils/logger';
+import {
+  fetchAccountInfo,
+  fetchAllProducts,
+  fetchSmartMeterTelemetry,
+  fetchTodaysStandingCharge,
+  fetchTodaysUnitRatesByTariff,
+  fetchToken,
+} from './queries';
+import type { TariffSelector } from '../../types/tariff';
 
 const [TARIFF_AGILE, TARIFF_COSY] = ['Agile Octopus', 'Cosy Octopus'] as const;
 const [TARIFF_CODE_AGILE, TARIFF_CODE_COSY] = ['AGILE-', 'COSY-'] as const;
 
 type Tariff = typeof TARIFF_AGILE | typeof TARIFF_COSY;
-
-type TariffSelector = {
-  tariffCode: string;
-  productCode: string;
-};
 
 let token: string;
 
@@ -32,25 +31,7 @@ export async function getToken() {
 
   logger.info('Getting token from API');
 
-  const schema = z.object({
-    obtainKrakenToken: z.object({
-      token: z.string(),
-    }),
-  });
-
-  const graffle = Graffle.create().transport({
-    url: API_GRAPHQL,
-  });
-
-  const result = await graffle.gql`
-    mutation ObtainKrakenToken($input: ObtainJSONWebTokenInput!) {
-      obtainKrakenToken(input: $input) {
-        token
-      }
-    }
-  `.send({ input: { APIKey: Resource.ApiKey.value } });
-
-  const data = schema.parse(result);
+  const data = await fetchToken();
 
   token = data.obtainKrakenToken.token;
 
@@ -59,73 +40,7 @@ export async function getToken() {
 
 export async function getAccountInfo() {
   const token = await getToken();
-
-  const schema = z.object({
-    account: z.object({
-      electricityAgreements: z
-        .array(
-          z.object({
-            validFrom: z.string().datetime({ offset: true }),
-            validTo: z.string().nullable(),
-            meterPoint: z.object({
-              meters: z
-                .array(
-                  z.object({
-                    smartDevices: z
-                      .array(
-                        z.object({
-                          deviceId: z.string(),
-                        }),
-                      )
-                      .nonempty(),
-                  }),
-                )
-                .nonempty(),
-            }),
-            tariff: z.object({
-              tariffCode: z.string(),
-              standingCharge: z.number(),
-            }),
-          }),
-        )
-        .nonempty(),
-    }),
-  });
-
-  const graffle = Graffle.create().transport({
-    url: API_GRAPHQL,
-    headers: {
-      authorization: token,
-    },
-  });
-
-  const result = await graffle.gql`
-      query Account($accountNumber: String!) {
-        account(accountNumber: $accountNumber) {
-          electricityAgreements(active: true) {
-            validFrom
-            validTo
-            meterPoint {
-              meters(includeInactive: false) {
-                smartDevices {
-                  deviceId
-                }
-              }
-              mpan
-            }
-            tariff {
-              ... on HalfHourlyTariff {
-                productCode
-                tariffCode
-                standingCharge
-              }
-            }
-          }
-        }
-      }
-    `.send({ accountNumber: Resource.AccNumber.value });
-
-  const results = schema.parse(result);
+  const results = await fetchAccountInfo({ token });
 
   logger.info('Got account info from API', { apiResponse: results });
 
@@ -166,49 +81,12 @@ export async function getTodaysConsumptionInHalfHourlyRates({
   const startDate = `${today}T00:30:00Z`;
   const endDate = `${today}T23:59:59Z`;
 
-  const schema = z.object({
-    smartMeterTelemetry: z
-      .array(
-        z.object({
-          readAt: z.string(),
-          consumptionDelta: z.coerce.number(),
-          costDeltaWithTax: z.coerce.number(),
-        }),
-      )
-      .nonempty(),
+  const { smartMeterTelemetry } = await fetchSmartMeterTelemetry({
+    token,
+    startDate,
+    endDate,
+    deviceId,
   });
-
-  const graffle = Graffle.create().transport({
-    url: API_GRAPHQL,
-    headers: {
-      authorization: token,
-    },
-  });
-
-  // consumptionDelta - Energy consumption in Wh between the read_at and the next reading.
-  // costDeltaWithTax - Energy cost including VAT for the consumption delta in pence.
-  // readAt - The start_at time of the telemetry data
-  const result = await graffle.gql`
-    query smartMeterTelemetry(
-      $deviceId: String!,
-      $start: DateTime,
-      $end: DateTime,
-      $grouping: TelemetryGrouping
-    ) {
-      smartMeterTelemetry(
-        deviceId: $deviceId,
-        start: $start,
-        end: $end,
-        grouping: $grouping
-      ) {
-        readAt
-        consumptionDelta
-        costDeltaWithTax
-      }
-    }
-  `.send({ deviceId, start: startDate, end: endDate, grouping: 'HALF_HOURLY' });
-
-  const { smartMeterTelemetry } = schema.parse(result);
 
   logger.info('Got half hourly consumption data from API', {
     apiResponse: smartMeterTelemetry,
@@ -223,45 +101,8 @@ export async function getTodaysConsumptionInHalfHourlyRates({
   return data;
 }
 
-async function getAllProducts() {
-  const schema = z.object({
-    results: z.array(
-      z.object({
-        display_name: z.string(),
-        direction: z.enum(['IMPORT', 'EXPORT']),
-        brand: z.string(),
-        code: z.string(),
-      }),
-    ),
-  });
-
-  const data = await getData(`${API_PRODUCTS}?brand=OCTOPUS_ENERGY&is_business=false`);
-
-  const { results } = schema.parse(data);
-
-  return results;
-}
-
 export async function getTodaysUnitRatesByTariff({ tariffCode, productCode }: TariffSelector) {
-  const schema = z.object({
-    results: z
-      .array(
-        z.object({
-          value_inc_vat: z.number(),
-          valid_from: z.string().datetime(),
-          valid_to: z.string().datetime(),
-        }),
-      )
-      .nonempty(),
-  });
-
-  const today = formatISO(new Date(), { representation: 'date' });
-
-  const data = await getData(
-    `${API_PRODUCTS}/${tariffCode}/electricity-tariffs/${productCode}/standard-unit-rates/?period_from=${today}T00:00:00Z&period_to=${today}T23:59:59Z`,
-  );
-
-  const { results } = schema.parse(data);
+  const results = await fetchTodaysUnitRatesByTariff({ tariffCode, productCode });
 
   logger.info(
     `Getting todays unit rates for tariff code: ${tariffCode} and product code: ${productCode}`,
@@ -281,21 +122,7 @@ export async function getTodaysUnitRatesByTariff({ tariffCode, productCode }: Ta
 }
 
 async function getTodaysStandingCharge({ tariffCode, productCode }: TariffSelector) {
-  const schema = z.object({
-    results: z
-      .array(
-        z.object({
-          value_inc_vat: z.number(),
-        }),
-      )
-      .nonempty(),
-  });
-
-  const data = await getData(
-    `${API_PRODUCTS}/${tariffCode}/electricity-tariffs/${productCode}/standing-charges/`,
-  );
-
-  const { results } = schema.parse(data);
+  const results = await fetchTodaysStandingCharge({ tariffCode, productCode });
 
   logger.info(
     `Got today's standing charge for tariff code: ${tariffCode} and product code: ${productCode} from API`,
@@ -318,14 +145,11 @@ export async function getPotentialRatesAndStandingChargeByTariff({
 }) {
   logger.info(`Getting todays rates for tariff: ${tariff} in region: ${regionCode}`);
 
-  const allProducts = await getAllProducts();
+  const allProducts = await fetchAllProducts();
 
   // Find the Octopus product for the tariff we're looking for
   const currentProduct = allProducts.find((product) => {
-    return (
-      product.display_name === tariff &&
-      product.direction === 'IMPORT'
-    );
+    return product.display_name === tariff && product.direction === 'IMPORT';
   });
 
   logger.info(`Found matching product based on ${tariff}`, {
