@@ -1,10 +1,10 @@
 import { Graffle } from 'graffle';
 import { Resource } from 'sst';
 import { z } from 'zod';
+import { formatISO } from 'date-fns';
 import { API_GRAPHQL, API_PRODUCTS } from '../../constants/api';
 import { getData } from '../../utils/fetch';
-import { formatISO } from 'date-fns';
-import type { TariffSelector } from '../../types/tariff';
+import type { TariffSelector, TariffSelectorWithUrl } from '../../types/tariff';
 
 export async function fetchToken() {
   const schema = z.object({
@@ -162,6 +162,12 @@ export async function fetchAllProducts() {
         direction: z.enum(['IMPORT', 'EXPORT']),
         brand: z.string(),
         code: z.string(),
+        links: z.array(
+          z.object({
+            href: z.string(),
+            rel: z.enum(['self']),
+          }),
+        ),
       }),
     ),
   });
@@ -173,7 +179,7 @@ export async function fetchAllProducts() {
   return results;
 }
 
-export async function fetchTodaysUnitRatesByTariff({ tariffCode, productCode }: TariffSelector) {
+export async function fetchTodaysUnitRatesByTariff(params: TariffSelectorWithUrl) {
   const schema = z.object({
     results: z
       .array(
@@ -188,9 +194,12 @@ export async function fetchTodaysUnitRatesByTariff({ tariffCode, productCode }: 
 
   const today = formatISO(new Date(), { representation: 'date' });
 
-  const data = await getData(
-    `${API_PRODUCTS}/${tariffCode}/electricity-tariffs/${productCode}/standard-unit-rates/?period_from=${today}T00:00:00Z&period_to=${today}T23:59:59Z`,
-  );
+  const link =
+    'url' in params
+      ? params.url
+      : `${API_PRODUCTS}/${params.tariffCode}/electricity-tariffs/${params.productCode}/standard-unit-rates/`;
+
+  const data = await getData(`${link}?period_from=${today}T00:00:00Z&period_to=${today}T23:59:59Z`);
 
   const { results } = schema.parse(data);
 
@@ -213,6 +222,32 @@ export async function fetchTodaysStandingCharge({ tariffCode, productCode }: Tar
   );
 
   const { results } = schema.parse(data);
+
+  return results;
+}
+
+export async function fetchProductDetails({ url }: { url: string }) {
+  const schema = z.object({
+    single_register_electricity_tariffs: z.record(
+      z.string(),
+      z.record(
+        z.enum(['direct_debit_monthly', 'varying']),
+        z.object({
+          standing_charge_inc_vat: z.number(),
+          links: z.array(
+            z.object({
+              href: z.string(),
+              rel: z.string(),
+            }),
+          ),
+        }),
+      ),
+    ),
+  });
+
+  const data = await getData(url);
+
+  const results = schema.parse(data);
 
   return results;
 }

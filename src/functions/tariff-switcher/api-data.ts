@@ -3,26 +3,21 @@ import { UnknownProductError } from '../../errors/unknown-product-error';
 import { UnknownTariffError } from '../../errors/unknown-tariff-error';
 import { getMsFromApiIsoString, roundTo4Digits } from '../../utils/helpers';
 import { logger } from '../../utils/logger';
+import type { TariffSelector, TariffSelectorWithUrl } from '../../types/tariff';
+import { TARIFFS } from '../../constants/tariff';
 import {
   fetchAccountInfo,
   fetchAllProducts,
+  fetchProductDetails,
   fetchSmartMeterTelemetry,
   fetchTodaysStandingCharge,
   fetchTodaysUnitRatesByTariff,
   fetchToken,
 } from './queries';
-import type { TariffSelector } from '../../types/tariff';
-
-const [TARIFF_AGILE, TARIFF_COSY] = ['Agile Octopus', 'Cosy Octopus'] as const;
-const [TARIFF_CODE_AGILE, TARIFF_CODE_COSY] = ['AGILE-', 'COSY-'] as const;
-
-type Tariff = typeof TARIFF_AGILE | typeof TARIFF_COSY;
 
 let token: string;
 
-export function getOppositeTariff(currentTariff: Tariff) {
-  return currentTariff === TARIFF_AGILE ? TARIFF_COSY : TARIFF_AGILE;
-}
+type TariffDisplayName = (typeof TARIFFS)[number]['displayName'];
 
 export async function getToken() {
   if (token) {
@@ -46,20 +41,19 @@ export async function getAccountInfo() {
 
   const [electricityAgreement] = results.account.electricityAgreements;
   const { tariffCode, standingCharge } = electricityAgreement.tariff;
+
   const [{ deviceId }] = electricityAgreement.meterPoint.meters[0].smartDevices;
   // tariffCode is in the format E-1R-COSY-22-12-08-A and should always be a non empty string,
   // but typescript casts this to at to string | undefined
   const regionCode = tariffCode.at(-1) as string;
   const normalisedStandingCharge = roundTo4Digits(standingCharge);
 
-  let currentTariff: Tariff;
+  const currentTariff = TARIFFS.find(({ tariffCodeMatcher }) =>
+    tariffCode.includes(tariffCodeMatcher),
+  );
 
-  if (tariffCode.includes(TARIFF_CODE_AGILE)) {
-    currentTariff = TARIFF_AGILE;
-  } else if (tariffCode.includes(TARIFF_CODE_COSY)) {
-    currentTariff = TARIFF_COSY;
-  } else {
-    throw new UnknownTariffError(`Current tariff is neither Agile nor Cosy, it is: ${tariffCode}`);
+  if (!currentTariff) {
+    throw new UnknownTariffError(`Your current tariff: ${tariffCode} isn't currently supported`);
   }
 
   return {
@@ -101,15 +95,20 @@ export async function getTodaysConsumptionInHalfHourlyRates({
   return data;
 }
 
-export async function getTodaysUnitRatesByTariff({ tariffCode, productCode }: TariffSelector) {
-  const results = await fetchTodaysUnitRatesByTariff({ tariffCode, productCode });
+export async function getTodaysUnitRatesByTariff(params: TariffSelectorWithUrl) {
+  const results = await fetchTodaysUnitRatesByTariff(params);
 
-  logger.info(
-    `Getting todays unit rates for tariff code: ${tariffCode} and product code: ${productCode}`,
-    {
-      apiResponse: results[0],
-    },
-  );
+  let message: string;
+
+  if ('url' in params) {
+    message = `Getting todays unit rates url: ${params.url}`;
+  } else {
+    message = `Getting todays unit rates for tariff code: ${params.tariffCode} and product code: ${params.productCode}`;
+  }
+
+  logger.info(message, {
+    apiResponse: results[0],
+  });
 
   const unitRatesWithMs = results.map(({ value_inc_vat, ...halfHourlyUnitRate }) => ({
     ...halfHourlyUnitRate,
@@ -141,34 +140,67 @@ export async function getPotentialRatesAndStandingChargeByTariff({
   tariff,
 }: {
   regionCode: string;
-  tariff: Tariff;
+  tariff: TariffDisplayName;
 }) {
   logger.info(`Getting todays rates for tariff: ${tariff} in region: ${regionCode}`);
 
   const allProducts = await fetchAllProducts();
 
   // Find the Octopus product for the tariff we're looking for
-  const currentProduct = allProducts.find((product) => {
+  const product = allProducts.find((product) => {
     return product.display_name === tariff && product.direction === 'IMPORT';
   });
 
-  logger.info(`Found matching product based on ${tariff}`, {
-    data: currentProduct,
-  });
-
-  // There should always be a product for Agile or Cosy
-  if (!currentProduct) {
+  if (!product) {
     throw new UnknownProductError(`Unable to find valid product using: ${tariff}`);
   }
 
-  const tariffCode = currentProduct.code;
-  // Residential tariffs are always E-1R
-  const productCode = `E-1R-${tariffCode}-${regionCode}`;
+  logger.info(`Found matching product based on ${tariff}`, {
+    data: product,
+  });
 
-  const [potentialUnitRates, potentialStandingCharge] = await Promise.all([
-    getTodaysUnitRatesByTariff({ tariffCode, productCode }),
-    getTodaysStandingCharge({ tariffCode, productCode }),
-  ]);
+  // Find the self link for tariff details
+  const productLink = product.links.find((item) => item.rel === 'self')?.href;
 
-  return { potentialUnitRates, potentialStandingCharge };
+  if (!productLink) {
+    throw new UnknownProductError('Unable to find self link for product');
+  }
+
+  // Fetch tariff details
+  const tariffDetails = await fetchProductDetails({ url: productLink });
+
+  const regionCodeKey = `_${regionCode}`;
+  const filteredRegion = tariffDetails.single_register_electricity_tariffs[regionCodeKey];
+
+  if (!filteredRegion) {
+    throw new UnknownProductError(`Region code not found in product: ${regionCodeKey}`);
+  }
+
+  const regionTariffs = filteredRegion.direct_debit_monthly || filteredRegion.varying;
+  const standingChargeIncVat = regionTariffs?.standing_charge_inc_vat;
+
+  if (!standingChargeIncVat) {
+    throw new UnknownProductError(
+      `Standing charge including VAT not found for region: ${regionCodeKey}.`,
+    );
+  }
+
+  // Find the link for standard unit rates
+  const unitRatesLink = regionTariffs.links.find(
+    (item) => item.rel === 'standard_unit_rates',
+  )?.href;
+
+  if (!unitRatesLink) {
+    throw new UnknownProductError(
+      `Standard unit rates link not found for region: ${regionCodeKey}`,
+    );
+  }
+
+  const potentialUnitRates = await getTodaysUnitRatesByTariff({ url: unitRatesLink });
+
+  return {
+    potentialUnitRates,
+    potentialStandingCharge: roundTo4Digits(standingChargeIncVat),
+    potentialProductCode: product.code,
+  };
 }
