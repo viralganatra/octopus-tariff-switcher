@@ -37,6 +37,6 @@
     "vitest": "^3.0.7"
   },
   "lint-staged": {
-    "*.ts": "pnpm format"
+    "*": "pnpm format"
   }
 }
