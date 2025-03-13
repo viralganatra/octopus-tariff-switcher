@@ -33,6 +33,7 @@ export default $config({
       url: true,
       environment: {
         SERVICE_NAME,
+        POWERTOOLS_DEV: String($dev),
       },
       logging: {
         format: 'json',
