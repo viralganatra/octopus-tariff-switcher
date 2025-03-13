@@ -2,6 +2,7 @@
 
 exports[`API Data > should fetch the potential rates and standing charge 1`] = `
 {
+  "potentialProductCode": "AGILE-24-10-01",
   "potentialStandingCharge": 48.7881,
   "potentialUnitRates": [
     {

@@ -39,11 +39,11 @@ export function getTotalCost({
 }
 
 export function getPotentialCost({
-  potentialStandingCharge,
+  todaysPotentialStandingCharge,
   todaysConsumptionUnitRates,
   todaysPotentialUnitRates,
 }: {
-  potentialStandingCharge: StandingCharge;
+  todaysPotentialStandingCharge: StandingCharge;
   todaysConsumptionUnitRates: ConsumptionUnitRates;
   todaysPotentialUnitRates: PotentialUnitRates;
 }) {
@@ -68,7 +68,7 @@ export function getPotentialCost({
 
   const potentialCost = getTotalCost({
     unitRates: potentialUnitCosts,
-    standingCharge: potentialStandingCharge,
+    standingCharge: todaysPotentialStandingCharge,
   });
 
   return potentialCost;

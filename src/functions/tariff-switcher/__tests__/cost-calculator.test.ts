@@ -31,7 +31,7 @@ describe('Cost Calculator', () => {
 
   it('should calculate the potential cost based upon todays potential and actual rates', () => {
     const example = getPotentialCost({
-      potentialStandingCharge: 48.7881,
+      todaysPotentialStandingCharge: 48.7881,
       todaysConsumptionUnitRates: [
         {
           readAt: '2025-02-28T00:30:00+00:00',
@@ -231,7 +231,7 @@ describe('Cost Calculator', () => {
   it('should throw an error if there is no matching rate for a given half hourly rate', () => {
     const example = () =>
       getPotentialCost({
-        potentialStandingCharge: 48.7881,
+        todaysPotentialStandingCharge: 48.7881,
         todaysConsumptionUnitRates: [
           {
             readAt: '2025-02-28T11:30:00+00:00',

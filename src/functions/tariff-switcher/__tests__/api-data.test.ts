@@ -1,11 +1,10 @@
 import { http, HttpResponse, graphql } from 'msw';
 import { UnknownProductError } from '../../../errors/unknown-product-error';
 import { UnknownTariffError } from '../../../errors/unknown-tariff-error';
-import { accountFixture } from '../../../mocks/fixtures';
+import { accountFixture, productAgileFixture, productsFixture } from '../../../mocks/fixtures';
 import { server } from '../../../mocks/node';
 import {
   getAccountInfo,
-  getOppositeTariff,
   getPotentialRatesAndStandingChargeByTariff,
   getTodaysConsumptionInHalfHourlyRates,
   getTodaysUnitRatesByTariff,
@@ -49,11 +48,6 @@ describe('API Data', () => {
     );
   });
 
-  it('should return the opposite tariff', () => {
-    expect(getOppositeTariff('Agile Octopus')).toBe('Cosy Octopus');
-    expect(getOppositeTariff('Cosy Octopus')).toBe('Agile Octopus');
-  });
-
   it('should fetch the account info when the tariff is agile', async () => {
     const dispatchRequest = vi.fn();
     server.events.on('request:start', dispatchRequest);
@@ -61,7 +55,11 @@ describe('API Data', () => {
     const accountInfo = await getAccountInfo();
 
     expect(accountInfo).toEqual({
-      currentTariff: 'Agile Octopus',
+      currentTariff: {
+        displayName: 'Agile Octopus',
+        id: 'agile',
+        tariffCodeMatcher: '-AGILE-',
+      },
       regionCode: 'A',
       deviceId: '00-00-00-00-00-00-99-2F',
       currentStandingCharge: 48.7881,
@@ -100,14 +98,50 @@ describe('API Data', () => {
     const accountInfo = await getAccountInfo();
 
     expect(accountInfo).toEqual({
-      currentTariff: 'Cosy Octopus',
+      currentTariff: {
+        displayName: 'Cosy Octopus',
+        id: 'cosy',
+        tariffCodeMatcher: '-COSY-',
+      },
       regionCode: 'A',
       deviceId: '00-00-00-00-00-00-99-2F',
       currentStandingCharge: 100,
     });
   });
 
-  it('should throw an error when fetching the account info if the tariff is neither cosy or agile', async () => {
+  it('should fetch the account info when the tariff is go', async () => {
+    const fixture = structuredClone(accountFixture);
+
+    // @ts-ignore
+    fixture.account.electricityAgreements[0].tariff = {
+      tariffCode: 'E-1R-GO-24-10-01-A',
+      productCode: 'GO-24-10-01',
+      standingCharge: 10,
+    };
+
+    server.use(
+      graphql.query('Account', () => {
+        return HttpResponse.json({
+          data: fixture,
+        });
+      }),
+    );
+
+    const accountInfo = await getAccountInfo();
+
+    expect(accountInfo).toEqual({
+      currentTariff: {
+        displayName: 'Octopus Go',
+        id: 'go',
+        tariffCodeMatcher: '-GO-',
+      },
+      regionCode: 'A',
+      deviceId: '00-00-00-00-00-00-99-2F',
+      currentStandingCharge: 10,
+    });
+  });
+
+  it('should throw an error when fetching the account info if the tariff is invalid', async () => {
     const fixture = structuredClone(accountFixture);
 
     // @ts-ignore
@@ -177,6 +211,69 @@ describe('API Data', () => {
     });
 
     expect(data).toMatchSnapshot();
+  });
+
+  it('should throw an error if no product link is found', async () => {
+    const fixture = structuredClone(productsFixture);
+
+    // @ts-ignore
+    fixture.results.at(0).links = [];
+
+    server.use(
+      http.get('https://api.octopus.energy/v1/products', () => {
+        return HttpResponse.json(fixture);
+      }),
+    );
+
+    const data = () =>
+      getPotentialRatesAndStandingChargeByTariff({
+        tariff: 'Agile Octopus',
+        regionCode: 'A',
+      });
+
+    await expect(data).rejects.toThrowError('Unable to find self link for product');
+  });
+
+  it('should throw an error if no region is found', async () => {
+    const fixture = structuredClone(productAgileFixture);
+
+    // @ts-ignore
+    fixture.single_register_electricity_tariffs = {};
+
+    server.use(
+      http.get('https://api.octopus.energy/v1/products/AGILE-24-10-01/', () => {
+        return HttpResponse.json(fixture);
+      }),
+    );
+
+    const data = () =>
+      getPotentialRatesAndStandingChargeByTariff({
+        tariff: 'Agile Octopus',
+        regionCode: 'A',
+      });
+
+    await expect(data).rejects.toThrowError('Region code not found in product: _A');
+  });
+
+  it('should throw an error if the unit rates are missing', async () => {
+    const fixture = structuredClone(productAgileFixture);
+
+    // @ts-ignore
+    fixture.single_register_electricity_tariffs._A.direct_debit_monthly.links = [];
+
+    server.use(
+      http.get('https://api.octopus.energy/v1/products/AGILE-24-10-01/', () => {
+        return HttpResponse.json(fixture);
+      }),
+    );
+
+    const data = () =>
+      getPotentialRatesAndStandingChargeByTariff({
+        tariff: 'Agile Octopus',
+        regionCode: 'A',
+      });
+
+    await expect(data).rejects.toThrowError('Standard unit rates link not found for region: _A');
   });
 
   it('should throw an error if no product is found', async () => {
