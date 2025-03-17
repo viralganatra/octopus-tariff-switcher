@@ -10,7 +10,6 @@ import {
   fetchAllProducts,
   fetchProductDetails,
   fetchSmartMeterTelemetry,
-  fetchTodaysStandingCharge,
   fetchTodaysUnitRatesByTariff,
   fetchToken,
 } from './queries';
@@ -118,21 +117,6 @@ export async function getTodaysUnitRatesByTariff(params: TariffSelectorWithUrl) 
   }));
 
   return unitRatesWithMs;
-}
-
-async function getTodaysStandingCharge({ tariffCode, productCode }: TariffSelector) {
-  const results = await fetchTodaysStandingCharge({ tariffCode, productCode });
-
-  logger.info(
-    `Got today's standing charge for tariff code: ${tariffCode} and product code: ${productCode} from API`,
-    {
-      apiResponse: results,
-    },
-  );
-
-  const todaysStandingCharge = roundTo4Digits(results[0].value_inc_vat);
-
-  return todaysStandingCharge;
 }
 
 export async function getPotentialRatesAndStandingChargeByTariff({
