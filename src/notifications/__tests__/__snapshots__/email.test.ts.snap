@@ -1,0 +1,208 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Email > should send an email when a cheaper tariff exists 1`] = `
+[
+  [
+    {
+      "content": {
+        "from": {
+          "email": "EmailFrom",
+          "name": "Octobot",
+        },
+        "html": "
+    <mjml>
+      <mj-body background-color="white">
+        <mj-section background-color="#f0f0f0">
+          <mj-column width="15%" vertical-align="middle">
+            <mj-image src="https://i.postimg.cc/v4fmRR64/businessman.png"></mj-image>
+          </mj-column>
+          <mj-column width="85%" vertical-align="middle">
+        <mj-text font-style="bold" font-size="24px" color="#525252" font-family="Helvetica Neue">Octopus Tariff Switcher</mj-text>
+       </mj-column>
+      </mj-section>
+        
+    <mj-section>
+      <mj-column width="60%">
+        <mj-text font-style="bold" font-size="24px" line-height="30px" font-family="Helvetica Neue" color="#525252">Cheaper Tariff Found.</mj-text>
+          <mj-table font-size="16px" line-height="24px" font-family="Helvetica Neue" color="#525252">
+            <tr style="border-bottom:1px solid #ecedee;text-align:left;padding:15px 0;">
+              <th style="padding: 8px">Tariff</th>
+              <th style="padding: 8px">Cost</th>
+            </tr>
+            
+                <tr style="background-color:#f0f0f0">
+                  <td style="padding: 8px">Octopus Cosy</td>
+                  <td style="padding: 8px">£0.95</td>
+                </tr>
+              
+                <tr >
+                  <td style="padding: 8px">Agile Octopus</td>
+                  <td style="padding: 8px">£1.05</td>
+                </tr>
+              
+          </mj-table>
+          
+      <mj-text font-size="16px" line-height="24px" padding-top="20px" color="#525252">
+        You are currently on Agile Octopus. I have automatically switched to Octopus Cosy as it is cheaper.
+      </mj-text>
+      <mj-text font-size="16px" line-height="24px" padding-top="10px" color="#525252">
+        You will pay £0.95 versus £1.05, saving £0.10.
+      </mj-text>
+    
+        </mj-column>
+        <mj-column width="40%">
+          <mj-image src="https://i.postimg.cc/y8DtP8TQ/robot-cheaper-tariff.png"></mj-image>
+        </mj-column>
+      </mj-section>
+  
+      </mj-body>
+    </mjml>
+  ",
+        "subject": "Octopus Tariff Switcher: Cheaper Tariff Found",
+      },
+      "options": {
+        "transactional": true,
+      },
+      "recipients": {
+        "list_id": "octopus-tariff-switcher",
+      },
+    },
+  ],
+]
+`;
+
+exports[`Email > should send an email when it is not worth switching tariff 1`] = `
+[
+  [
+    {
+      "content": {
+        "from": {
+          "email": "EmailFrom",
+          "name": "Octobot",
+        },
+        "html": "
+    <mjml>
+      <mj-body background-color="white">
+        <mj-section background-color="#f0f0f0">
+          <mj-column width="15%" vertical-align="middle">
+            <mj-image src="https://i.postimg.cc/v4fmRR64/businessman.png"></mj-image>
+          </mj-column>
+          <mj-column width="85%" vertical-align="middle">
+        <mj-text font-style="bold" font-size="24px" color="#525252" font-family="Helvetica Neue">Octopus Tariff Switcher</mj-text>
+       </mj-column>
+      </mj-section>
+        
+    <mj-section>
+      <mj-column width="60%">
+        <mj-text font-style="bold" font-size="24px" line-height="30px" font-family="Helvetica Neue" color="#525252">Not worth switching tariff.</mj-text>
+          <mj-table font-size="16px" line-height="24px" font-family="Helvetica Neue" color="#525252">
+            <tr style="border-bottom:1px solid #ecedee;text-align:left;padding:15px 0;">
+              <th style="padding: 8px">Tariff</th>
+              <th style="padding: 8px">Cost</th>
+            </tr>
+            
+                <tr style="background-color:#f0f0f0">
+                  <td style="padding: 8px">Octopus Cosy</td>
+                  <td style="padding: 8px">£0.99</td>
+                </tr>
+              
+                <tr >
+                  <td style="padding: 8px">Agile Octopus</td>
+                  <td style="padding: 8px">£1.00</td>
+                </tr>
+              
+          </mj-table>
+          
+      <mj-text font-size="16px" line-height="24px" padding-top="20px" color="#525252">
+        You are currently on Agile Octopus. It isn't worth switching to the other tariffs as the saving is too little.
+      </mj-text>
+    
+        </mj-column>
+        <mj-column width="40%">
+          <mj-image src="https://i.postimg.cc/JzSgdC61/robot-not-worth-sw-itching.png"></mj-image>
+        </mj-column>
+      </mj-section>
+  
+      </mj-body>
+    </mjml>
+  ",
+        "subject": "Octopus Tariff Switcher: Not worth switching tariff",
+      },
+      "options": {
+        "transactional": true,
+      },
+      "recipients": {
+        "list_id": "octopus-tariff-switcher",
+      },
+    },
+  ],
+]
+`;
+
+exports[`Email > should send an email when there is no cheaper tariff 1`] = `
+[
+  [
+    {
+      "content": {
+        "from": {
+          "email": "EmailFrom",
+          "name": "Octobot",
+        },
+        "html": "
+    <mjml>
+      <mj-body background-color="white">
+        <mj-section background-color="#f0f0f0">
+          <mj-column width="15%" vertical-align="middle">
+            <mj-image src="https://i.postimg.cc/v4fmRR64/businessman.png"></mj-image>
+          </mj-column>
+          <mj-column width="85%" vertical-align="middle">
+        <mj-text font-style="bold" font-size="24px" color="#525252" font-family="Helvetica Neue">Octopus Tariff Switcher</mj-text>
+       </mj-column>
+      </mj-section>
+        
+    <mj-section>
+      <mj-column width="60%">
+        <mj-text font-style="bold" font-size="24px" line-height="30px" font-family="Helvetica Neue" color="#525252">You are already on the cheapest tariff.</mj-text>
+          <mj-table font-size="16px" line-height="24px" font-family="Helvetica Neue" color="#525252">
+            <tr style="border-bottom:1px solid #ecedee;text-align:left;padding:15px 0;">
+              <th style="padding: 8px">Tariff</th>
+              <th style="padding: 8px">Cost</th>
+            </tr>
+            
+                <tr style="background-color:#f0f0f0">
+                  <td style="padding: 8px">Octopus Cosy</td>
+                  <td style="padding: 8px">£1.05</td>
+                </tr>
+              
+                <tr >
+                  <td style="padding: 8px">Agile Octopus</td>
+                  <td style="padding: 8px">£0.65</td>
+                </tr>
+              
+          </mj-table>
+          
+      <mj-text font-size="16px" line-height="24px" padding-top="20px" color="#525252">
+        You are currently on Agile Octopus. It isn't worth switching as the other tariffs are more expensive.
+      </mj-text>
+    
+        </mj-column>
+        <mj-column width="40%">
+          <mj-image src="https://i.postimg.cc/NfJZmHR2/robot-already-on-cheapest.png"></mj-image>
+        </mj-column>
+      </mj-section>
+  
+      </mj-body>
+    </mjml>
+  ",
+        "subject": "Octopus Tariff Switcher: You are already on the cheapest tariff",
+      },
+      "options": {
+        "transactional": true,
+      },
+      "recipients": {
+        "list_id": "octopus-tariff-switcher",
+      },
+    },
+  ],
+]
+`;

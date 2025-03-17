@@ -5,12 +5,15 @@ import {
   getTodaysConsumptionInHalfHourlyRates,
 } from './functions/tariff-switcher/api-data';
 import { getPotentialCost, getTotalCost } from './functions/tariff-switcher/cost-calculator';
-import { roundTo2Digits } from './utils/helpers';
+import { penceToPoundWithCurrency } from './utils/helpers';
 import { logger } from './utils/logger';
 import { formatResponse } from './utils/format-response';
 import { TARIFFS } from './constants/tariff';
+import { getCheaperTariffTemplate } from './utils/email-template';
+import { API_MJML } from './constants/api';
+import { sendEmail } from './notifications/email';
 
-function logAndFormatSuccessMessage(message: string) {
+async function logAndFormatSuccessMessage(message: string) {
   logger.info(message);
 
   return formatResponse(200, { message });
@@ -32,7 +35,7 @@ export async function tariffSwitcher(
       standingCharge: currentStandingCharge,
     });
 
-    const todaysConsumptionCostInPounds = roundTo2Digits(todaysConsumptionCost / 100).toFixed(2);
+    const todaysConsumptionCostInPounds = penceToPoundWithCurrency(todaysConsumptionCost);
 
     const currentTariffWithCost = { ...currentTariff, cost: todaysConsumptionCost };
     const allTariffCosts = [currentTariffWithCost];
@@ -65,11 +68,17 @@ export async function tariffSwitcher(
     });
 
     const cheapestTariff = allTariffsByCost.at(0) ?? currentTariffWithCost;
-    const cheapestTariffCostInPounds = roundTo2Digits(cheapestTariff.cost / 100).toFixed(2);
+    const cheapestTariffCostInPounds = penceToPoundWithCurrency(cheapestTariff.cost);
 
     if (cheapestTariff.id === currentTariff.id) {
+      await sendEmail({
+        allTariffsByCost,
+        currentTariffWithCost,
+        emailType: 'ALREADY_ON_CHEAPEST_TARIFF',
+      });
+
       return logAndFormatSuccessMessage(
-        `You are already on the cheapest tariff: ${cheapestTariff.displayName} - £${todaysConsumptionCostInPounds}`,
+        `You are already on the cheapest tariff: ${cheapestTariff.displayName} - ${todaysConsumptionCostInPounds}`,
       );
     }
 
@@ -77,10 +86,22 @@ export async function tariffSwitcher(
 
     // Not worth switching for 2p
     if (savings > 2) {
+      await sendEmail({
+        allTariffsByCost,
+        currentTariffWithCost,
+        emailType: 'CHEAPER_TARIFF_EXISTS',
+      });
+
       return logAndFormatSuccessMessage(
-        `Going to switch to ${cheapestTariff.displayName} - £${cheapestTariffCostInPounds} from ${currentTariff.displayName} - £${todaysConsumptionCostInPounds}`,
+        `Going to switch to ${cheapestTariff.displayName} - ${cheapestTariffCostInPounds} from ${currentTariff.displayName} - ${todaysConsumptionCostInPounds}`,
       );
     }
+
+    await sendEmail({
+      allTariffsByCost,
+      currentTariffWithCost,
+      emailType: 'NOT_WORTH_SWITCHING_TARIFF',
+    });
 
     return logAndFormatSuccessMessage(
       `Not worth switching to ${cheapestTariff.displayName} from ${currentTariff.displayName}`,

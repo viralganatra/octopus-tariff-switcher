@@ -1,0 +1,97 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Tariff Switcher > should not switch the tariff if it is already the cheapest and send a notification 1`] = `
+{
+  "allTariffsByCost": [
+    {
+      "cost": 80.324,
+      "displayName": "Agile Octopus",
+      "id": "agile",
+      "tariffCodeMatcher": "-AGILE-",
+    },
+    {
+      "cost": 87.452,
+      "displayName": "Cosy Octopus",
+      "id": "cosy",
+      "tariffCodeMatcher": "-COSY-",
+    },
+    {
+      "cost": 87.452,
+      "displayName": "Octopus Go",
+      "id": "go",
+      "tariffCodeMatcher": "-GO-",
+    },
+  ],
+  "currentTariffWithCost": {
+    "cost": 80.324,
+    "displayName": "Agile Octopus",
+    "id": "agile",
+    "tariffCodeMatcher": "-AGILE-",
+  },
+  "emailType": "ALREADY_ON_CHEAPEST_TARIFF",
+}
+`;
+
+exports[`Tariff Switcher > should not switch the tariff if the difference is less than 2p and send a notification 1`] = `
+{
+  "allTariffsByCost": [
+    {
+      "cost": 78.6639,
+      "displayName": "Octopus Go",
+      "id": "go",
+      "tariffCodeMatcher": "-GO-",
+    },
+    {
+      "cost": 80.324,
+      "displayName": "Agile Octopus",
+      "id": "agile",
+      "tariffCodeMatcher": "-AGILE-",
+    },
+    {
+      "cost": 87.452,
+      "displayName": "Cosy Octopus",
+      "id": "cosy",
+      "tariffCodeMatcher": "-COSY-",
+    },
+  ],
+  "currentTariffWithCost": {
+    "cost": 80.324,
+    "displayName": "Agile Octopus",
+    "id": "agile",
+    "tariffCodeMatcher": "-AGILE-",
+  },
+  "emailType": "NOT_WORTH_SWITCHING_TARIFF",
+}
+`;
+
+exports[`Tariff Switcher > should switch to the cheapest tariff and send a notification 1`] = `
+{
+  "allTariffsByCost": [
+    {
+      "cost": 47.452,
+      "displayName": "Octopus Go",
+      "id": "go",
+      "tariffCodeMatcher": "-GO-",
+    },
+    {
+      "cost": 80.324,
+      "displayName": "Agile Octopus",
+      "id": "agile",
+      "tariffCodeMatcher": "-AGILE-",
+    },
+    {
+      "cost": 87.452,
+      "displayName": "Cosy Octopus",
+      "id": "cosy",
+      "tariffCodeMatcher": "-COSY-",
+    },
+  ],
+  "currentTariffWithCost": {
+    "cost": 80.324,
+    "displayName": "Agile Octopus",
+    "id": "agile",
+    "tariffCodeMatcher": "-AGILE-",
+  },
+  "emailType": "CHEAPER_TARIFF_EXISTS",
+}
+`;

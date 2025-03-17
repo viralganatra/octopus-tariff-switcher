@@ -10,3 +10,5 @@ export type TariffContext = {
   displayName: string;
   tariffCodeMatcher: string;
 };
+
+export type TariffContextWithCost = TariffContext & { cost: number };
