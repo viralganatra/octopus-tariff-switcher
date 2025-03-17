@@ -206,26 +206,6 @@ export async function fetchTodaysUnitRatesByTariff(params: TariffSelectorWithUrl
   return results;
 }
 
-export async function fetchTodaysStandingCharge({ tariffCode, productCode }: TariffSelector) {
-  const schema = z.object({
-    results: z
-      .array(
-        z.object({
-          value_inc_vat: z.number(),
-        }),
-      )
-      .nonempty(),
-  });
-
-  const data = await getData(
-    `${API_PRODUCTS}/${tariffCode}/electricity-tariffs/${productCode}/standing-charges/`,
-  );
-
-  const { results } = schema.parse(data);
-
-  return results;
-}
-
 export async function fetchProductDetails({ url }: { url: string }) {
   const schema = z.object({
     single_register_electricity_tariffs: z.record(
