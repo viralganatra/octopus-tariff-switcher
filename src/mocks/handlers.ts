@@ -35,6 +35,13 @@ export const handlers = [
       return HttpResponse.json(unitRatesFixture);
     },
   ),
+  http.post('https://api.mjml.io/v1/render', async ({ request }) => {
+    const data = (await request.json()) as { mjml: string };
+
+    return HttpResponse.json({
+      html: data.mjml,
+    });
+  }),
   graphql.mutation('ObtainKrakenToken', () => {
     return HttpResponse.json({
       data: {

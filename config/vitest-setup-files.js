@@ -11,9 +11,29 @@ vi.mock('sst', () => {
       AccNumber: {
         value: 'A-123456',
       },
+      SparkPostApiKey: {
+        value: 'SparkPostApiKey',
+      },
+      EmailFrom: {
+        value: 'EmailFrom',
+      },
+      MjmlAppId: {
+        value: 'MjmlAppId',
+      },
+      MjmlSecretKey: {
+        value: 'MjmlSecretKey',
+      },
     },
   };
 });
+
+vi.mock('sparkpost', () => ({
+  default: vi.fn(() => ({
+    transmissions: {
+      send: vi.fn(),
+    },
+  })),
+}));
 
 beforeAll(() => {
   server.listen();

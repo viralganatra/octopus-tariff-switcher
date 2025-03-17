@@ -21,6 +21,10 @@ export default $config({
     const secrets = {
       AccNumber: new sst.Secret('AccNumber'),
       ApiKey: new sst.Secret('ApiKey'),
+      SparkPostApiKey: new sst.Secret('SparkPostApiKey'),
+      EmailFrom: new sst.Secret('EmailFrom'),
+      MjmlAppId: new sst.Secret('MjmlAppId'),
+      MjmlSecretKey: new sst.Secret('MjmlSecretKey'),
     };
 
     const allSecrets = Object.values(secrets);

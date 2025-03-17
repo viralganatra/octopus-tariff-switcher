@@ -9,3 +9,7 @@ export function roundTo4Digits(num: number) {
 export function roundTo2Digits(num: number) {
   return Math.round(num * 1e2) / 1e2;
 }
+
+export function penceToPoundWithCurrency(num: number) {
+  return `£${roundTo2Digits(num / 100).toFixed(2)}`;
+}

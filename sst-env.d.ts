@@ -13,10 +13,26 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
+    "EmailFrom": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "MjmlAppId": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "MjmlSecretKey": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "OctopusTariffSwitcher": {
       "name": string
       "type": "sst.aws.Function"
       "url": string
+    }
+    "SparkPostApiKey": {
+      "type": "sst.sst.Secret"
+      "value": string
     }
   }
 }
