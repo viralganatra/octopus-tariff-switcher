@@ -9,8 +9,6 @@ import { penceToPoundWithCurrency } from './utils/helpers';
 import { logger } from './utils/logger';
 import { formatResponse } from './utils/format-response';
 import { TARIFFS } from './constants/tariff';
-import { getCheaperTariffTemplate } from './utils/email-template';
-import { API_MJML } from './constants/api';
 import { sendEmail } from './notifications/email';
 
 async function logAndFormatSuccessMessage(message: string) {

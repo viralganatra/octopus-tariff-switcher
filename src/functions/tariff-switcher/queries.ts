@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { formatISO } from 'date-fns';
 import { API_GRAPHQL, API_PRODUCTS } from '../../constants/api';
 import { getData } from '../../utils/fetch';
-import type { TariffSelector, TariffSelectorWithUrl } from '../../types/tariff';
+import type { TariffSelectorWithUrl } from '../../types/tariff';
 
 export async function fetchToken() {
   const schema = z.object({
