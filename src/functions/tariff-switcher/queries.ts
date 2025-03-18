@@ -4,9 +4,18 @@ import { z } from 'zod';
 import { formatISO } from 'date-fns';
 import { API_GRAPHQL, API_PRODUCTS } from '../../constants/api';
 import { getData } from '../../utils/fetch';
+import { logger } from '../../utils/logger';
 import type { TariffSelectorWithUrl } from '../../types/tariff';
 
+let token: string;
+
 export async function fetchToken() {
+  if (token) {
+    return token;
+  }
+
+  logger.info('API: Getting token via mutation ObtainKrakenToken');
+
   const schema = z.object({
     obtainKrakenToken: z.object({
       token: z.string(),
@@ -27,10 +36,16 @@ export async function fetchToken() {
 
   const data = schema.parse(result);
 
-  return data;
+  token = data.obtainKrakenToken.token;
+
+  return token;
 }
 
-export async function fetchAccountInfo({ token }: { token: string }) {
+export async function fetchAccountInfo() {
+  const token = await fetchToken();
+
+  logger.info('API: Getting account info via query Account');
+
   const schema = z.object({
     account: z.object({
       electricityAgreements: z
@@ -102,11 +117,14 @@ export async function fetchAccountInfo({ token }: { token: string }) {
 }
 
 export async function fetchSmartMeterTelemetry({
-  token,
   deviceId,
   startDate,
   endDate,
-}: { token: string; deviceId: string; startDate: string; endDate: string }) {
+}: { deviceId: string; startDate: string; endDate: string }) {
+  const token = await fetchToken();
+
+  logger.info('API: Getting smart meter telemetry via query SmartMeterTelemetry');
+
   const schema = z.object({
     smartMeterTelemetry: z
       .array(
@@ -155,6 +173,10 @@ export async function fetchSmartMeterTelemetry({
 }
 
 export async function fetchAllProducts() {
+  const url = `${API_PRODUCTS}?brand=OCTOPUS_ENERGY&is_business=false`;
+
+  logger.info(`API: Getting all products via ${url}`);
+
   const schema = z.object({
     results: z.array(
       z.object({
@@ -172,7 +194,7 @@ export async function fetchAllProducts() {
     ),
   });
 
-  const data = await getData(`${API_PRODUCTS}?brand=OCTOPUS_ENERGY&is_business=false`);
+  const data = await getData(url);
 
   const { results } = schema.parse(data);
 
@@ -199,7 +221,11 @@ export async function fetchTodaysUnitRatesByTariff(params: TariffSelectorWithUrl
       ? params.url
       : `${API_PRODUCTS}/${params.tariffCode}/electricity-tariffs/${params.productCode}/standard-unit-rates/`;
 
-  const data = await getData(`${link}?period_from=${today}T00:00:00Z&period_to=${today}T23:59:59Z`);
+  const url = `${link}?period_from=${today}T00:00:00Z&period_to=${today}T23:59:59Z`;
+
+  logger.info(`API: Getting todays unit rates via ${url}`);
+
+  const data = await getData(url);
 
   const { results } = schema.parse(data);
 
@@ -207,6 +233,8 @@ export async function fetchTodaysUnitRatesByTariff(params: TariffSelectorWithUrl
 }
 
 export async function fetchProductDetails({ url }: { url: string }) {
+  logger.info(`API: Getting product details via ${url}`);
+
   const schema = z.object({
     single_register_electricity_tariffs: z.record(
       z.string(),
