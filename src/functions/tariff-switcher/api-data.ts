@@ -18,8 +18,6 @@ type TariffDisplayName = (typeof TARIFFS)[number]['displayName'];
 export async function getAccountInfo() {
   const results = await fetchAccountInfo();
 
-  logger.info('API Response: Got account info', { apiResponse: results });
-
   const [electricityAgreement] = results.account.electricityAgreements;
   const { tariffCode, standingCharge } = electricityAgreement.tariff;
 
@@ -60,10 +58,6 @@ export async function getTodaysConsumptionInHalfHourlyRates({
     deviceId,
   });
 
-  logger.info('API Response: Got half hourly consumption data', {
-    apiResponse: smartMeterTelemetry,
-  });
-
   const data = smartMeterTelemetry.map(({ costDeltaWithTax, ...halfHourlyUnitRate }) => ({
     ...halfHourlyUnitRate,
     unitCostInPence: costDeltaWithTax,
@@ -75,18 +69,6 @@ export async function getTodaysConsumptionInHalfHourlyRates({
 
 export async function getTodaysUnitRatesByTariff(params: TariffSelectorWithUrl) {
   const results = await fetchTodaysUnitRatesByTariff(params);
-
-  let message: string;
-
-  if ('url' in params) {
-    message = `API Response: Got today's unit rates for url: ${params.url}`;
-  } else {
-    message = `API Response: Got today's unit rates for tariff code: ${params.tariffCode} and product code: ${params.productCode}`;
-  }
-
-  logger.info(message, {
-    apiResponse: results[0],
-  });
 
   const unitRatesWithMs = results.map(({ value_inc_vat, ...halfHourlyUnitRate }) => ({
     ...halfHourlyUnitRate,
@@ -106,10 +88,6 @@ export async function getPotentialRatesAndStandingChargeByTariff({
   tariff: TariffDisplayName;
 }) {
   const allProducts = await fetchAllProducts();
-
-  logger.info(`API Response: Got today's rates for tariff: ${tariff} in region: ${regionCode}`, {
-    apiResponse: allProducts,
-  });
 
   // Find the Octopus product for the tariff we're looking for
   const product = allProducts.find((product) => {
