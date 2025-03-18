@@ -1,5 +1,38 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`API Data > should fetch the account info when the tariff is agile 1`] = `
+{
+  "query": "
+      query Account($accountNumber: String!) {
+        account(accountNumber: $accountNumber) {
+          electricityAgreements(active: true) {
+            validFrom
+            validTo
+            meterPoint {
+              meters(includeInactive: false) {
+                smartDevices {
+                  deviceId
+                }
+              }
+              mpan
+            }
+            tariff {
+              ... on HalfHourlyTariff {
+                productCode
+                tariffCode
+                standingCharge
+              }
+            }
+          }
+        }
+      }
+    ",
+  "variables": {
+    "accountNumber": "A-123456",
+  },
+}
+`;
+
 exports[`API Data > should fetch the potential rates and standing charge 1`] = `
 {
   "potentialProductCode": "AGILE-24-10-01",
@@ -187,4 +220,34 @@ exports[`API Data > should fetch todays consumption 1`] = `
     "unitCostInPence": 0.4242,
   },
 ]
+`;
+
+exports[`API Data > should fetch todays consumption 2`] = `
+{
+  "query": "
+    query smartMeterTelemetry(
+      $deviceId: String!,
+      $start: DateTime,
+      $end: DateTime,
+      $grouping: TelemetryGrouping
+    ) {
+      smartMeterTelemetry(
+        deviceId: $deviceId,
+        start: $start,
+        end: $end,
+        grouping: $grouping
+      ) {
+        readAt
+        consumptionDelta
+        costDeltaWithTax
+      }
+    }
+  ",
+  "variables": {
+    "deviceId": "deviceId",
+    "end": "2025-03-03T23:59:59Z",
+    "grouping": "HALF_HOURLY",
+    "start": "2025-03-03T00:30:00Z",
+  },
+}
 `;

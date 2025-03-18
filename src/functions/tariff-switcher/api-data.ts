@@ -3,7 +3,7 @@ import { UnknownProductError } from '../../errors/unknown-product-error';
 import { UnknownTariffError } from '../../errors/unknown-tariff-error';
 import { getMsFromApiIsoString, roundTo4Digits } from '../../utils/helpers';
 import { logger } from '../../utils/logger';
-import type { TariffSelector, TariffSelectorWithUrl } from '../../types/tariff';
+import type { TariffSelectorWithUrl } from '../../types/tariff';
 import { TARIFFS } from '../../constants/tariff';
 import {
   fetchAccountInfo,
@@ -11,32 +11,14 @@ import {
   fetchProductDetails,
   fetchSmartMeterTelemetry,
   fetchTodaysUnitRatesByTariff,
-  fetchToken,
 } from './queries';
-
-let token: string;
 
 type TariffDisplayName = (typeof TARIFFS)[number]['displayName'];
 
-export async function getToken() {
-  if (token) {
-    return token;
-  }
-
-  logger.info('Getting token from API');
-
-  const data = await fetchToken();
-
-  token = data.obtainKrakenToken.token;
-
-  return token;
-}
-
 export async function getAccountInfo() {
-  const token = await getToken();
-  const results = await fetchAccountInfo({ token });
+  const results = await fetchAccountInfo();
 
-  logger.info('Got account info from API', { apiResponse: results });
+  logger.info('API Response: Got account info', { apiResponse: results });
 
   const [electricityAgreement] = results.account.electricityAgreements;
   const { tariffCode, standingCharge } = electricityAgreement.tariff;
@@ -68,20 +50,17 @@ export async function getTodaysConsumptionInHalfHourlyRates({
 }: {
   deviceId: string;
 }) {
-  const token = await getToken();
-
   const today = formatISO(new Date(), { representation: 'date' });
   const startDate = `${today}T00:30:00Z`;
   const endDate = `${today}T23:59:59Z`;
 
   const { smartMeterTelemetry } = await fetchSmartMeterTelemetry({
-    token,
     startDate,
     endDate,
     deviceId,
   });
 
-  logger.info('Got half hourly consumption data from API', {
+  logger.info('API Response: Got half hourly consumption data', {
     apiResponse: smartMeterTelemetry,
   });
 
@@ -100,9 +79,9 @@ export async function getTodaysUnitRatesByTariff(params: TariffSelectorWithUrl) 
   let message: string;
 
   if ('url' in params) {
-    message = `Getting todays unit rates url: ${params.url}`;
+    message = `API Response: Got today's unit rates for url: ${params.url}`;
   } else {
-    message = `Getting todays unit rates for tariff code: ${params.tariffCode} and product code: ${params.productCode}`;
+    message = `API Response: Got today's unit rates for tariff code: ${params.tariffCode} and product code: ${params.productCode}`;
   }
 
   logger.info(message, {
@@ -126,9 +105,11 @@ export async function getPotentialRatesAndStandingChargeByTariff({
   regionCode: string;
   tariff: TariffDisplayName;
 }) {
-  logger.info(`Getting todays rates for tariff: ${tariff} in region: ${regionCode}`);
-
   const allProducts = await fetchAllProducts();
+
+  logger.info(`API Response: Got today's rates for tariff: ${tariff} in region: ${regionCode}`, {
+    apiResponse: allProducts,
+  });
 
   // Find the Octopus product for the tariff we're looking for
   const product = allProducts.find((product) => {
