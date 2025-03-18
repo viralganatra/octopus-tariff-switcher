@@ -28,12 +28,18 @@ export async function tariffSwitcher(
 
     const todaysConsumptionUnitRates = await getTodaysConsumptionInHalfHourlyRates({ deviceId });
 
+    logger.info(`Recieved today's consumption unit rates`, {
+      data: todaysConsumptionUnitRates,
+    });
+
     const todaysConsumptionCost = getTotalCost({
       unitRates: todaysConsumptionUnitRates,
       standingCharge: currentStandingCharge,
     });
 
     const todaysConsumptionCostInPounds = penceToPoundWithCurrency(todaysConsumptionCost);
+
+    logger.info(`Today's consumption cost is ${todaysConsumptionCostInPounds}`);
 
     const currentTariffWithCost = { ...currentTariff, cost: todaysConsumptionCost };
     const allTariffCosts = [currentTariffWithCost];

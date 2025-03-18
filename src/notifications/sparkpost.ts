@@ -1,9 +1,14 @@
 import SparkPost from 'sparkpost';
 import { Resource } from 'sst';
+import { logger } from '../utils/logger';
 
 export async function sendSparkPostEmail({ subject, html }: SparkPost.InlineContent) {
   const emailClient = new SparkPost(Resource.SparkPostApiKey.value, {
     origin: 'https://api.eu.sparkpost.com:443',
+  });
+
+  logger.info('API: Sending SparkPost email with subject', {
+    data: subject,
   });
 
   return emailClient.transmissions.send({

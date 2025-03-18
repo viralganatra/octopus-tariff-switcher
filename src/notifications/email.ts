@@ -8,6 +8,7 @@ import {
   notWorthSwitchingTariffTemplate,
 } from '../utils/email-template';
 import { sendSparkPostEmail } from './sparkpost';
+import { logger } from '../utils/logger';
 import type { TariffContextWithCost } from '../types/tariff';
 import type { EmailType } from '../types/email';
 
@@ -19,6 +20,8 @@ type SendEmail = {
 
 async function getHtml(content: string) {
   const mjmlAuth = `${Resource.MjmlAppId.value}:${Resource.MjmlSecretKey.value}`;
+
+  logger.info(`API: Getting email template data via ${API_MJML}`);
 
   const schema = z.object({
     html: z.string(),
@@ -34,6 +37,8 @@ async function getHtml(content: string) {
   });
 
   const { html } = schema.parse(results);
+
+  logger.info('API Response: Received email template data');
 
   return html;
 }

@@ -113,6 +113,8 @@ export async function fetchAccountInfo() {
 
   const results = schema.parse(result);
 
+  logger.info('API Response: Recieved account info', { apiResponse: results });
+
   return results;
 }
 
@@ -123,7 +125,12 @@ export async function fetchSmartMeterTelemetry({
 }: { deviceId: string; startDate: string; endDate: string }) {
   const token = await fetchToken();
 
-  logger.info('API: Getting smart meter telemetry via query SmartMeterTelemetry');
+  logger.info('API: Getting smart meter telemetry via query SmartMeterTelemetry', {
+    data: {
+      startDate,
+      endDate,
+    },
+  });
 
   const schema = z.object({
     smartMeterTelemetry: z
@@ -169,6 +176,10 @@ export async function fetchSmartMeterTelemetry({
 
   const results = schema.parse(result);
 
+  logger.info('API Response: Recieved half hourly consumption data', {
+    apiResponse: results,
+  });
+
   return results;
 }
 
@@ -198,6 +209,10 @@ export async function fetchAllProducts() {
 
   const { results } = schema.parse(data);
 
+  logger.info('API Response: Recieved all products', {
+    apiResponse: results,
+  });
+
   return results;
 }
 
@@ -223,11 +238,15 @@ export async function fetchTodaysUnitRatesByTariff(params: TariffSelectorWithUrl
 
   const url = `${link}?period_from=${today}T00:00:00Z&period_to=${today}T23:59:59Z`;
 
-  logger.info(`API: Getting todays unit rates via ${url}`);
+  logger.info(`API: Getting today's unit rates via ${url}`);
 
   const data = await getData(url);
 
   const { results } = schema.parse(data);
+
+  logger.info(`API Response: today's unit rates`, {
+    apiResponse: results,
+  });
 
   return results;
 }
