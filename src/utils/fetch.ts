@@ -12,7 +12,7 @@ export async function getData(url: string) {
     throw new FetchError(`Request failed with status ${response.status}`);
   }
 
-  return await response.json();
+  return response.json();
 }
 
 export async function sendData({
@@ -30,5 +30,5 @@ export async function sendData({
     throw new FetchError(`Request failed with status ${response.status}`);
   }
 
-  return await response.json();
+  return response.json();
 }
