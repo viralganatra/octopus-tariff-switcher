@@ -76,5 +76,5 @@ export async function sendEmail({ allTariffsByCost, currentTariffWithCost, email
 
   const html = await getHtml(emailContent);
 
-  return await sendSparkPostEmail({ html, subject: emailSubject });
+  return sendSparkPostEmail({ html, subject: emailSubject });
 }
