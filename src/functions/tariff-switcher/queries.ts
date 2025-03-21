@@ -34,9 +34,9 @@ export async function fetchToken() {
     }
   `.send({ input: { APIKey: Resource.ApiKey.value } });
 
-  const data = schema.parse(result);
+  const results = schema.parse(result);
 
-  token = data.obtainKrakenToken.token;
+  token = results.obtainKrakenToken.token;
 
   return token;
 }
@@ -113,11 +113,9 @@ export async function fetchAccountInfo() {
       }
     `.send({ accountNumber: Resource.AccNumber.value });
 
-  const results = schema.parse(result);
+  logger.info('API Response: Recieved account info', { apiResponse: result });
 
-  logger.info('API Response: Recieved account info', { apiResponse: results });
-
-  return results;
+  return schema.parse(result);
 }
 
 export async function fetchSmartMeterTelemetry({
@@ -176,13 +174,11 @@ export async function fetchSmartMeterTelemetry({
     }
   `.send({ deviceId, start: startDate, end: endDate, grouping: 'HALF_HOURLY' });
 
-  const results = schema.parse(result);
-
   logger.info('API Response: Recieved half hourly consumption data', {
-    apiResponse: results,
+    apiResponse: result,
   });
 
-  return results;
+  return schema.parse(result);
 }
 
 export async function fetchAllProducts() {
@@ -207,13 +203,13 @@ export async function fetchAllProducts() {
     ),
   });
 
-  const data = await getData(url);
-
-  const { results } = schema.parse(data);
+  const result = await getData(url);
 
   logger.info('API Response: Recieved all products', {
-    apiResponse: results,
+    apiResponse: result,
   });
+
+  const { results } = schema.parse(result);
 
   return results;
 }
@@ -242,13 +238,13 @@ export async function fetchTodaysUnitRatesByTariff(params: TariffSelectorWithUrl
 
   logger.info(`API: Getting today's unit rates via ${url}`);
 
-  const data = await getData(url);
+  const result = await getData(url);
 
-  const { results } = schema.parse(data);
-
-  logger.info(`API Response: today's unit rates`, {
-    apiResponse: results,
+  logger.info(`API Response: Getting today's unit rates via ${url}`, {
+    apiResponse: result,
   });
+
+  const { results } = schema.parse(result);
 
   return results;
 }
@@ -274,14 +270,18 @@ export async function fetchProductDetails({ url }: { url: string }) {
     ),
   });
 
-  const data = await getData(url);
+  const result = await getData(url);
 
-  const results = schema.parse(data);
+  logger.info(`API Response: Getting product details via ${url}`, {
+    apiResponse: result,
+  });
 
-  return results;
+  return schema.parse(result);
 }
 
 export async function fetchTermsVersion(productCode: string) {
+  logger.info(`API: Getting terms version for ${productCode}`);
+
   const schema = z.object({
     termsAndConditionsForProduct: z.object({
       name: z.string(),
@@ -301,6 +301,10 @@ export async function fetchTermsVersion(productCode: string) {
       }
     }
   `.send({ productCode });
+
+  logger.info(`API Response: Getting terms version for ${productCode}`, {
+    apiResponse: result,
+  });
 
   const { termsAndConditionsForProduct } = schema.parse(result);
 
@@ -371,9 +375,9 @@ export async function startOnboardingProcess({
     apiResponse: result,
   });
 
-  const data = schema.parse(result);
+  const results = schema.parse(result);
 
-  return data.startOnboardingProcess;
+  return results.startOnboardingProcess;
 }
 
 export async function acceptTermsAndConditions({
@@ -416,11 +420,11 @@ export async function acceptTermsAndConditions({
     },
   });
 
-  const data = schema.parse(result);
-
   logger.info('API Response: AcceptTermsAndConditions', {
-    apiResponse: data,
+    apiResponse: result,
   });
 
-  return data.acceptTermsAndConditions.acceptedVersion;
+  const results = schema.parse(result);
+
+  return results.acceptTermsAndConditions.acceptedVersion;
 }
