@@ -54,6 +54,7 @@ export async function fetchAccountInfo() {
             validFrom: z.string().datetime({ offset: true }),
             validTo: z.string().datetime({ offset: true }).nullable(),
             meterPoint: z.object({
+              mpan: z.string(),
               meters: z
                 .array(
                   z.object({
@@ -69,6 +70,7 @@ export async function fetchAccountInfo() {
                 .nonempty(),
             }),
             tariff: z.object({
+              productCode: z.string(),
               tariffCode: z.string(),
               standingCharge: z.number(),
             }),
@@ -277,4 +279,148 @@ export async function fetchProductDetails({ url }: { url: string }) {
   const results = schema.parse(data);
 
   return results;
+}
+
+export async function fetchTermsVersion(productCode: string) {
+  const schema = z.object({
+    termsAndConditionsForProduct: z.object({
+      name: z.string(),
+      version: z.string(),
+    }),
+  });
+
+  const graffle = Graffle.create().transport({
+    url: API_GRAPHQL,
+  });
+
+  const result = await graffle.gql`
+    query TermsAndConditionsForProduct($productCode: String!) {
+      termsAndConditionsForProduct(productCode: $productCode) {
+        name
+        version
+      }
+    }
+  `.send({ productCode });
+
+  const { termsAndConditionsForProduct } = schema.parse(result);
+
+  return termsAndConditionsForProduct;
+}
+
+export async function startOnboardingProcess({
+  accountNumber,
+  mpan,
+  productCode,
+  changeDate,
+}: {
+  accountNumber: string;
+  mpan: string;
+  productCode: string;
+  changeDate: string;
+}) {
+  const token = await fetchToken();
+
+  logger.info('API: Starting tariff switch request via mutation StartOnboardingProcess');
+
+  const schema = z.object({
+    startOnboardingProcess: z.object({
+      onboardingProcess: z
+        .object({
+          id: z.string(),
+        })
+        .nullable(),
+      productEnrolment: z.object({
+        id: z.string(),
+      }),
+      possibleErrors: z
+        .array(
+          z.object({
+            message: z.string(),
+            code: z.string(),
+          }),
+        )
+        .optional(),
+    }),
+  });
+
+  const graffle = Graffle.create().transport({
+    url: API_GRAPHQL,
+    headers: {
+      authorization: token,
+    },
+  });
+
+  const result = await graffle.gql`
+    mutation StartOnboardingProcess($input: StartSmartOnboardingProcessInput) {
+      startOnboardingProcess(input: $input) {
+        onboardingProcess {
+          id
+        }
+        productEnrolment {
+          id
+        }
+        possibleErrors {
+          message
+          code
+        }
+      }
+    }
+  `.send({ input: { accountNumber, mpan, productCode, targetAgreementChangeDate: changeDate } });
+
+  logger.info('API Response: Starting tariff switch request for StartOnboardingProcess', {
+    apiResponse: result,
+  });
+
+  const data = schema.parse(result);
+
+  return data.startOnboardingProcess;
+}
+
+export async function acceptTermsAndConditions({
+  accountNumber,
+  enrolmentId,
+  versionMajor,
+  versionMinor,
+}: { accountNumber: string; enrolmentId: string; versionMajor: number; versionMinor: number }) {
+  const token = await fetchToken();
+
+  logger.info('API: Starting mutation AcceptTermsAndConditions');
+
+  const schema = z.object({
+    acceptTermsAndConditions: z.object({
+      acceptedVersion: z.string(),
+    }),
+  });
+
+  const graffle = Graffle.create().transport({
+    url: API_GRAPHQL,
+    headers: {
+      authorization: token,
+    },
+  });
+
+  const result = await graffle.gql`
+    mutation AcceptTermsAndConditions($input: AcceptTermsAndConditionsInput!) {
+      acceptTermsAndConditions(input: $input) {
+        acceptedVersion
+      }
+    }
+  `.send({
+    input: {
+      accountNumber,
+      enrolmentId,
+      termsVersion: {
+        versionMajor,
+        versionMinor,
+      },
+    },
+  });
+
+  const data = schema.parse(result);
+
+  logger.info('API Response: AcceptTermsAndConditions', {
+    apiResponse: data,
+  });
+
+  return data.acceptTermsAndConditions.acceptedVersion;
 }

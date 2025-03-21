@@ -1,13 +1,22 @@
 import { http, HttpResponse, graphql } from 'msw';
 import { UnknownProductError } from '../../../errors/unknown-product-error';
 import { UnknownTariffError } from '../../../errors/unknown-tariff-error';
-import { accountFixture, productAgileFixture, productsFixture } from '../../../mocks/fixtures';
+import {
+  accountFixture,
+  productAgileFixture,
+  productsFixture,
+  termsAndConditionsForProductFixture,
+} from '../../../mocks/fixtures';
 import { server } from '../../../mocks/node';
 import {
+  acceptNewAgreement,
   getAccountInfo,
+  getEnrollmentId,
   getPotentialRatesAndStandingChargeByTariff,
+  getTermsVersion,
   getTodaysConsumptionInHalfHourlyRates,
   getTodaysUnitRatesByTariff,
+  verifyNewAgreement,
 } from '../api-data';
 
 describe('API Data', () => {
@@ -35,6 +44,8 @@ describe('API Data', () => {
       regionCode: 'A',
       deviceId: '00-00-00-00-00-00-99-2F',
       currentStandingCharge: 48.7881,
+      mpan: '1012003690000',
+      productCode: 'AGILE-24-10-01',
     });
   });
 
@@ -67,6 +78,8 @@ describe('API Data', () => {
       regionCode: 'A',
       deviceId: '00-00-00-00-00-00-99-2F',
       currentStandingCharge: 100,
+      mpan: '1012003690000',
+      productCode: 'COSY-24-10-01',
     });
   });
 
@@ -99,6 +112,8 @@ describe('API Data', () => {
       regionCode: 'A',
       deviceId: '00-00-00-00-00-00-99-2F',
       currentStandingCharge: 10,
+      mpan: '1012003690000',
+      productCode: 'GO-24-10-01',
     });
   });
 
@@ -256,5 +271,104 @@ describe('API Data', () => {
       });
 
     await expect(data).rejects.toThrowError(UnknownProductError);
+  });
+
+  it('should fetch the terms version', async () => {
+    const dispatchRequest = vi.fn();
+    server.events.on('request:start', dispatchRequest);
+
+    const version = await getTermsVersion('AGILE-24-10-01');
+
+    const serverRequest = dispatchRequest.mock.lastCall?.at(0).request;
+
+    expect(version).toStrictEqual({
+      versionMajor: 1,
+      versionMinor: 5,
+    });
+    expect(serverRequest.url).toBe('https://api.octopus.energy/v1/graphql/');
+
+    await expect(serverRequest.json()).resolves.toMatchSnapshot();
+  });
+
+  it('should throw an error if terms version is invalid', async () => {
+    const fixture = structuredClone(termsAndConditionsForProductFixture);
+
+    fixture.termsAndConditionsForProduct.version = '14';
+
+    server.use(
+      graphql.query('TermsAndConditionsForProduct', () => {
+        return HttpResponse.json({
+          data: fixture,
+        });
+      }),
+    );
+
+    const version = () => getTermsVersion('AGILE-24-10-01');
+
+    await expect(version).rejects.toThrowError(
+      'Missing versions in fetching terms & conditions for product: 14',
+    );
+  });
+
+  it('should start the onboarding process', async () => {
+    const dispatchRequest = vi.fn();
+    server.events.on('request:start', dispatchRequest);
+
+    const data = await getEnrollmentId({
+      mpan: 'mpan',
+      targetProductCode: 'COSY-24-10-01',
+    });
+
+    const serverRequest = dispatchRequest.mock.lastCall?.at(0).request;
+
+    expect(data).toBe('456');
+    expect(serverRequest.url).toBe('https://api.octopus.energy/v1/graphql/');
+    expect(serverRequest.headers.get('authorization')).toBe('foo');
+
+    await expect(serverRequest.json()).resolves.toMatchSnapshot();
+  });
+
+  it('should accept the new agreement', async () => {
+    const dispatchRequest = vi.fn();
+    server.events.on('request:start', dispatchRequest);
+
+    const data = await acceptNewAgreement({ enrolmentId: '123', productCode: 'COSY-2024-10-01' });
+
+    const serverRequest = dispatchRequest.mock.lastCall?.at(0).request;
+
+    expect(data).toBe('789');
+
+    await expect(serverRequest.json()).resolves.toMatchSnapshot();
+  });
+
+  it('should verify the new agreement', async () => {
+    const data = await verifyNewAgreement();
+
+    expect(data).toBe(true);
+  });
+
+  it('should try to verify the agreement up to 2 times', async () => {
+    vi.runAllTimersAsync();
+
+    const dispatchRequest = vi.fn();
+    const fixture = structuredClone(accountFixture);
+
+    // @ts-ignore
+    fixture.account.electricityAgreements[0].validFrom = '2025-03-08T00:00:00+00:00';
+
+    server.use(
+      graphql.query('Account', () => {
+        return HttpResponse.json({
+          data: fixture,
+        });
+      }),
+    );
+
+    server.events.on('request:start', dispatchRequest);
+
+    const data = await verifyNewAgreement();
+
+    expect(data).toBe(false);
+    expect(dispatchRequest).toHaveBeenCalledTimes(2);
   });
 });

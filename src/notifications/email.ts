@@ -9,14 +9,7 @@ import {
 } from '../utils/email-template';
 import { sendSparkPostEmail } from './sparkpost';
 import { logger } from '../utils/logger';
-import type { TariffContextWithCost } from '../types/tariff';
-import type { EmailType } from '../types/email';
-
-type SendEmail = {
-  allTariffsByCost: TariffContextWithCost[];
-  currentTariffWithCost: TariffContextWithCost;
-  emailType: EmailType;
-};
+import type { SendEmail } from '../types/email';
 
 async function getHtml(content: string) {
   const mjmlAuth = `${Resource.MjmlAppId.value}:${Resource.MjmlSecretKey.value}`;

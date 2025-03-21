@@ -1,15 +1,16 @@
-import { http, HttpResponse } from 'msw';
+import { graphql, http, HttpResponse } from 'msw';
 import type { APIGatewayProxyEvent, Context } from 'aws-lambda';
 import { server } from '../mocks/node';
 import { tariffSwitcher } from '../tariff-switcher';
 import * as email from '../notifications/email';
-import { productGoFixture } from '../mocks/fixtures';
+import { accountFixture, productGoFixture } from '../mocks/fixtures';
 
 describe('Tariff Switcher', () => {
   const proxy = {} as APIGatewayProxyEvent;
   const context = {} as Context;
 
   beforeEach(() => {
+    vi.runAllTimersAsync();
     vi.setSystemTime(new Date(2025, 2, 3));
   });
 
@@ -25,6 +26,32 @@ describe('Tariff Switcher', () => {
       "{
         "message": "Going to switch to Octopus Go - £0.47 from Agile Octopus - £0.80"
       }"
+    `);
+  });
+
+  it('should throw an error if the new agreement cannot be verified', async () => {
+    const fixture = structuredClone(accountFixture);
+
+    // @ts-ignore
+    fixture.account.electricityAgreements[0].validFrom = '2025-03-08T00:00:00+00:00';
+
+    server.use(
+      graphql.query('Account', () => {
+        return HttpResponse.json({
+          data: fixture,
+        });
+      }),
+    );
+
+    const data = await tariffSwitcher(proxy, context);
+
+    expect(data).toMatchInlineSnapshot(`
+      {
+        "body": "{
+        "message": "Unable to verify new agreement after multiple retries. Please check your account and emails."
+      }",
+        "statusCode": 500,
+      }
     `);
   });
 
@@ -93,5 +120,17 @@ describe('Tariff Switcher', () => {
         "statusCode": 500,
       }
     `);
+  });
+
+  it('should not send an email if the DRY_RUN param is true', async () => {
+    vi.stubEnv('DRY_RUN', 'true');
+
+    const spy = vi.spyOn(email, 'sendEmail');
+
+    await tariffSwitcher(proxy, context);
+
+    expect(spy).not.toHaveBeenCalled();
+
+    vi.stubEnv('DRY_RUN', undefined);
   });
 });
