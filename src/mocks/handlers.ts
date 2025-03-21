@@ -5,7 +5,6 @@ import {
   productCosyFixture,
   productGoFixture,
   productsFixture,
-  standingChargeFixture,
   telemetryFixture,
   unitRatesFixture,
 } from './fixtures';
@@ -23,12 +22,6 @@ export const handlers = [
   http.get('https://api.octopus.energy/v1/products/GO-VAR-22-10-14/', () => {
     return HttpResponse.json(productGoFixture);
   }),
-  http.get(
-    'https://api.octopus.energy/v1/products/:tariffCode/electricity-tariffs/:productCode/standing-charges/',
-    () => {
-      return HttpResponse.json(standingChargeFixture);
-    },
-  ),
   http.get(
     'https://api.octopus.energy/v1/products/:tariffCode/electricity-tariffs/:productCode/standard-unit-rates',
     () => {

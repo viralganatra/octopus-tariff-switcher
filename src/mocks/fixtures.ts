@@ -416,49 +416,6 @@ export const accountFixture = {
   },
 };
 
-export const standingChargeFixture = {
-  count: 5,
-  next: null,
-  previous: null,
-  results: [
-    {
-      value_exc_vat: 46.4649,
-      value_inc_vat: 48.788145,
-      valid_from: '2024-09-30T23:00:00Z',
-      valid_to: null,
-      payment_method: null,
-    },
-    {
-      value_exc_vat: 45.57,
-      value_inc_vat: 47.8485,
-      valid_from: '2024-03-31T23:00:00Z',
-      valid_to: '2024-09-30T23:00:00Z',
-      payment_method: null,
-    },
-    {
-      value_exc_vat: 40.01,
-      value_inc_vat: 42.0105,
-      valid_from: '2024-01-01T00:00:00Z',
-      valid_to: '2024-03-31T23:00:00Z',
-      payment_method: null,
-    },
-    {
-      value_exc_vat: 40.0125,
-      value_inc_vat: 42.013125,
-      valid_from: '2023-03-31T23:00:00Z',
-      valid_to: '2024-01-01T00:00:00Z',
-      payment_method: null,
-    },
-    {
-      value_exc_vat: 35.5166,
-      value_inc_vat: 37.29243,
-      valid_from: '2022-12-08T00:00:00Z',
-      valid_to: '2023-03-31T23:00:00Z',
-      payment_method: null,
-    },
-  ],
-};
-
 export const unitRatesFixture = {
   count: 7,
   next: null,
