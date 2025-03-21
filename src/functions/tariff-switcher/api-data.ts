@@ -1,27 +1,34 @@
-import { formatISO } from 'date-fns';
+import { format, formatISO, isToday, startOfToday } from 'date-fns';
+import { Resource } from 'sst';
 import { UnknownProductError } from '../../errors/unknown-product-error';
 import { UnknownTariffError } from '../../errors/unknown-tariff-error';
-import { getMsFromApiIsoString, roundTo4Digits } from '../../utils/helpers';
+import { getMsFromApiIsoString, roundTo4Digits, sleep } from '../../utils/helpers';
 import { logger } from '../../utils/logger';
 import type { TariffSelectorWithUrl } from '../../types/tariff';
 import { TARIFFS } from '../../constants/tariff';
 import {
+  acceptTermsAndConditions,
   fetchAccountInfo,
   fetchAllProducts,
   fetchProductDetails,
   fetchSmartMeterTelemetry,
+  fetchTermsVersion,
   fetchTodaysUnitRatesByTariff,
+  startOnboardingProcess,
 } from './queries';
 
 type TariffDisplayName = (typeof TARIFFS)[number]['displayName'];
+
+let timesVerified = 0;
 
 export async function getAccountInfo() {
   const results = await fetchAccountInfo();
 
   const [electricityAgreement] = results.account.electricityAgreements;
-  const { tariffCode, standingCharge } = electricityAgreement.tariff;
+  const { tariffCode, standingCharge, productCode } = electricityAgreement.tariff;
 
-  const [{ deviceId }] = electricityAgreement.meterPoint.meters[0].smartDevices;
+  const { mpan, meters } = electricityAgreement.meterPoint;
+  const [{ deviceId }] = meters[0].smartDevices;
   // tariffCode is in the format E-1R-COSY-22-12-08-A and should always be a non empty string,
   // but typescript casts this to at to string | undefined
   const regionCode = tariffCode.at(-1) as string;
@@ -39,6 +46,8 @@ export async function getAccountInfo() {
     currentTariff,
     regionCode,
     deviceId,
+    productCode,
+    mpan,
     currentStandingCharge: normalisedStandingCharge,
   };
 }
@@ -146,4 +155,77 @@ export async function getPotentialRatesAndStandingChargeByTariff({
     potentialStandingCharge: roundTo4Digits(standingChargeIncVat),
     potentialProductCode: product.code,
   };
+}
+
+export async function getTermsVersion(productCode: string) {
+  const { version } = await fetchTermsVersion(productCode);
+
+  const [major, minor] = version.split('.').map(Number);
+
+  if (major !== undefined && minor !== undefined) {
+    return { versionMajor: major, versionMinor: minor };
+  }
+
+  throw new Error(`Missing versions in fetching terms & conditions for product: ${version}`);
+}
+
+export async function getEnrollmentId({
+  mpan,
+  targetProductCode,
+}: {
+  mpan: string;
+  targetProductCode: string;
+}) {
+  const today = startOfToday();
+  const changeDate = format(today, 'yyyy-MM-dd');
+
+  const { productEnrolment } = await startOnboardingProcess({
+    mpan,
+    changeDate,
+    accountNumber: Resource.AccNumber.value,
+    productCode: targetProductCode,
+  });
+
+  return productEnrolment.id;
+}
+
+export async function acceptNewAgreement({
+  productCode,
+  enrolmentId,
+}: { productCode: string; enrolmentId: string }) {
+  const { versionMajor, versionMinor } = await getTermsVersion(productCode);
+
+  const acceptedVersion = await acceptTermsAndConditions({
+    enrolmentId,
+    versionMajor,
+    versionMinor,
+    accountNumber: Resource.AccNumber.value,
+  });
+
+  return acceptedVersion;
+}
+
+export async function verifyNewAgreement() {
+  const accountInfo = await fetchAccountInfo();
+
+  const { electricityAgreements } = accountInfo.account;
+  const validFromDate = electricityAgreements
+    .map((agreement) => getMsFromApiIsoString(agreement.validFrom))
+    .at(0);
+
+  if (!validFromDate) {
+    return false;
+  }
+
+  const isVerified = isToday(new Date(validFromDate));
+
+  timesVerified += 1;
+
+  // Re-run if it fails
+  if (!isVerified && timesVerified < 3) {
+    await sleep(20);
+    return verifyNewAgreement();
+  }
+
+  return isVerified;
 }

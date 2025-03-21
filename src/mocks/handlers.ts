@@ -1,11 +1,14 @@
 import { http, HttpResponse, graphql } from 'msw';
 import {
+  acceptTermsAndConditionsFxture,
   accountFixture,
+  onboardingProcessFixture,
   productAgileFixture,
   productCosyFixture,
   productGoFixture,
   productsFixture,
   telemetryFixture,
+  termsAndConditionsForProductFixture,
   unitRatesFixture,
 } from './fixtures';
 
@@ -52,6 +55,21 @@ export const handlers = [
   graphql.query('smartMeterTelemetry', () => {
     return HttpResponse.json({
       data: telemetryFixture,
+    });
+  }),
+  graphql.query('TermsAndConditionsForProduct', () => {
+    return HttpResponse.json({
+      data: termsAndConditionsForProductFixture,
+    });
+  }),
+  graphql.mutation('StartOnboardingProcess', () => {
+    return HttpResponse.json({
+      data: onboardingProcessFixture,
+    });
+  }),
+  graphql.mutation('AcceptTermsAndConditions', () => {
+    return HttpResponse.json({
+      data: acceptTermsAndConditionsFxture,
     });
   }),
 ];

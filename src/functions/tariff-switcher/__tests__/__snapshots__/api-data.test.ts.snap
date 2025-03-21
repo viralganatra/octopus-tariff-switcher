@@ -1,5 +1,27 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`API Data > should accept the new agreement 1`] = `
+{
+  "query": "
+    mutation AcceptTermsAndConditions($input: AcceptTermsAndConditionsInput!) {
+      acceptTermsAndConditions(input: $input) {
+        acceptedVersion
+      }
+    }
+  ",
+  "variables": {
+    "input": {
+      "accountNumber": "A-123456",
+      "enrolmentId": "123",
+      "termsVersion": {
+        "versionMajor": 1,
+        "versionMinor": 5,
+      },
+    },
+  },
+}
+`;
+
 exports[`API Data > should fetch the account info when the tariff is agile 1`] = `
 {
   "query": "
@@ -88,6 +110,22 @@ exports[`API Data > should fetch the potential rates and standing charge 1`] = `
       "valid_to": "2025-03-03T04:00:00Z",
     },
   ],
+}
+`;
+
+exports[`API Data > should fetch the terms version 1`] = `
+{
+  "query": "
+    query TermsAndConditionsForProduct($productCode: String!) {
+      termsAndConditionsForProduct(productCode: $productCode) {
+        name
+        version
+      }
+    }
+  ",
+  "variables": {
+    "productCode": "AGILE-24-10-01",
+  },
 }
 `;
 
@@ -248,6 +286,35 @@ exports[`API Data > should fetch todays consumption 2`] = `
     "end": "2025-03-03T23:59:59Z",
     "grouping": "HALF_HOURLY",
     "start": "2025-03-03T00:30:00Z",
+  },
+}
+`;
+
+exports[`API Data > should start the onboarding process 1`] = `
+{
+  "query": "
+    mutation StartOnboardingProcess($input: StartSmartOnboardingProcessInput) {
+      startOnboardingProcess(input: $input) {
+        onboardingProcess {
+          id
+        }
+        productEnrolment {
+          id
+        }
+        possibleErrors {
+          message
+          code
+        }
+      }
+    }
+  ",
+  "variables": {
+    "input": {
+      "accountNumber": "A-123456",
+      "mpan": "mpan",
+      "productCode": "COSY-24-10-01",
+      "targetAgreementChangeDate": "2025-03-03",
+    },
   },
 }
 `;

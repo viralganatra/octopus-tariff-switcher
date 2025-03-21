@@ -1,20 +1,31 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
 import {
+  acceptNewAgreement,
   getAccountInfo,
+  getEnrollmentId,
   getPotentialRatesAndStandingChargeByTariff,
   getTodaysConsumptionInHalfHourlyRates,
+  verifyNewAgreement,
 } from './functions/tariff-switcher/api-data';
 import { getPotentialCost, getTotalCost } from './functions/tariff-switcher/cost-calculator';
-import { penceToPoundWithCurrency } from './utils/helpers';
+import { penceToPoundWithCurrency, sleep } from './utils/helpers';
 import { logger } from './utils/logger';
 import { formatResponse } from './utils/format-response';
 import { TARIFFS } from './constants/tariff';
 import { sendEmail } from './notifications/email';
+import { AgreementVerificationError } from './errors/agreement-verification-error';
+import type { SendEmail } from './types/email';
 
-async function logAndFormatSuccessMessage(message: string) {
+function logAndFormatSuccessMessage(successMessage: string) {
+  const message = process.env.DRY_RUN ? `DRY RUN: ${successMessage}` : successMessage;
+
   logger.info(message);
 
   return formatResponse(200, { message });
+}
+
+function sendNotification(params: SendEmail) {
+  return process.env.DRY_RUN ? Promise.resolve() : sendEmail(params);
 }
 
 export async function tariffSwitcher(
@@ -24,7 +35,8 @@ export async function tariffSwitcher(
   logger.addContext(context);
 
   try {
-    const { deviceId, currentStandingCharge, regionCode, currentTariff } = await getAccountInfo();
+    const { deviceId, currentStandingCharge, regionCode, currentTariff, productCode, mpan } =
+      await getAccountInfo();
 
     const todaysConsumptionUnitRates = await getTodaysConsumptionInHalfHourlyRates({ deviceId });
 
@@ -41,7 +53,12 @@ export async function tariffSwitcher(
 
     logger.info(`Today's consumption cost is ${todaysConsumptionCostInPounds}`);
 
-    const currentTariffWithCost = { ...currentTariff, cost: todaysConsumptionCost };
+    const currentTariffWithCost = {
+      ...currentTariff,
+      productCode,
+      cost: todaysConsumptionCost,
+    };
+
     const allTariffCosts = [currentTariffWithCost];
 
     for (const tariff of TARIFFS) {
@@ -49,7 +66,7 @@ export async function tariffSwitcher(
         continue;
       }
 
-      const { potentialUnitRates, potentialStandingCharge } =
+      const { potentialUnitRates, potentialStandingCharge, potentialProductCode } =
         await getPotentialRatesAndStandingChargeByTariff({
           regionCode,
           tariff: tariff.displayName,
@@ -61,7 +78,7 @@ export async function tariffSwitcher(
         todaysPotentialUnitRates: potentialUnitRates,
       });
 
-      allTariffCosts.push({ ...tariff, cost: potentialCost });
+      allTariffCosts.push({ ...tariff, cost: potentialCost, productCode: potentialProductCode });
     }
 
     // Find cheapest tariff
@@ -75,7 +92,7 @@ export async function tariffSwitcher(
     const cheapestTariffCostInPounds = penceToPoundWithCurrency(cheapestTariff.cost);
 
     if (cheapestTariff.id === currentTariff.id) {
-      await sendEmail({
+      await sendNotification({
         allTariffsByCost,
         currentTariffWithCost,
         emailType: 'ALREADY_ON_CHEAPEST_TARIFF',
@@ -89,26 +106,48 @@ export async function tariffSwitcher(
     const savings = todaysConsumptionCost - cheapestTariff.cost;
 
     // Not worth switching for 2p
-    if (savings > 2) {
-      await sendEmail({
+    if (savings <= 2) {
+      await sendNotification({
         allTariffsByCost,
         currentTariffWithCost,
-        emailType: 'CHEAPER_TARIFF_EXISTS',
+        emailType: 'NOT_WORTH_SWITCHING_TARIFF',
       });
 
       return logAndFormatSuccessMessage(
-        `Going to switch to ${cheapestTariff.displayName} - ${cheapestTariffCostInPounds} from ${currentTariff.displayName} - ${todaysConsumptionCostInPounds}`,
+        `Not worth switching to ${cheapestTariff.displayName} from ${currentTariff.displayName}`,
       );
     }
 
-    await sendEmail({
+    const enrolmentId = await getEnrollmentId({
+      mpan,
+      targetProductCode: cheapestTariff.productCode,
+    });
+
+    await sleep(60);
+
+    const acceptedVersion = await acceptNewAgreement({
+      enrolmentId,
+      productCode: cheapestTariff.productCode,
+    });
+
+    logger.info(`Accepted new tariff agreement: ${acceptedVersion}`);
+
+    const isVerified = await verifyNewAgreement();
+
+    if (!isVerified) {
+      throw new AgreementVerificationError(
+        'Unable to verify new agreement after multiple retries. Please check your account and emails.',
+      );
+    }
+
+    await sendNotification({
       allTariffsByCost,
       currentTariffWithCost,
-      emailType: 'NOT_WORTH_SWITCHING_TARIFF',
+      emailType: 'CHEAPER_TARIFF_EXISTS',
     });
 
     return logAndFormatSuccessMessage(
-      `Not worth switching to ${cheapestTariff.displayName} from ${currentTariff.displayName}`,
+      `Going to switch to ${cheapestTariff.displayName} - ${cheapestTariffCostInPounds} from ${currentTariff.displayName} - ${todaysConsumptionCostInPounds}`,
     );
   } catch (error) {
     let message: string;

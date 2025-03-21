@@ -392,7 +392,7 @@ export const accountFixture = {
   account: {
     electricityAgreements: [
       {
-        validFrom: '2025-02-24T00:00:00+00:00',
+        validFrom: '2025-03-03T00:00:00+00:00',
         validTo: '2026-02-24T00:00:00+00:00',
         meterPoint: {
           meters: [
@@ -686,4 +686,28 @@ export const productGoFixture = {
     },
   ],
   brand: 'OCTOPUS_ENERGY',
+};
+
+export const termsAndConditionsForProductFixture = {
+  termsAndConditionsForProduct: {
+    name: 'terms',
+    version: '1.5',
+  },
+};
+
+export const onboardingProcessFixture = {
+  startOnboardingProcess: {
+    onboardingProcess: {
+      id: '123',
+    },
+    productEnrolment: {
+      id: '456',
+    },
+  },
+};
+
+export const acceptTermsAndConditionsFxture = {
+  acceptTermsAndConditions: {
+    acceptedVersion: '789',
+  },
 };

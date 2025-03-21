@@ -38,6 +38,7 @@ export default $config({
       environment: {
         SERVICE_NAME,
         POWERTOOLS_DEV: String($dev),
+        DRY_RUN: String($dev),
       },
       logging: {
         format: 'json',
