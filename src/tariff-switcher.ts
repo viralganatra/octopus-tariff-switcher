@@ -17,7 +17,7 @@ import { AgreementVerificationError } from './errors/agreement-verification-erro
 import type { SendEmail } from './types/email';
 
 function logAndFormatSuccessMessage(successMessage: string) {
-  const message = process.env.DRY_RUN ? `DRY RUN: ${successMessage}` : successMessage;
+  const message = process.env.DRY_RUN === 'true' ? `DRY RUN: ${successMessage}` : successMessage;
 
   logger.info(message);
 
@@ -25,7 +25,7 @@ function logAndFormatSuccessMessage(successMessage: string) {
 }
 
 function sendNotification(params: SendEmail) {
-  return process.env.DRY_RUN ? Promise.resolve() : sendEmail(params);
+  return process.env.DRY_RUN === 'true' ? Promise.resolve() : sendEmail(params);
 }
 
 export async function tariffSwitcher(
