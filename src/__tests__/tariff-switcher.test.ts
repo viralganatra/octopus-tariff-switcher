@@ -131,6 +131,6 @@ describe('Tariff Switcher', () => {
 
     expect(spy).not.toHaveBeenCalled();
 
-    vi.stubEnv('DRY_RUN', undefined);
+    vi.stubEnv('DRY_RUN', 'false');
   });
 });

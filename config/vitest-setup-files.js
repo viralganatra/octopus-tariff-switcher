@@ -1,6 +1,7 @@
 import { server } from '../src/mocks/node';
 
 vi.stubEnv('POWERTOOLS_LOG_LEVEL', 'silent');
+vi.stubEnv('DRY_RUN', 'false');
 
 vi.mock('sst', () => {
   return {
