@@ -29,19 +29,23 @@ export default $config({
 
     const allSecrets = Object.values(secrets);
 
-    new sst.aws.Function('OctopusTariffSwitcher', {
-      handler: 'handler.tariffSwitcher',
-      runtime: 'nodejs22.x',
-      link: [...allSecrets],
-      name: `${$app.stage}--${SERVICE_NAME}`,
-      url: true,
-      environment: {
-        SERVICE_NAME,
-        POWERTOOLS_DEV: String($dev),
-        DRY_RUN: String($dev),
-      },
-      logging: {
-        format: 'json',
+    new sst.aws.Cron('OctopusTariffSwitcher', {
+      schedule: 'cron(45 23 * * ? *)',
+      job: {
+        handler: 'handler.tariffSwitcher',
+        runtime: 'nodejs22.x',
+        link: [...allSecrets],
+        name: `${$app.stage}--${SERVICE_NAME}`,
+        timeout: '70 seconds',
+        url: true,
+        environment: {
+          SERVICE_NAME,
+          POWERTOOLS_DEV: String($dev),
+          DRY_RUN: String($dev),
+        },
+        logging: {
+          format: 'json',
+        },
       },
     });
   },
