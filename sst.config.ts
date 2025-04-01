@@ -30,7 +30,7 @@ export default $config({
     const allSecrets = Object.values(secrets);
 
     new sst.aws.Cron('OctopusTariffSwitcher', {
-      schedule: 'cron(45 23 * * ? *)',
+      schedule: 'cron(45 22 * * ? *)',
       job: {
         handler: 'handler.tariffSwitcher',
         runtime: 'nodejs22.x',
