@@ -25,11 +25,6 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
-    "OctopusTariffSwitcher": {
-      "name": string
-      "type": "sst.aws.Function"
-      "url": string
-    }
     "SparkPostApiKey": {
       "type": "sst.sst.Secret"
       "value": string
