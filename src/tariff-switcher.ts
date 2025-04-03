@@ -16,8 +16,12 @@ import { sendEmail } from './notifications/email';
 import { AgreementVerificationError } from './errors/agreement-verification-error';
 import type { SendEmail } from './types/email';
 
+function isDryRun() {
+  return process.env.DRY_RUN === 'true';
+}
+
 function logAndFormatSuccessMessage(successMessage: string) {
-  const message = process.env.DRY_RUN === 'true' ? `DRY RUN: ${successMessage}` : successMessage;
+  const message = isDryRun() ? `DRY RUN: ${successMessage}` : successMessage;
 
   logger.info(message);
 
@@ -25,7 +29,7 @@ function logAndFormatSuccessMessage(successMessage: string) {
 }
 
 function sendNotification(params: SendEmail) {
-  return process.env.DRY_RUN === 'true' ? Promise.resolve() : sendEmail(params);
+  return isDryRun() ? Promise.resolve() : sendEmail(params);
 }
 
 export async function tariffSwitcher(
@@ -118,26 +122,28 @@ export async function tariffSwitcher(
       );
     }
 
-    const enrolmentId = await getEnrollmentId({
-      mpan,
-      targetProductCode: cheapestTariff.productCode,
-    });
+    if (!isDryRun()) {
+      const enrolmentId = await getEnrollmentId({
+        mpan,
+        targetProductCode: cheapestTariff.productCode,
+      });
 
-    await sleep(60);
+      await sleep(60);
 
-    const acceptedVersion = await acceptNewAgreement({
-      enrolmentId,
-      productCode: cheapestTariff.productCode,
-    });
+      const acceptedVersion = await acceptNewAgreement({
+        enrolmentId,
+        productCode: cheapestTariff.productCode,
+      });
 
-    logger.info(`Accepted new tariff agreement: ${acceptedVersion}`);
+      logger.info(`Accepted new tariff agreement: ${acceptedVersion}`);
 
-    const isVerified = await verifyNewAgreement();
+      const isVerified = await verifyNewAgreement();
 
-    if (!isVerified) {
-      throw new AgreementVerificationError(
-        'Unable to verify new agreement after multiple retries. Please check your account and emails.',
-      );
+      if (!isVerified) {
+        throw new AgreementVerificationError(
+          'Unable to verify new agreement after multiple retries. Please check your account and emails.',
+        );
+      }
     }
 
     await sendNotification({

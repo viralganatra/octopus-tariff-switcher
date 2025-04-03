@@ -3,6 +3,7 @@ import type { APIGatewayProxyEvent, Context } from 'aws-lambda';
 import { server } from '../mocks/node';
 import { tariffSwitcher } from '../tariff-switcher';
 import * as email from '../notifications/email';
+import * as ApiData from '../functions/tariff-switcher/api-data';
 import { accountFixture, productGoFixture } from '../mocks/fixtures';
 
 describe('Tariff Switcher', () => {
@@ -122,15 +123,29 @@ describe('Tariff Switcher', () => {
     `);
   });
 
-  it('should not send an email if the DRY_RUN param is true', async () => {
-    vi.stubEnv('DRY_RUN', 'true');
+  describe('DRY_RUN', () => {
+    beforeAll(() => {
+      vi.stubEnv('DRY_RUN', 'true');
+    });
 
-    const spy = vi.spyOn(email, 'sendEmail');
+    afterAll(() => {
+      vi.stubEnv('DRY_RUN', 'false');
+    });
 
-    await tariffSwitcher(proxy, context);
+    it('should not send an email if the DRY_RUN param is true', async () => {
+      const spy = vi.spyOn(email, 'sendEmail');
 
-    expect(spy).not.toHaveBeenCalled();
+      await tariffSwitcher(proxy, context);
 
-    vi.stubEnv('DRY_RUN', 'false');
+      expect(spy).not.toHaveBeenCalled();
+    });
+
+    it('should not switch the tariff if the DRY_RUN param is true', async () => {
+      const spy = vi.spyOn(ApiData, 'getEnrollmentId');
+
+      await tariffSwitcher(proxy, context);
+
+      expect(spy).not.toHaveBeenCalled();
+    });
   });
 });
