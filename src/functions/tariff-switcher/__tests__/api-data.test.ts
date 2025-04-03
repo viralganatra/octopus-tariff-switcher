@@ -333,34 +333,43 @@ describe('API Data', () => {
     await expect(serverRequest.json()).resolves.toMatchSnapshot();
   });
 
-  it('should verify the new agreement', async () => {
-    const data = await verifyNewAgreement();
+  describe('Verifying the agreement', () => {
+    beforeEach(() => {
+      vi.runAllTimersAsync();
+    });
 
-    expect(data).toBe(true);
-  });
+    it('should verify the new agreement', async () => {
+      expect(await verifyNewAgreement()).toBe(true);
+    });
 
-  it('should try to verify the agreement up to 2 times', async () => {
-    vi.runAllTimersAsync();
+    it('should try to verify the agreement up to 2 times', async () => {
+      const dispatchRequest = vi.fn();
+      const fixture = structuredClone(accountFixture);
 
-    const dispatchRequest = vi.fn();
-    const fixture = structuredClone(accountFixture);
+      // @ts-ignore
+      fixture.account.electricityAgreements[0].validFrom = '2025-03-08T00:00:00+00:00';
 
-    // @ts-ignore
-    fixture.account.electricityAgreements[0].validFrom = '2025-03-08T00:00:00+00:00';
+      useServerHandlerForAccount(fixture);
 
-    server.use(
-      graphql.query('Account', () => {
-        return HttpResponse.json({
-          data: fixture,
-        });
-      }),
-    );
+      server.events.on('request:start', dispatchRequest);
 
-    server.events.on('request:start', dispatchRequest);
+      const data = await verifyNewAgreement();
 
-    const data = await verifyNewAgreement();
+      expect(data).toBe(false);
+      expect(dispatchRequest).toHaveBeenCalledTimes(2);
+    });
 
-    expect(data).toBe(false);
-    expect(dispatchRequest).toHaveBeenCalledTimes(2);
+    it('should verify the agreement when daylight savings is active', async () => {
+      vi.setSystemTime(new Date(2025, 3, 3));
+
+      const fixture = structuredClone(accountFixture);
+
+      // @ts-ignore
+      fixture.account.electricityAgreements[0].validFrom = '2025-04-02T23:00:00+00:00';
+
+      useServerHandlerForAccount(fixture);
+
+      expect(await verifyNewAgreement()).toBe(true);
+    });
   });
 });

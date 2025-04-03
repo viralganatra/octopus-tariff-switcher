@@ -1,5 +1,15 @@
+import { TZDateMini } from '@date-fns/tz';
+
+export function getDateFromApiIsoString(isoStringFromApi: string) {
+  return new Date(isoStringFromApi.replace('+00:00', '.000Z'));
+}
+
 export function getMsFromApiIsoString(isoStringFromApi: string) {
-  return new Date(isoStringFromApi.replace('+00:00', '.000Z')).getTime();
+  return getDateFromApiIsoString(isoStringFromApi).getTime();
+}
+
+export function getDateInLocalTimeZone(date: Date) {
+  return new TZDateMini(date).withTimeZone('Europe/London');
 }
 
 export function roundTo4Digits(num: number) {

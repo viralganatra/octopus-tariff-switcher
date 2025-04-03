@@ -2,7 +2,13 @@ import { format, formatISO, isToday, startOfToday } from 'date-fns';
 import { Resource } from 'sst';
 import { UnknownProductError } from '../../errors/unknown-product-error';
 import { UnknownTariffError } from '../../errors/unknown-tariff-error';
-import { getMsFromApiIsoString, roundTo4Digits, sleep } from '../../utils/helpers';
+import {
+  getDateFromApiIsoString,
+  getDateInLocalTimeZone,
+  getMsFromApiIsoString,
+  roundTo4Digits,
+  sleep,
+} from '../../utils/helpers';
 import { logger } from '../../utils/logger';
 import type { TariffSelectorWithUrl } from '../../types/tariff';
 import { TARIFFS } from '../../constants/tariff';
@@ -210,14 +216,14 @@ export async function verifyNewAgreement() {
 
   const { electricityAgreements } = accountInfo.account;
   const validFromDate = electricityAgreements
-    .map((agreement) => getMsFromApiIsoString(agreement.validFrom))
+    .map((agreement) => getDateFromApiIsoString(agreement.validFrom))
     .at(0);
 
   if (!validFromDate) {
     return false;
   }
 
-  const isVerified = isToday(new Date(validFromDate));
+  const isVerified = isToday(getDateInLocalTimeZone(validFromDate));
 
   timesVerified += 1;
 
