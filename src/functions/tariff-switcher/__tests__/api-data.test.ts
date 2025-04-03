@@ -174,7 +174,7 @@ describe('API Data', () => {
 
     expect(data).toMatchSnapshot();
     expect(serverRequestOne.url).toBe(
-      'https://api.octopus.energy/v1/products?brand=OCTOPUS_ENERGY&is_business=false',
+      'https://api.octopus.energy/v1/products?brand=OCTOPUS_ENERGY&is_business=false&is_variable=true&is_prepay=false',
     );
     expect(serverRequestTwo.url).toBe(
       'https://api.octopus.energy/v1/products/AGILE-24-10-01/electricity-tariffs/E-1R-AGILE-24-10-01-A/standard-unit-rates/?period_from=2025-03-03T00:00:00Z&period_to=2025-03-03T23:59:59Z',

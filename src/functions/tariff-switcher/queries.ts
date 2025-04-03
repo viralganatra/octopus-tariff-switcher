@@ -186,7 +186,7 @@ export async function fetchSmartMeterTelemetry({
 }
 
 export async function fetchAllProducts() {
-  const url = `${API_PRODUCTS}?brand=OCTOPUS_ENERGY&is_business=false`;
+  const url = `${API_PRODUCTS}?brand=OCTOPUS_ENERGY&is_business=false&is_variable=true&is_prepay=false`;
 
   logger.info('API: Getting all products', {
     data: { url },
