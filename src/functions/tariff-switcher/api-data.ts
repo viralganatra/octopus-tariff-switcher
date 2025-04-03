@@ -64,7 +64,7 @@ export async function getTodaysConsumptionInHalfHourlyRates({
   deviceId: string;
 }) {
   const today = formatISO(new Date(), { representation: 'date' });
-  const startDate = `${today}T00:30:00Z`;
+  const startDate = `${today}T00:00:00Z`;
   const endDate = `${today}T23:59:59Z`;
 
   const { smartMeterTelemetry } = await fetchSmartMeterTelemetry({
