@@ -7,7 +7,7 @@ export async function sendSparkPostEmail({ subject, html }: SparkPost.InlineCont
     origin: 'https://api.eu.sparkpost.com:443',
   });
 
-  logger.info('API: Sending SparkPost email with subject', {
+  logger.info('API: Sending SparkPost email', {
     data: subject,
   });
 
