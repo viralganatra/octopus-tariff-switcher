@@ -1,4 +1,4 @@
-import { http, HttpResponse, graphql } from 'msw';
+import { http, HttpResponse, graphql, type GraphQLQuery } from 'msw';
 import { UnknownProductError } from '../../../errors/unknown-product-error';
 import { UnknownTariffError } from '../../../errors/unknown-tariff-error';
 import {
@@ -18,6 +18,16 @@ import {
   getTodaysUnitRatesByTariff,
   verifyNewAgreement,
 } from '../api-data';
+
+function useServerHandlerForAccount(fixture: GraphQLQuery) {
+  server.use(
+    graphql.query('Account', () => {
+      return HttpResponse.json({
+        data: fixture,
+      });
+    }),
+  );
+}
 
 describe('API Data', () => {
   beforeEach(() => {
@@ -59,13 +69,7 @@ describe('API Data', () => {
       standingCharge: 100,
     };
 
-    server.use(
-      graphql.query('Account', () => {
-        return HttpResponse.json({
-          data: fixture,
-        });
-      }),
-    );
+    useServerHandlerForAccount(fixture);
 
     const accountInfo = await getAccountInfo();
 
@@ -93,13 +97,7 @@ describe('API Data', () => {
       standingCharge: 10,
     };
 
-    server.use(
-      graphql.query('Account', () => {
-        return HttpResponse.json({
-          data: fixture,
-        });
-      }),
-    );
+    useServerHandlerForAccount(fixture);
 
     const accountInfo = await getAccountInfo();
 
@@ -123,13 +121,7 @@ describe('API Data', () => {
     // @ts-ignore
     fixture.account.electricityAgreements[0].tariff.tariffCode = 'INVALID-TARIFF';
 
-    server.use(
-      graphql.query('Account', () => {
-        return HttpResponse.json({
-          data: fixture,
-        });
-      }),
-    );
+    useServerHandlerForAccount(fixture);
 
     const accountInfo = () => getAccountInfo();
 
