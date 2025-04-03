@@ -175,6 +175,10 @@ export async function fetchSmartMeterTelemetry({
   `.send({ deviceId, start: startDate, end: endDate, grouping: 'HALF_HOURLY' });
 
   logger.info('API Response: Recieved half hourly consumption data', {
+    data: {
+      startDate,
+      endDate,
+    },
     apiResponse: result,
   });
 
@@ -184,7 +188,9 @@ export async function fetchSmartMeterTelemetry({
 export async function fetchAllProducts() {
   const url = `${API_PRODUCTS}?brand=OCTOPUS_ENERGY&is_business=false`;
 
-  logger.info(`API: Getting all products via ${url}`);
+  logger.info('API: Getting all products', {
+    data: { url },
+  });
 
   const schema = z.object({
     results: z.array(
@@ -236,11 +242,14 @@ export async function fetchTodaysUnitRatesByTariff(params: TariffSelectorWithUrl
 
   const url = `${link}?period_from=${today}T00:00:00Z&period_to=${today}T23:59:59Z`;
 
-  logger.info(`API: Getting today's unit rates via ${url}`);
+  logger.info(`API: Getting today's unit rates`, {
+    data: { url },
+  });
 
   const result = await getData(url);
 
-  logger.info(`API Response: Getting today's unit rates via ${url}`, {
+  logger.info(`API Response: Getting today's unit rates`, {
+    data: { url },
     apiResponse: result,
   });
 
@@ -250,7 +259,9 @@ export async function fetchTodaysUnitRatesByTariff(params: TariffSelectorWithUrl
 }
 
 export async function fetchProductDetails({ url }: { url: string }) {
-  logger.info(`API: Getting product details via ${url}`);
+  logger.info('API: Getting product details', {
+    data: { url },
+  });
 
   const schema = z.object({
     single_register_electricity_tariffs: z.record(
@@ -272,7 +283,8 @@ export async function fetchProductDetails({ url }: { url: string }) {
 
   const result = await getData(url);
 
-  logger.info(`API Response: Getting product details via ${url}`, {
+  logger.info('API Response: Getting product details', {
+    data: url,
     apiResponse: result,
   });
 
@@ -324,7 +336,12 @@ export async function startOnboardingProcess({
 }) {
   const token = await fetchToken();
 
-  logger.info('API: Starting tariff switch request via mutation StartOnboardingProcess');
+  logger.info('API: Starting tariff switch request via mutation StartOnboardingProcess', {
+    data: {
+      productCode,
+      changeDate,
+    },
+  });
 
   const schema = z.object({
     startOnboardingProcess: z.object({
@@ -372,6 +389,10 @@ export async function startOnboardingProcess({
   `.send({ input: { accountNumber, mpan, productCode, targetAgreementChangeDate: changeDate } });
 
   logger.info('API Response: Starting tariff switch request for StartOnboardingProcess', {
+    data: {
+      productCode,
+      argetAgreementChangeDate: changeDate,
+    },
     apiResponse: result,
   });
 
@@ -388,7 +409,12 @@ export async function acceptTermsAndConditions({
 }: { accountNumber: string; enrolmentId: string; versionMajor: number; versionMinor: number }) {
   const token = await fetchToken();
 
-  logger.info('API: Starting mutation AcceptTermsAndConditions');
+  logger.info('API: Starting mutation AcceptTermsAndConditions', {
+    data: {
+      versionMajor,
+      versionMinor,
+    },
+  });
 
   const schema = z.object({
     acceptTermsAndConditions: z.object({
@@ -421,6 +447,10 @@ export async function acceptTermsAndConditions({
   });
 
   logger.info('API Response: AcceptTermsAndConditions', {
+    data: {
+      versionMajor,
+      versionMinor,
+    },
     apiResponse: result,
   });
 
