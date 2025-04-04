@@ -6,7 +6,7 @@ import {
   getAlreadyCheapestTariffTemplate,
   getCheaperTariffTemplate,
   notWorthSwitchingTariffTemplate,
-} from '../utils/email-template';
+} from './email-template';
 import { sendSparkPostEmail } from './sparkpost';
 import { logger } from '../utils/logger';
 import type { SendEmail } from '../types/email';

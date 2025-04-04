@@ -1,4 +1,4 @@
-import { penceToPoundWithCurrency } from './helpers';
+import { penceToPoundWithCurrency } from '../utils/helpers';
 import type { TariffContextWithCost } from '../types/tariff';
 
 type TemplateData = {
