@@ -231,7 +231,7 @@ export async function verifyNewAgreement() {
 
   // Re-run if it fails
   if (!isVerified && timesVerified < 3) {
-    await sleep(20);
+    await sleep(20 * 1000);
     return verifyNewAgreement();
   }
 

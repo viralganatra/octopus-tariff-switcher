@@ -128,7 +128,7 @@ export async function tariffSwitcher(
         targetProductCode: cheapestTariff.productCode,
       });
 
-      await sleep(60);
+      await sleep(60 * 1000);
 
       const acceptedVersion = await acceptNewAgreement({
         enrolmentId,
