@@ -4,7 +4,7 @@ import {
   getAccountInfo,
   getEnrollmentId,
   getPotentialRatesAndStandingChargeByTariff,
-  getTodaysConsumptionInHalfHourlyRates,
+  getConsumptionInHalfHourlyRates,
   verifyNewAgreement,
 } from './functions/tariff-switcher/api-data';
 import { getPotentialCost, getTotalCost } from './functions/tariff-switcher/cost-calculator';
@@ -42,7 +42,7 @@ export async function tariffSwitcher(
     const { deviceId, currentStandingCharge, regionCode, currentTariff, productCode, mpan } =
       await getAccountInfo();
 
-    const todaysConsumptionUnitRates = await getTodaysConsumptionInHalfHourlyRates({ deviceId });
+    const todaysConsumptionUnitRates = await getConsumptionInHalfHourlyRates({ deviceId });
 
     logger.info(`Recieved today's consumption unit rates`, {
       data: todaysConsumptionUnitRates,

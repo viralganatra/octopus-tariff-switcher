@@ -22,6 +22,17 @@ exports[`API Data > should accept the new agreement 1`] = `
 }
 `;
 
+exports[`API Data > should fetch consumption for a specific day 1`] = `
+[
+  {
+    "consumptionDelta": 84,
+    "readAt": "2020-03-03T00:30:00+00:00",
+    "readAtMs": 1583195400000,
+    "unitCostInPence": 1.5117,
+  },
+]
+`;
+
 exports[`API Data > should fetch the account info when the tariff is agile 1`] = `
 {
   "query": "

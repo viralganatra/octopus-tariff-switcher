@@ -388,6 +388,16 @@ export const telemetryFixture = {
   ],
 };
 
+export const telemetry2020Fixture = {
+  smartMeterTelemetry: [
+    {
+      readAt: '2020-03-03T00:30:00+00:00',
+      consumptionDelta: '84.0000',
+      costDeltaWithTax: '1.5117',
+    },
+  ],
+};
+
 export const accountFixture = {
   account: {
     electricityAgreements: [
@@ -469,6 +479,21 @@ export const unitRatesFixture = {
       value_inc_vat: 26.98143,
       valid_from: '2025-03-03T00:00:00Z',
       valid_to: '2025-03-03T04:00:00Z',
+      payment_method: null,
+    },
+  ],
+};
+
+export const unitRates2020Fixture = {
+  count: 7,
+  next: null,
+  previous: null,
+  results: [
+    {
+      value_exc_vat: 12.6016,
+      value_inc_vat: 13.23168,
+      valid_from: '2020-03-03T22:00:00Z',
+      valid_to: '2020-03-02T00:00:00Z',
       payment_method: null,
     },
   ],

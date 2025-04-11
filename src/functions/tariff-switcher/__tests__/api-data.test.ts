@@ -14,8 +14,8 @@ import {
   getEnrollmentId,
   getPotentialRatesAndStandingChargeByTariff,
   getTermsVersion,
-  getTodaysConsumptionInHalfHourlyRates,
-  getTodaysUnitRatesByTariff,
+  getConsumptionInHalfHourlyRates,
+  getUnitRatesByTariff,
   verifyNewAgreement,
 } from '../api-data';
 
@@ -135,7 +135,7 @@ describe('API Data', () => {
     const dispatchRequest = vi.fn();
     server.events.on('request:start', dispatchRequest);
 
-    const consumption = await getTodaysConsumptionInHalfHourlyRates({
+    const consumption = await getConsumptionInHalfHourlyRates({
       deviceId: 'deviceId',
     });
 
@@ -147,11 +147,20 @@ describe('API Data', () => {
     await expect(serverRequest.json()).resolves.toMatchSnapshot();
   });
 
+  it('should fetch consumption for a specific day', async () => {
+    const consumption = await getConsumptionInHalfHourlyRates({
+      deviceId: 'deviceId',
+      date: new Date(2020, 2, 3),
+    });
+
+    expect(consumption).toMatchSnapshot();
+  });
+
   it('should fetch todays unit rates', async () => {
     const dispatchRequest = vi.fn();
     server.events.on('request:start', dispatchRequest);
 
-    await getTodaysUnitRatesByTariff({
+    await getUnitRatesByTariff({
       tariffCode: 'E-1R-AGILE-18-02-21-A',
       productCode: 'AGILE-18-02-21',
     });
