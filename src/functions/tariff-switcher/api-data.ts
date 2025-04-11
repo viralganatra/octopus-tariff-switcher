@@ -34,7 +34,8 @@ export async function getAccountInfo() {
   const { tariffCode, standingCharge, productCode } = electricityAgreement.tariff;
 
   const { mpan, meters } = electricityAgreement.meterPoint;
-  const [{ deviceId }] = meters[0].smartDevices;
+  const { smartDevices, serialNumber } = meters[0];
+  const [{ deviceId }] = smartDevices;
   // tariffCode is in the format E-1R-COSY-22-12-08-A and should always be a non empty string,
   // but typescript casts this to at to string | undefined
   const regionCode = tariffCode.at(-1) as string;
@@ -54,6 +55,7 @@ export async function getAccountInfo() {
     deviceId,
     productCode,
     mpan,
+    serialNumber,
     currentStandingCharge: normalisedStandingCharge,
   };
 }

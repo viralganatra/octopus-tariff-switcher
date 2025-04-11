@@ -56,6 +56,7 @@ describe('API Data', () => {
       currentStandingCharge: 48.7881,
       mpan: '1012003690000',
       productCode: 'AGILE-24-10-01',
+      serialNumber: 'serial number',
     });
   });
 
@@ -84,6 +85,7 @@ describe('API Data', () => {
       currentStandingCharge: 100,
       mpan: '1012003690000',
       productCode: 'COSY-24-10-01',
+      serialNumber: 'serial number',
     });
   });
 
@@ -112,6 +114,7 @@ describe('API Data', () => {
       currentStandingCharge: 10,
       mpan: '1012003690000',
       productCode: 'GO-24-10-01',
+      serialNumber: 'serial number',
     });
   });
 
