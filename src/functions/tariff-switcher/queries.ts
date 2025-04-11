@@ -5,8 +5,8 @@ import { formatISO } from 'date-fns';
 import { API_GRAPHQL, API_PRODUCTS } from '../../constants/api';
 import { getData } from '../../utils/fetch';
 import { logger } from '../../utils/logger';
-import type { TariffSelectorWithUrl } from '../../types/tariff';
-import type { Url } from '../../types/misc';
+import type { UnitRatesTariffSelector } from '../../types/tariff';
+import type { IsoDateTime, Url } from '../../types/misc';
 import { urlSchema } from '../../utils/schema';
 
 let token: string;
@@ -126,7 +126,7 @@ export async function fetchSmartMeterTelemetry({
   deviceId,
   startDate,
   endDate,
-}: { deviceId: string; startDate: string; endDate: string }) {
+}: { deviceId: string; startDate: IsoDateTime; endDate: IsoDateTime }) {
   const token = await fetchToken();
 
   logger.info('API: Getting smart meter telemetry via query SmartMeterTelemetry', {
@@ -224,7 +224,7 @@ export async function fetchAllProducts() {
   return results;
 }
 
-export async function fetchTodaysUnitRatesByTariff(params: TariffSelectorWithUrl) {
+export async function fetchUnitRatesByTariff(params: UnitRatesTariffSelector) {
   const schema = z.object({
     results: z
       .array(
@@ -237,23 +237,24 @@ export async function fetchTodaysUnitRatesByTariff(params: TariffSelectorWithUrl
       .nonempty(),
   });
 
-  const today = formatISO(new Date(), { representation: 'date' });
+  const date =
+    'isoDate' in params ? params.isoDate : formatISO(new Date(), { representation: 'date' });
 
   const link =
     'url' in params
       ? params.url
       : `${API_PRODUCTS}/${params.productCode}/electricity-tariffs/${params.tariffCode}/standard-unit-rates/`;
 
-  const url = `${link}?period_from=${today}T00:00:00Z&period_to=${today}T23:59:59Z`;
+  const url = `${link}?period_from=${date}T00:00:00Z&period_to=${date}T23:59:59Z`;
 
-  logger.info(`API: Getting today's unit rates`, {
-    data: { url },
+  logger.info('API: Getting unit rates', {
+    data: { url, date },
   });
 
   const result = await getData(url);
 
-  logger.info(`API Response: Getting today's unit rates`, {
-    data: { url },
+  logger.info('API Response: Received unit rates', {
+    data: { url, date },
     apiResponse: result,
   });
 

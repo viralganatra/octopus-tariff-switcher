@@ -10,7 +10,6 @@ import {
   sleep,
 } from '../../utils/helpers';
 import { logger } from '../../utils/logger';
-import type { TariffSelectorWithUrl } from '../../types/tariff';
 import { TARIFFS } from '../../constants/tariff';
 import {
   acceptTermsAndConditions,
@@ -19,9 +18,11 @@ import {
   fetchProductDetails,
   fetchSmartMeterTelemetry,
   fetchTermsVersion,
-  fetchTodaysUnitRatesByTariff,
+  fetchUnitRatesByTariff,
   startOnboardingProcess,
 } from './queries';
+import type { UnitRatesTariffSelector } from '../../types/tariff';
+import type { IsoDateTime } from '../../types/misc';
 
 type TariffDisplayName = (typeof TARIFFS)[number]['displayName'];
 
@@ -60,14 +61,16 @@ export async function getAccountInfo() {
   };
 }
 
-export async function getTodaysConsumptionInHalfHourlyRates({
+export async function getConsumptionInHalfHourlyRates({
   deviceId,
+  date = new Date(),
 }: {
   deviceId: string;
+  date?: Date;
 }) {
-  const today = formatISO(new Date(), { representation: 'date' });
-  const startDate = `${today}T00:00:00Z`;
-  const endDate = `${today}T23:59:59Z`;
+  const isoDate = formatISO(date, { representation: 'date' });
+  const startDate = `${isoDate}T00:00:00Z` as IsoDateTime;
+  const endDate = `${isoDate}T23:59:59Z` as IsoDateTime;
 
   const { smartMeterTelemetry } = await fetchSmartMeterTelemetry({
     startDate,
@@ -84,8 +87,8 @@ export async function getTodaysConsumptionInHalfHourlyRates({
   return data;
 }
 
-export async function getTodaysUnitRatesByTariff(params: TariffSelectorWithUrl) {
-  const results = await fetchTodaysUnitRatesByTariff(params);
+export async function getUnitRatesByTariff(params: UnitRatesTariffSelector) {
+  const results = await fetchUnitRatesByTariff(params);
 
   const unitRatesWithMs = results.map(({ value_inc_vat, ...halfHourlyUnitRate }) => ({
     ...halfHourlyUnitRate,
@@ -156,7 +159,7 @@ export async function getPotentialRatesAndStandingChargeByTariff({
     );
   }
 
-  const potentialUnitRates = await getTodaysUnitRatesByTariff({ url: unitRatesLink });
+  const potentialUnitRates = await getUnitRatesByTariff({ url: unitRatesLink });
 
   return {
     potentialUnitRates,

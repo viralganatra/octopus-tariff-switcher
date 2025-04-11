@@ -10,7 +10,13 @@ import {
   telemetryFixture,
   termsAndConditionsForProductFixture,
   unitRatesFixture,
+  unitRates2020Fixture,
+  telemetry2020Fixture,
 } from './fixtures';
+
+function extractYearFromDate(date: string) {
+  return Number(date.split('-').at(0));
+}
 
 export const handlers = [
   http.get('https://api.octopus.energy/v1/products', () => {
@@ -27,7 +33,14 @@ export const handlers = [
   }),
   http.get(
     'https://api.octopus.energy/v1/products/:tariffCode/electricity-tariffs/:productCode/standard-unit-rates',
-    () => {
+    ({ request }) => {
+      const url = new URL(request.url);
+      const periodFrom = url.searchParams.get('period_from') as string;
+
+      if (extractYearFromDate(periodFrom) === 2020) {
+        return HttpResponse.json(unitRates2020Fixture);
+      }
+
       return HttpResponse.json(unitRatesFixture);
     },
   ),
@@ -52,7 +65,13 @@ export const handlers = [
       data: accountFixture,
     });
   }),
-  graphql.query('smartMeterTelemetry', () => {
+  graphql.query('smartMeterTelemetry', ({ variables }) => {
+    if (extractYearFromDate(variables.start) === 2020) {
+      return HttpResponse.json({
+        data: telemetry2020Fixture,
+      });
+    }
+
     return HttpResponse.json({
       data: telemetryFixture,
     });

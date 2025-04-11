@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Url } from '../types/misc';
+import type { Url } from '../types/misc';
 
 export const urlSchema = z
   .string()

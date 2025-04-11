@@ -1,5 +1,6 @@
 import { server } from '../../../mocks/node';
-import { fetchToken } from '../queries';
+import { toIsoDateString } from '../../../utils/helpers';
+import { fetchToken, fetchUnitRatesByTariff } from '../queries';
 
 describe('Queries', () => {
   it('should return a token from the api or reuse it if it exists', async () => {
@@ -32,5 +33,22 @@ describe('Queries', () => {
     `);
 
     expect(serverRequest.url).toBe('https://api.octopus.energy/v1/graphql/');
+  });
+
+  it('should use the date param or today when fetching unit rates by tariff', async () => {
+    await expect(
+      fetchUnitRatesByTariff({
+        tariffCode: 'E-1R-AGILE-18-02-21-A',
+        productCode: 'AGILE-18-02-21',
+      }),
+    ).resolves.toMatchSnapshot();
+
+    await expect(
+      fetchUnitRatesByTariff({
+        tariffCode: 'E-1R-AGILE-18-02-21-A',
+        productCode: 'AGILE-18-02-21',
+        isoDate: toIsoDateString('2020-01-01'),
+      }),
+    ).resolves.toMatchSnapshot();
   });
 });
