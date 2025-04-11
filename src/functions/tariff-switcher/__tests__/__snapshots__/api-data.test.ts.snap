@@ -32,6 +32,7 @@ exports[`API Data > should fetch the account info when the tariff is agile 1`] =
             validTo
             meterPoint {
               meters(includeInactive: false) {
+                serialNumber
                 smartDevices {
                   deviceId
                 }

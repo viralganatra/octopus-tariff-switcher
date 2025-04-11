@@ -397,6 +397,7 @@ export const accountFixture = {
         meterPoint: {
           meters: [
             {
+              serialNumber: 'serial number',
               smartDevices: [
                 {
                   deviceId: '00-00-00-00-00-00-99-2F',

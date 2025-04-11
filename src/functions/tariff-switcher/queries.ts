@@ -58,6 +58,7 @@ export async function fetchAccountInfo() {
               meters: z
                 .array(
                   z.object({
+                    serialNumber: z.string(),
                     smartDevices: z
                       .array(
                         z.object({
@@ -95,6 +96,7 @@ export async function fetchAccountInfo() {
             validTo
             meterPoint {
               meters(includeInactive: false) {
+                serialNumber
                 smartDevices {
                   deviceId
                 }
