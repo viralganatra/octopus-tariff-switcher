@@ -240,7 +240,7 @@ export async function fetchTodaysUnitRatesByTariff(params: TariffSelectorWithUrl
   const link =
     'url' in params
       ? params.url
-      : `${API_PRODUCTS}/${params.tariffCode}/electricity-tariffs/${params.productCode}/standard-unit-rates/`;
+      : `${API_PRODUCTS}/${params.productCode}/electricity-tariffs/${params.tariffCode}/standard-unit-rates/`;
 
   const url = `${link}?period_from=${today}T00:00:00Z&period_to=${today}T23:59:59Z`;
 
