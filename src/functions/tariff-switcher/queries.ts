@@ -6,6 +6,8 @@ import { API_GRAPHQL, API_PRODUCTS } from '../../constants/api';
 import { getData } from '../../utils/fetch';
 import { logger } from '../../utils/logger';
 import type { TariffSelectorWithUrl } from '../../types/tariff';
+import type { Url } from '../../types/misc';
+import { urlSchema } from '../../utils/schema';
 
 let token: string;
 
@@ -203,7 +205,7 @@ export async function fetchAllProducts() {
         code: z.string(),
         links: z.array(
           z.object({
-            href: z.string(),
+            href: urlSchema,
             rel: z.enum(['self']),
           }),
         ),
@@ -260,7 +262,7 @@ export async function fetchTodaysUnitRatesByTariff(params: TariffSelectorWithUrl
   return results;
 }
 
-export async function fetchProductDetails({ url }: { url: string }) {
+export async function fetchProductDetails({ url }: { url: Url }) {
   logger.info('API: Getting product details', {
     data: { url },
   });
@@ -274,7 +276,7 @@ export async function fetchProductDetails({ url }: { url: string }) {
           standing_charge_inc_vat: z.number(),
           links: z.array(
             z.object({
-              href: z.string(),
+              href: urlSchema,
               rel: z.string(),
             }),
           ),
