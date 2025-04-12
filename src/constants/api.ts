@@ -1,4 +1,6 @@
-export const API = 'https://api.octopus.energy/v1/';
-export const API_GRAPHQL = `${API}graphql/`;
-export const API_PRODUCTS = `${API}products`;
-export const API_MJML = 'https://api.mjml.io/v1/render';
+import { makeUrl } from '../utils/helpers';
+
+export const API = makeUrl('https://api.octopus.energy/v1/');
+export const API_GRAPHQL = makeUrl(`${API}graphql/`);
+export const API_PRODUCTS = makeUrl(`${API}products`);
+export const API_MJML = makeUrl('https://api.mjml.io/v1/render');
