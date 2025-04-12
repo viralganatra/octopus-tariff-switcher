@@ -8,6 +8,7 @@ import { logger } from '../../utils/logger';
 import type { UnitRatesTariffSelector } from '../../types/tariff';
 import type { IsoDateTime, Url } from '../../types/misc';
 import { urlSchema } from '../../utils/schema';
+import { makeUrl } from '../../utils/helpers';
 
 let token: string;
 
@@ -190,7 +191,9 @@ export async function fetchSmartMeterTelemetry({
 }
 
 export async function fetchAllProducts() {
-  const url = `${API_PRODUCTS}?brand=OCTOPUS_ENERGY&is_business=false&is_variable=true&is_prepay=false`;
+  const url = makeUrl(
+    `${API_PRODUCTS}?brand=OCTOPUS_ENERGY&is_business=false&is_variable=true&is_prepay=false`,
+  );
 
   logger.info('API: Getting all products', {
     data: { url },
@@ -213,7 +216,7 @@ export async function fetchAllProducts() {
     ),
   });
 
-  const result = await getData(url);
+  const result = await getData({ url });
 
   logger.info('API Response: Recieved all products', {
     apiResponse: result,
@@ -245,13 +248,13 @@ export async function fetchUnitRatesByTariff(params: UnitRatesTariffSelector) {
       ? params.url
       : `${API_PRODUCTS}/${params.productCode}/electricity-tariffs/${params.tariffCode}/standard-unit-rates/`;
 
-  const url = `${link}?period_from=${date}T00:00:00Z&period_to=${date}T23:59:59Z`;
+  const url = makeUrl(`${link}?period_from=${date}T00:00:00Z&period_to=${date}T23:59:59Z`);
 
   logger.info('API: Getting unit rates', {
     data: { url, date },
   });
 
-  const result = await getData(url);
+  const result = await getData({ url });
 
   logger.info('API Response: Received unit rates', {
     data: { url, date },
@@ -286,7 +289,7 @@ export async function fetchProductDetails({ url }: { url: Url }) {
     ),
   });
 
-  const result = await getData(url);
+  const result = await getData({ url });
 
   logger.info('API Response: Getting product details', {
     data: url,

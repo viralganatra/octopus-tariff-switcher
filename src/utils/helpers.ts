@@ -1,5 +1,5 @@
 import { TZDateMini } from '@date-fns/tz';
-import type { IsoDate, IsoDateTime } from '../types/misc';
+import type { IsoDate, IsoDateTime, Url } from '../types/misc';
 
 export function getDateFromApiIsoString(isoStringFromApi: string) {
   return new Date(isoStringFromApi.replace('+00:00', '.000Z'));
@@ -41,4 +41,13 @@ export function toIsoDateTime(input: string) {
     throw new Error('Invalid ISO 8601 datetime format');
   }
   return input as IsoDateTime;
+}
+
+export function makeUrl(value: string): Url {
+  try {
+    new URL(value);
+    return value as Url;
+  } catch {
+    throw new Error(`Invalid URL: ${value}`);
+  }
 }
