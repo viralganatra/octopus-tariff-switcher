@@ -18,7 +18,7 @@ import {
   getUnitRatesByTariff,
   verifyNewAgreement,
 } from '../api-data';
-import { setCachedProducts } from '../cache';
+import { setCachedProducts, setCachedToken } from '../cache';
 
 function useServerHandlerForAccount(fixture: GraphQLQuery) {
   server.use(
@@ -34,6 +34,7 @@ describe('API Data', () => {
   beforeEach(() => {
     vi.setSystemTime(new Date(2025, 2, 3));
     setCachedProducts([]);
+    setCachedToken('');
   });
 
   it('should fetch the account info when the tariff is agile', async () => {
@@ -370,7 +371,7 @@ describe('API Data', () => {
       const data = await verifyNewAgreement();
 
       expect(data).toBe(false);
-      expect(dispatchRequest).toHaveBeenCalledTimes(2);
+      expect(dispatchRequest).toHaveBeenCalledTimes(3);
     });
 
     it('should verify the agreement when daylight savings is active', async () => {

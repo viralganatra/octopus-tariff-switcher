@@ -10,13 +10,13 @@ import type { IsoDateTime, Url } from '../../types/misc';
 import { urlSchema } from '../../utils/schema';
 import { makeUrl } from '../../utils/helpers';
 import { schemaAllProducts } from './schema';
-import { getCachedProducts, setCachedProducts } from './cache';
-
-let token: string;
+import { getCachedProducts, getCachedToken, setCachedProducts, setCachedToken } from './cache';
 
 export async function fetchToken() {
-  if (token) {
-    return token;
+  const cachedToken = getCachedToken();
+
+  if (cachedToken?.length) {
+    return cachedToken;
   }
 
   logger.info('API: Getting token via mutation ObtainKrakenToken');
@@ -41,9 +41,7 @@ export async function fetchToken() {
 
   const results = schema.parse(result);
 
-  token = results.obtainKrakenToken.token;
-
-  return token;
+  return setCachedToken(results.obtainKrakenToken.token);
 }
 
 export async function fetchAccountInfo() {
@@ -195,7 +193,7 @@ export async function fetchSmartMeterTelemetry({
 export async function fetchAllProducts() {
   const cachedProducts = getCachedProducts();
 
-  if (cachedProducts.length) {
+  if (getCachedProducts().length) {
     return cachedProducts;
   }
 
