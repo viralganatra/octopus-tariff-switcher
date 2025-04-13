@@ -9,6 +9,8 @@ import type { UnitRatesTariffSelector } from '../../types/tariff';
 import type { IsoDateTime, Url } from '../../types/misc';
 import { urlSchema } from '../../utils/schema';
 import { makeUrl } from '../../utils/helpers';
+import { schemaAllProducts } from './schema';
+import { getCachedProducts, setCachedProducts } from './cache';
 
 let token: string;
 
@@ -191,6 +193,12 @@ export async function fetchSmartMeterTelemetry({
 }
 
 export async function fetchAllProducts() {
+  const cachedProducts = getCachedProducts();
+
+  if (cachedProducts.length) {
+    return cachedProducts;
+  }
+
   const url = makeUrl(
     `${API_PRODUCTS}?brand=OCTOPUS_ENERGY&is_business=false&is_variable=true&is_prepay=false`,
   );
@@ -199,30 +207,15 @@ export async function fetchAllProducts() {
     data: { url },
   });
 
-  const schema = z.object({
-    results: z.array(
-      z.object({
-        display_name: z.string(),
-        direction: z.enum(['IMPORT', 'EXPORT']),
-        brand: z.string(),
-        code: z.string(),
-        links: z.array(
-          z.object({
-            href: urlSchema,
-            rel: z.enum(['self']),
-          }),
-        ),
-      }),
-    ),
-  });
-
   const result = await getData({ url });
 
   logger.info('API Response: Recieved all products', {
     apiResponse: result,
   });
 
-  const { results } = schema.parse(result);
+  const { results } = schemaAllProducts.parse(result);
+
+  setCachedProducts(results);
 
   return results;
 }

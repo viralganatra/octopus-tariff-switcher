@@ -18,6 +18,7 @@ import {
   getUnitRatesByTariff,
   verifyNewAgreement,
 } from '../api-data';
+import { setCachedProducts } from '../cache';
 
 function useServerHandlerForAccount(fixture: GraphQLQuery) {
   server.use(
@@ -32,6 +33,7 @@ function useServerHandlerForAccount(fixture: GraphQLQuery) {
 describe('API Data', () => {
   beforeEach(() => {
     vi.setSystemTime(new Date(2025, 2, 3));
+    setCachedProducts([]);
   });
 
   it('should fetch the account info when the tariff is agile', async () => {
