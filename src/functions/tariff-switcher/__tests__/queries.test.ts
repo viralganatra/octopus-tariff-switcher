@@ -1,6 +1,6 @@
 import { server } from '../../../mocks/node';
 import { toIsoDateString } from '../../../utils/helpers';
-import { fetchToken, fetchUnitRatesByTariff } from '../queries';
+import { fetchAllProducts, fetchToken, fetchUnitRatesByTariff } from '../queries';
 
 describe('Queries', () => {
   it('should return a token from the api or reuse it if it exists', async () => {
@@ -12,6 +12,7 @@ describe('Queries', () => {
     await fetchToken();
 
     expect(token).toBe('foo');
+    expect(dispatchRequest).toHaveBeenCalledOnce();
 
     const serverRequest = dispatchRequest.mock.lastCall?.at(0).request;
 
@@ -50,5 +51,16 @@ describe('Queries', () => {
         isoDate: toIsoDateString('2020-01-01'),
       }),
     ).resolves.toMatchSnapshot();
+  });
+
+  it('should only fetch the list of all products once', async () => {
+    const dispatchRequest = vi.fn();
+    server.events.on('request:start', dispatchRequest);
+
+    await fetchAllProducts();
+    await fetchAllProducts();
+    await fetchAllProducts();
+
+    expect(dispatchRequest).toHaveBeenCalledOnce();
   });
 });
