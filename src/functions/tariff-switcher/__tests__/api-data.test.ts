@@ -19,6 +19,7 @@ import {
   verifyNewAgreement,
 } from '../api-data';
 import { setCachedProducts, setCachedToken } from '../cache';
+import { toIsoDateString } from '../../../utils/helpers';
 
 function useServerHandlerForAccount(fixture: GraphQLQuery) {
   server.use(
@@ -175,7 +176,7 @@ describe('API Data', () => {
     );
   });
 
-  it('should fetch the potential rates and standing charge', async () => {
+  it('should fetch the potential rates and standing charge for today', async () => {
     const dispatchRequest = vi.fn();
     server.events.on('request:start', dispatchRequest);
 
@@ -194,6 +195,16 @@ describe('API Data', () => {
     expect(serverRequestTwo.url).toBe(
       'https://api.octopus.energy/v1/products/AGILE-24-10-01/electricity-tariffs/E-1R-AGILE-24-10-01-A/standard-unit-rates/?period_from=2025-03-03T00:00:00Z&period_to=2025-03-03T23:59:59Z',
     );
+  });
+
+  it('should fetch the potential rates and standing charge for a specific day', async () => {
+    const data = await getPotentialRatesAndStandingChargeByTariff({
+      tariff: 'Agile Octopus',
+      regionCode: 'A',
+      isoDate: toIsoDateString('2020-01-01'),
+    });
+
+    expect(data).toMatchSnapshot();
   });
 
   it('should throw an error if no product link is found', async () => {

@@ -9,7 +9,6 @@ import {
   roundTo4Digits,
   sleep,
 } from '../../utils/helpers';
-import { logger } from '../../utils/logger';
 import { TARIFFS } from '../../constants/tariff';
 import {
   acceptTermsAndConditions,
@@ -22,7 +21,7 @@ import {
   startOnboardingProcess,
 } from './queries';
 import type { UnitRatesTariffSelector } from '../../types/tariff';
-import type { IsoDateTime } from '../../types/misc';
+import type { IsoDate, IsoDateTime } from '../../types/misc';
 
 type TariffDisplayName = (typeof TARIFFS)[number]['displayName'];
 
@@ -100,13 +99,7 @@ export async function getUnitRatesByTariff(params: UnitRatesTariffSelector) {
   return unitRatesWithMs;
 }
 
-export async function getPotentialRatesAndStandingChargeByTariff({
-  regionCode,
-  tariff,
-}: {
-  regionCode: string;
-  tariff: TariffDisplayName;
-}) {
+export async function getProductByTariff(tariff: TariffDisplayName) {
   const allProducts = await fetchAllProducts();
 
   // Find the Octopus product for the tariff we're looking for
@@ -118,9 +111,19 @@ export async function getPotentialRatesAndStandingChargeByTariff({
     throw new UnknownProductError(`Unable to find valid product using: ${tariff}`);
   }
 
-  logger.info(`Found matching product based on ${tariff}`, {
-    data: product,
-  });
+  return product;
+}
+
+export async function getPotentialRatesAndStandingChargeByTariff({
+  regionCode,
+  tariff,
+  isoDate,
+}: {
+  regionCode: string;
+  tariff: TariffDisplayName;
+  isoDate?: IsoDate;
+}) {
+  const product = await getProductByTariff(tariff);
 
   // Find the self link for tariff details
   const productLink = product.links.find((item) => item.rel === 'self')?.href;
@@ -159,7 +162,7 @@ export async function getPotentialRatesAndStandingChargeByTariff({
     );
   }
 
-  const potentialUnitRates = await getUnitRatesByTariff({ url: unitRatesLink });
+  const potentialUnitRates = await getUnitRatesByTariff({ isoDate, url: unitRatesLink });
 
   return {
     potentialUnitRates,
