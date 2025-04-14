@@ -7,6 +7,7 @@ import {
   getDateInLocalTimeZone,
   roundTo4Digits,
   sleep,
+  toIsoDateTime,
 } from '../../utils/helpers';
 import { TARIFFS, type TariffDisplayName } from '../../constants/tariff';
 import {
@@ -19,7 +20,7 @@ import {
   fetchUnitRatesByTariff,
   startOnboardingProcess,
 } from './queries';
-import type { IsoDate, IsoDateTime } from '../../types/misc';
+import type { IsoDate } from '../../types/misc';
 
 let timesVerified = 0;
 
@@ -64,8 +65,8 @@ export async function getConsumptionInHalfHourlyRates({
   date?: Date;
 }) {
   const isoDate = formatISO(date, { representation: 'date' });
-  const startDate = `${isoDate}T00:00:00Z` as IsoDateTime;
-  const endDate = `${isoDate}T23:59:59Z` as IsoDateTime;
+  const startDate = toIsoDateTime(`${isoDate}T00:00:00Z`);
+  const endDate = toIsoDateTime(`${isoDate}T23:59:59Z`);
 
   const smartMeterTelemetry = await fetchSmartMeterTelemetry({
     startDate,
