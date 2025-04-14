@@ -15,8 +15,8 @@ type PotentialUnitRates = {
   validFromMs: number;
   validToMs: number;
   unitCostInPence: number;
-  valid_from: string;
-  valid_to: string;
+  validFrom: string;
+  validTo: string;
 }[];
 
 type StandingCharge = number;
