@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { snakeToCamelSchema, urlSchema } from '../../utils/schema';
+import { getMsFromApiIsoString } from '../../utils/helpers';
 
 export const schemaToken = z.object({
   obtainKrakenToken: z.object({
@@ -45,11 +46,17 @@ export const schemaAccount = z.object({
 export const schemaSmartMeterTelemetry = z.object({
   smartMeterTelemetry: z
     .array(
-      z.object({
-        readAt: z.string(),
-        consumptionDelta: z.coerce.number(),
-        costDeltaWithTax: z.coerce.number(),
-      }),
+      z
+        .object({
+          readAt: z.string(),
+          consumptionDelta: z.coerce.number(),
+          costDeltaWithTax: z.coerce.number(),
+        })
+        .transform(({ costDeltaWithTax, ...halfHourlyUnitRate }) => ({
+          ...halfHourlyUnitRate,
+          unitCostInPence: costDeltaWithTax,
+          readAtMs: getMsFromApiIsoString(halfHourlyUnitRate.readAt),
+        })),
     )
     .nonempty(),
 });
@@ -78,11 +85,19 @@ export const schemaUnitRatesByTariff = snakeToCamelSchema(
   z.object({
     results: z
       .array(
-        z.object({
-          value_inc_vat: z.number(),
-          valid_from: z.string().datetime(),
-          valid_to: z.string().datetime(),
-        }),
+        z
+          .object({
+            value_inc_vat: z.number(),
+            valid_from: z.string().datetime(),
+            valid_to: z.string().datetime(),
+          })
+          .transform(({ value_inc_vat, valid_from, valid_to }) => ({
+            validFrom: valid_from,
+            validTo: valid_to,
+            validFromMs: getMsFromApiIsoString(valid_from),
+            validToMs: getMsFromApiIsoString(valid_to),
+            unitCostInPence: value_inc_vat,
+          })),
       )
       .nonempty(),
   }),

@@ -142,7 +142,9 @@ export async function fetchSmartMeterTelemetry({
     apiResponse: result,
   });
 
-  return schemaSmartMeterTelemetry.parse(result);
+  const { smartMeterTelemetry } = schemaSmartMeterTelemetry.parse(result);
+
+  return smartMeterTelemetry;
 }
 
 export async function fetchAllProducts() {
@@ -291,9 +293,9 @@ export async function startOnboardingProcess({
     apiResponse: result,
   });
 
-  const results = schemaStartOnboardingProcess.parse(result);
+  const { startOnboardingProcess } = schemaStartOnboardingProcess.parse(result);
 
-  return results.startOnboardingProcess;
+  return startOnboardingProcess.productEnrolment.id;
 }
 
 export async function acceptTermsAndConditions({
