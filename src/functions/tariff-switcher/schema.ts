@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { urlSchema } from '../../utils/schema';
+import { snakeToCamelSchema, urlSchema } from '../../utils/schema';
 
 export const schemaToken = z.object({
   obtainKrakenToken: z.object({
@@ -54,54 +54,59 @@ export const schemaSmartMeterTelemetry = z.object({
     .nonempty(),
 });
 
-export const schemaAllProducts = z.object({
-  results: z.array(
-    z.object({
-      display_name: z.string(),
-      direction: z.enum(['IMPORT', 'EXPORT']),
-      brand: z.string(),
-      code: z.string(),
-      links: z.array(
-        z.object({
-          href: urlSchema,
-          rel: z.enum(['self']),
-        }),
-      ),
-    }),
-  ),
-});
-
-export type AllProducts = z.infer<typeof schemaAllProducts>['results'];
-
-export const schemaUnitRatesByTariff = z.object({
-  results: z
-    .array(
+export const schemaAllProducts = snakeToCamelSchema(
+  z.object({
+    results: z.array(
       z.object({
-        value_inc_vat: z.number(),
-        valid_from: z.string().datetime(),
-        valid_to: z.string().datetime(),
-      }),
-    )
-    .nonempty(),
-});
-
-export const schemaProductDetails = z.object({
-  single_register_electricity_tariffs: z.record(
-    z.string(),
-    z.record(
-      z.enum(['direct_debit_monthly', 'varying']),
-      z.object({
-        standing_charge_inc_vat: z.number(),
+        display_name: z.string(),
+        direction: z.enum(['IMPORT', 'EXPORT']),
+        code: z.string(),
         links: z.array(
           z.object({
             href: urlSchema,
-            rel: z.string(),
+            rel: z.enum(['self']),
           }),
         ),
       }),
     ),
-  ),
-});
+  }),
+);
+
+export type AllProducts = z.infer<typeof schemaAllProducts>['results'];
+
+export const schemaUnitRatesByTariff = snakeToCamelSchema(
+  z.object({
+    results: z
+      .array(
+        z.object({
+          value_inc_vat: z.number(),
+          valid_from: z.string().datetime(),
+          valid_to: z.string().datetime(),
+        }),
+      )
+      .nonempty(),
+  }),
+);
+
+export const schemaProductDetails = snakeToCamelSchema(
+  z.object({
+    single_register_electricity_tariffs: z.record(
+      z.string(),
+      z.record(
+        z.enum(['direct_debit_monthly', 'varying']),
+        z.object({
+          standing_charge_inc_vat: z.number(),
+          links: z.array(
+            z.object({
+              href: urlSchema,
+              rel: z.string(),
+            }),
+          ),
+        }),
+      ),
+    ),
+  }),
+);
 
 export const schemaTermsVersion = z.object({
   termsAndConditionsForProduct: z.object({

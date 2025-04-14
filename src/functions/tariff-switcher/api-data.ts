@@ -89,11 +89,11 @@ export async function getConsumptionInHalfHourlyRates({
 export async function getUnitRatesByTariff(params: UnitRatesTariffSelector) {
   const results = await fetchUnitRatesByTariff(params);
 
-  const unitRatesWithMs = results.map(({ value_inc_vat, ...halfHourlyUnitRate }) => ({
+  const unitRatesWithMs = results.map(({ valueIncVat, ...halfHourlyUnitRate }) => ({
     ...halfHourlyUnitRate,
-    validFromMs: getMsFromApiIsoString(halfHourlyUnitRate.valid_from),
-    validToMs: getMsFromApiIsoString(halfHourlyUnitRate.valid_to),
-    unitCostInPence: value_inc_vat,
+    validFromMs: getMsFromApiIsoString(halfHourlyUnitRate.validFrom),
+    validToMs: getMsFromApiIsoString(halfHourlyUnitRate.validTo),
+    unitCostInPence: valueIncVat,
   }));
 
   return unitRatesWithMs;
@@ -104,7 +104,7 @@ export async function getProductByTariff(tariff: TariffDisplayName) {
 
   // Find the Octopus product for the tariff we're looking for
   const product = allProducts.find((product) => {
-    return product.display_name === tariff && product.direction === 'IMPORT';
+    return product.displayName === tariff && product.direction === 'IMPORT';
   });
 
   if (!product) {
@@ -136,14 +136,14 @@ export async function getPotentialRatesAndStandingChargeByTariff({
   const tariffDetails = await fetchProductDetails({ url: productLink });
 
   const regionCodeKey = `_${regionCode}`;
-  const filteredRegion = tariffDetails.single_register_electricity_tariffs[regionCodeKey];
+  const filteredRegion = tariffDetails.singleRegisterElectricityTariffs[regionCodeKey];
 
   if (!filteredRegion) {
     throw new UnknownProductError(`Region code not found in product: ${regionCodeKey}`);
   }
 
-  const regionTariffs = filteredRegion.direct_debit_monthly || filteredRegion.varying;
-  const standingChargeIncVat = regionTariffs?.standing_charge_inc_vat;
+  const regionTariffs = filteredRegion.directDebitMonthly || filteredRegion.varying;
+  const standingChargeIncVat = regionTariffs?.standingChargeIncVat;
 
   if (!standingChargeIncVat) {
     throw new UnknownProductError(
