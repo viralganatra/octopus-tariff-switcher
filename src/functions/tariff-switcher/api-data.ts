@@ -5,7 +5,6 @@ import { UnknownTariffError } from '../../errors/unknown-tariff-error';
 import {
   getDateFromApiIsoString,
   getDateInLocalTimeZone,
-  getMsFromApiIsoString,
   roundTo4Digits,
   sleep,
 } from '../../utils/helpers';
@@ -20,7 +19,6 @@ import {
   fetchUnitRatesByTariff,
   startOnboardingProcess,
 } from './queries';
-import type { UnitRatesTariffSelector } from '../../types/tariff';
 import type { IsoDate, IsoDateTime } from '../../types/misc';
 
 type TariffDisplayName = (typeof TARIFFS)[number]['displayName'];
@@ -71,32 +69,13 @@ export async function getConsumptionInHalfHourlyRates({
   const startDate = `${isoDate}T00:00:00Z` as IsoDateTime;
   const endDate = `${isoDate}T23:59:59Z` as IsoDateTime;
 
-  const { smartMeterTelemetry } = await fetchSmartMeterTelemetry({
+  const smartMeterTelemetry = await fetchSmartMeterTelemetry({
     startDate,
     endDate,
     deviceId,
   });
 
-  const data = smartMeterTelemetry.map(({ costDeltaWithTax, ...halfHourlyUnitRate }) => ({
-    ...halfHourlyUnitRate,
-    unitCostInPence: costDeltaWithTax,
-    readAtMs: getMsFromApiIsoString(halfHourlyUnitRate.readAt),
-  }));
-
-  return data;
-}
-
-export async function getUnitRatesByTariff(params: UnitRatesTariffSelector) {
-  const results = await fetchUnitRatesByTariff(params);
-
-  const unitRatesWithMs = results.map(({ valueIncVat, ...halfHourlyUnitRate }) => ({
-    ...halfHourlyUnitRate,
-    validFromMs: getMsFromApiIsoString(halfHourlyUnitRate.validFrom),
-    validToMs: getMsFromApiIsoString(halfHourlyUnitRate.validTo),
-    unitCostInPence: valueIncVat,
-  }));
-
-  return unitRatesWithMs;
+  return smartMeterTelemetry;
 }
 
 export async function getProductByTariff(tariff: TariffDisplayName) {
@@ -162,7 +141,7 @@ export async function getPotentialRatesAndStandingChargeByTariff({
     );
   }
 
-  const potentialUnitRates = await getUnitRatesByTariff({ isoDate, url: unitRatesLink });
+  const potentialUnitRates = await fetchUnitRatesByTariff({ isoDate, url: unitRatesLink });
 
   return {
     potentialUnitRates,
@@ -193,14 +172,14 @@ export async function getEnrollmentId({
   const today = startOfToday();
   const changeDate = format(today, 'yyyy-MM-dd');
 
-  const { productEnrolment } = await startOnboardingProcess({
+  const productEnrolmentId = await startOnboardingProcess({
     mpan,
     changeDate,
     accountNumber: Resource.AccNumber.value,
     productCode: targetProductCode,
   });
 
-  return productEnrolment.id;
+  return productEnrolmentId;
 }
 
 export async function acceptNewAgreement({
