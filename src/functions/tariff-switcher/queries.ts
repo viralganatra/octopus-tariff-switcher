@@ -1,15 +1,23 @@
 import { Graffle } from 'graffle';
 import { Resource } from 'sst';
-import { z } from 'zod';
 import { formatISO } from 'date-fns';
 import { API_GRAPHQL, API_PRODUCTS } from '../../constants/api';
 import { getData } from '../../utils/fetch';
 import { logger } from '../../utils/logger';
 import type { UnitRatesTariffSelector } from '../../types/tariff';
 import type { IsoDateTime, Url } from '../../types/misc';
-import { urlSchema } from '../../utils/schema';
 import { makeUrl } from '../../utils/helpers';
-import { schemaAllProducts } from './schema';
+import {
+  schemaAcceptTsAndCs,
+  schemaAccount,
+  schemaAllProducts,
+  schemaProductDetails,
+  schemaSmartMeterTelemetry,
+  schemaStartOnboardingProcess,
+  schemaTermsVersion,
+  schemaToken,
+  schemaUnitRatesByTariff,
+} from './schema';
 import { getCachedProducts, getCachedToken, setCachedProducts, setCachedToken } from './cache';
 
 export async function fetchToken() {
@@ -20,12 +28,6 @@ export async function fetchToken() {
   }
 
   logger.info('API: Getting token via mutation ObtainKrakenToken');
-
-  const schema = z.object({
-    obtainKrakenToken: z.object({
-      token: z.string(),
-    }),
-  });
 
   const graffle = Graffle.create().transport({
     url: API_GRAPHQL,
@@ -39,7 +41,7 @@ export async function fetchToken() {
     }
   `.send({ input: { APIKey: Resource.ApiKey.value } });
 
-  const results = schema.parse(result);
+  const results = schemaToken.parse(result);
 
   return setCachedToken(results.obtainKrakenToken.token);
 }
@@ -48,41 +50,6 @@ export async function fetchAccountInfo() {
   const token = await fetchToken();
 
   logger.info('API: Getting account info via query Account');
-
-  const schema = z.object({
-    account: z.object({
-      electricityAgreements: z
-        .array(
-          z.object({
-            validFrom: z.string().datetime({ offset: true }),
-            validTo: z.string().datetime({ offset: true }).nullable(),
-            meterPoint: z.object({
-              mpan: z.string(),
-              meters: z
-                .array(
-                  z.object({
-                    serialNumber: z.string(),
-                    smartDevices: z
-                      .array(
-                        z.object({
-                          deviceId: z.string(),
-                        }),
-                      )
-                      .nonempty(),
-                  }),
-                )
-                .nonempty(),
-            }),
-            tariff: z.object({
-              productCode: z.string(),
-              tariffCode: z.string(),
-              standingCharge: z.number(),
-            }),
-          }),
-        )
-        .nonempty(),
-    }),
-  });
 
   const graffle = Graffle.create().transport({
     url: API_GRAPHQL,
@@ -120,7 +87,7 @@ export async function fetchAccountInfo() {
 
   logger.info('API Response: Recieved account info', { apiResponse: result });
 
-  return schema.parse(result);
+  return schemaAccount.parse(result);
 }
 
 export async function fetchSmartMeterTelemetry({
@@ -135,18 +102,6 @@ export async function fetchSmartMeterTelemetry({
       startDate,
       endDate,
     },
-  });
-
-  const schema = z.object({
-    smartMeterTelemetry: z
-      .array(
-        z.object({
-          readAt: z.string(),
-          consumptionDelta: z.coerce.number(),
-          costDeltaWithTax: z.coerce.number(),
-        }),
-      )
-      .nonempty(),
   });
 
   const graffle = Graffle.create().transport({
@@ -187,7 +142,7 @@ export async function fetchSmartMeterTelemetry({
     apiResponse: result,
   });
 
-  return schema.parse(result);
+  return schemaSmartMeterTelemetry.parse(result);
 }
 
 export async function fetchAllProducts() {
@@ -219,18 +174,6 @@ export async function fetchAllProducts() {
 }
 
 export async function fetchUnitRatesByTariff(params: UnitRatesTariffSelector) {
-  const schema = z.object({
-    results: z
-      .array(
-        z.object({
-          value_inc_vat: z.number(),
-          valid_from: z.string().datetime(),
-          valid_to: z.string().datetime(),
-        }),
-      )
-      .nonempty(),
-  });
-
   const date = params.isoDate ? params.isoDate : formatISO(new Date(), { representation: 'date' });
 
   const link =
@@ -251,7 +194,7 @@ export async function fetchUnitRatesByTariff(params: UnitRatesTariffSelector) {
     apiResponse: result,
   });
 
-  const { results } = schema.parse(result);
+  const { results } = schemaUnitRatesByTariff.parse(result);
 
   return results;
 }
@@ -261,24 +204,6 @@ export async function fetchProductDetails({ url }: { url: Url }) {
     data: { url },
   });
 
-  const schema = z.object({
-    single_register_electricity_tariffs: z.record(
-      z.string(),
-      z.record(
-        z.enum(['direct_debit_monthly', 'varying']),
-        z.object({
-          standing_charge_inc_vat: z.number(),
-          links: z.array(
-            z.object({
-              href: urlSchema,
-              rel: z.string(),
-            }),
-          ),
-        }),
-      ),
-    ),
-  });
-
   const result = await getData({ url });
 
   logger.info('API Response: Getting product details', {
@@ -286,18 +211,11 @@ export async function fetchProductDetails({ url }: { url: Url }) {
     apiResponse: result,
   });
 
-  return schema.parse(result);
+  return schemaProductDetails.parse(result);
 }
 
 export async function fetchTermsVersion(productCode: string) {
   logger.info(`API: Getting terms version for ${productCode}`);
-
-  const schema = z.object({
-    termsAndConditionsForProduct: z.object({
-      name: z.string(),
-      version: z.string(),
-    }),
-  });
 
   const graffle = Graffle.create().transport({
     url: API_GRAPHQL,
@@ -316,7 +234,7 @@ export async function fetchTermsVersion(productCode: string) {
     apiResponse: result,
   });
 
-  const { termsAndConditionsForProduct } = schema.parse(result);
+  const { termsAndConditionsForProduct } = schemaTermsVersion.parse(result);
 
   return termsAndConditionsForProduct;
 }
@@ -339,27 +257,6 @@ export async function startOnboardingProcess({
       productCode,
       changeDate,
     },
-  });
-
-  const schema = z.object({
-    startOnboardingProcess: z.object({
-      onboardingProcess: z
-        .object({
-          id: z.string(),
-        })
-        .nullable(),
-      productEnrolment: z.object({
-        id: z.string(),
-      }),
-      possibleErrors: z
-        .array(
-          z.object({
-            message: z.string(),
-            code: z.string(),
-          }),
-        )
-        .optional(),
-    }),
   });
 
   const graffle = Graffle.create().transport({
@@ -394,7 +291,7 @@ export async function startOnboardingProcess({
     apiResponse: result,
   });
 
-  const results = schema.parse(result);
+  const results = schemaStartOnboardingProcess.parse(result);
 
   return results.startOnboardingProcess;
 }
@@ -412,12 +309,6 @@ export async function acceptTermsAndConditions({
       versionMajor,
       versionMinor,
     },
-  });
-
-  const schema = z.object({
-    acceptTermsAndConditions: z.object({
-      acceptedVersion: z.string(),
-    }),
   });
 
   const graffle = Graffle.create().transport({
@@ -452,7 +343,7 @@ export async function acceptTermsAndConditions({
     apiResponse: result,
   });
 
-  const results = schema.parse(result);
+  const results = schemaAcceptTsAndCs.parse(result);
 
   return results.acceptTermsAndConditions.acceptedVersion;
 }
