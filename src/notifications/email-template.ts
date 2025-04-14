@@ -1,9 +1,9 @@
 import { penceToPoundWithCurrency } from '../utils/helpers';
-import type { TariffContextWithCost } from '../types/tariff';
+import type { TariffWithCost } from '../types/tariff';
 
 type TemplateData = {
-  allTariffsByCost: TariffContextWithCost[];
-  currentTariffWithCost: TariffContextWithCost;
+  allTariffsByCost: TariffWithCost[];
+  currentTariffWithCost: TariffWithCost;
   title: string;
 };
 

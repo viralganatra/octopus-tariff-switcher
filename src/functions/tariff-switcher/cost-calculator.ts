@@ -1,24 +1,8 @@
 import { MatchingRateError } from '../../errors/matching-rate-error';
 import { roundTo4Digits } from '../../utils/helpers';
+import type { ConsumptionUnitRates, TariffUnitRates } from './schema';
 
-type UnitCostInPence = {
-  unitCostInPence: number;
-};
-
-type ConsumptionUnitRates = (UnitCostInPence & {
-  readAtMs: number;
-  readAt: string;
-  consumptionDelta: number;
-})[];
-
-type PotentialUnitRates = {
-  validFromMs: number;
-  validToMs: number;
-  unitCostInPence: number;
-  validFrom: string;
-  validTo: string;
-}[];
-
+type UnitCostInPence = Pick<ConsumptionUnitRates[number], 'unitCostInPence'>;
 type StandingCharge = number;
 
 export function getTotalCost({
@@ -45,7 +29,7 @@ export function getPotentialCost({
 }: {
   todaysPotentialStandingCharge: StandingCharge;
   todaysConsumptionUnitRates: ConsumptionUnitRates;
-  todaysPotentialUnitRates: PotentialUnitRates;
+  todaysPotentialUnitRates: TariffUnitRates;
 }) {
   const potentialUnitCosts = todaysConsumptionUnitRates.map((halfHourlyUnitRate) => {
     const { readAtMs, readAt, consumptionDelta } = halfHourlyUnitRate;

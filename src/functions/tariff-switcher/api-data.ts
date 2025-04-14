@@ -8,7 +8,7 @@ import {
   roundTo4Digits,
   sleep,
 } from '../../utils/helpers';
-import { TARIFFS } from '../../constants/tariff';
+import { TARIFFS, type TariffDisplayName } from '../../constants/tariff';
 import {
   acceptTermsAndConditions,
   fetchAccountInfo,
@@ -20,8 +20,6 @@ import {
   startOnboardingProcess,
 } from './queries';
 import type { IsoDate, IsoDateTime } from '../../types/misc';
-
-type TariffDisplayName = (typeof TARIFFS)[number]['displayName'];
 
 let timesVerified = 0;
 

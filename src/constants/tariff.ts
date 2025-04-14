@@ -1,4 +1,4 @@
-import type { TariffContext } from '../types/tariff';
+import type { Tariff } from '../types/tariff';
 
 export const TARIFFS = [
   {
@@ -16,4 +16,6 @@ export const TARIFFS = [
     displayName: 'Octopus Go',
     tariffCodeMatcher: '-GO-',
   },
-] as const satisfies TariffContext[];
+] as const satisfies Tariff[];
+
+export type TariffDisplayName = (typeof TARIFFS)[number]['displayName'];
