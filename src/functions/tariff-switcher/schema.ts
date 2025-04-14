@@ -61,6 +61,8 @@ export const schemaSmartMeterTelemetry = z.object({
     .nonempty(),
 });
 
+export type ConsumptionUnitRates = z.infer<typeof schemaSmartMeterTelemetry>['smartMeterTelemetry'];
+
 export const schemaAllProducts = snakeToCamelSchema(
   z.object({
     results: z.array(
@@ -102,6 +104,8 @@ export const schemaUnitRatesByTariff = snakeToCamelSchema(
       .nonempty(),
   }),
 );
+
+export type TariffUnitRates = z.infer<typeof schemaUnitRatesByTariff>['results'];
 
 export const schemaProductDetails = snakeToCamelSchema(
   z.object({

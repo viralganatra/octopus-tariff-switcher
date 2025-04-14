@@ -1,4 +1,4 @@
-import type { TariffContextWithCost } from './tariff';
+import type { TariffWithCost } from './tariff';
 
 export type EmailType =
   | 'CHEAPER_TARIFF_EXISTS'
@@ -6,7 +6,7 @@ export type EmailType =
   | 'NOT_WORTH_SWITCHING_TARIFF';
 
 export type SendEmail = {
-  allTariffsByCost: TariffContextWithCost[];
-  currentTariffWithCost: TariffContextWithCost;
+  allTariffsByCost: TariffWithCost[];
+  currentTariffWithCost: TariffWithCost;
   emailType: EmailType;
 };

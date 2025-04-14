@@ -9,10 +9,10 @@ export type UnitRatesTariffSelector =
   | (TariffSelector & { isoDate?: IsoDate })
   | { url: Url; isoDate?: IsoDate };
 
-export type TariffContext = {
+export type Tariff = {
   id: string;
   displayName: string;
   tariffCodeMatcher: string;
 };
 
-export type TariffContextWithCost = TariffContext & { cost: number };
+export type TariffWithCost = Tariff & { cost: number };
