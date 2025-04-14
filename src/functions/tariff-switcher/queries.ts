@@ -231,8 +231,7 @@ export async function fetchUnitRatesByTariff(params: UnitRatesTariffSelector) {
       .nonempty(),
   });
 
-  const date =
-    'isoDate' in params ? params.isoDate : formatISO(new Date(), { representation: 'date' });
+  const date = params.isoDate ? params.isoDate : formatISO(new Date(), { representation: 'date' });
 
   const link =
     'url' in params
