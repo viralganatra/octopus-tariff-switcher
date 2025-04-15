@@ -3,6 +3,7 @@ import { roundTo4Digits } from '../../utils/helpers';
 import type { ConsumptionUnitRates, TariffUnitRates } from './schema';
 
 type UnitCostInPence = Pick<ConsumptionUnitRates[number], 'unitCostInPence'>;
+type ConsumptionUnitRatesWithoutCost = Omit<ConsumptionUnitRates[number], 'unitCostInPence'>[];
 type StandingCharge = number;
 
 export function getTotalCost({
@@ -22,20 +23,20 @@ export function getTotalCost({
   return roundTo4Digits(totalConsumptionInPence + standingCharge);
 }
 
-export function getPotentialCost({
-  todaysPotentialStandingCharge,
-  todaysConsumptionUnitRates,
-  todaysPotentialUnitRates,
+export function getDailyUsageCostByTariff({
+  standingCharge,
+  consumptionUnitRates,
+  tariffUnitRates,
 }: {
-  todaysPotentialStandingCharge: StandingCharge;
-  todaysConsumptionUnitRates: ConsumptionUnitRates;
-  todaysPotentialUnitRates: TariffUnitRates;
+  standingCharge: StandingCharge;
+  consumptionUnitRates: ConsumptionUnitRatesWithoutCost;
+  tariffUnitRates: TariffUnitRates;
 }) {
-  const potentialUnitCosts = todaysConsumptionUnitRates.map((halfHourlyUnitRate) => {
+  const unitRatesWithCost = consumptionUnitRates.map((halfHourlyUnitRate) => {
     const { readAtMs, readAt, consumptionDelta } = halfHourlyUnitRate;
 
-    const matchingRate = todaysPotentialUnitRates.find((rate) => {
-      return rate.validFromMs < readAtMs && readAtMs <= rate.validToMs;
+    const matchingRate = tariffUnitRates.find((rate) => {
+      return rate.validFromMs <= readAtMs && readAtMs <= rate.validToMs;
     });
 
     if (!matchingRate) {
@@ -51,8 +52,8 @@ export function getPotentialCost({
   });
 
   const potentialCost = getTotalCost({
-    unitRates: potentialUnitCosts,
-    standingCharge: todaysPotentialStandingCharge,
+    standingCharge,
+    unitRates: unitRatesWithCost,
   });
 
   return potentialCost;

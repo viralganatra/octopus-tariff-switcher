@@ -7,7 +7,10 @@ import {
   getConsumptionInHalfHourlyRates,
   verifyNewAgreement,
 } from './functions/tariff-switcher/api-data';
-import { getPotentialCost, getTotalCost } from './functions/tariff-switcher/cost-calculator';
+import {
+  getDailyUsageCostByTariff,
+  getTotalCost,
+} from './functions/tariff-switcher/cost-calculator';
 import { penceToPoundWithCurrency, sleep } from './utils/helpers';
 import { logger } from './utils/logger';
 import { formatResponse } from './utils/format-response';
@@ -76,10 +79,10 @@ export async function tariffSwitcher(
           tariff: tariff.displayName,
         });
 
-      const potentialCost = getPotentialCost({
-        todaysConsumptionUnitRates,
-        todaysPotentialStandingCharge: potentialStandingCharge,
-        todaysPotentialUnitRates: potentialUnitRates,
+      const potentialCost = getDailyUsageCostByTariff({
+        consumptionUnitRates: todaysConsumptionUnitRates,
+        standingCharge: potentialStandingCharge,
+        tariffUnitRates: potentialUnitRates,
       });
 
       allTariffCosts.push({ ...tariff, cost: potentialCost, productCode: potentialProductCode });
