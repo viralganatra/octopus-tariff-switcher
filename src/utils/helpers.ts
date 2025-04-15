@@ -2,7 +2,7 @@ import { TZDateMini } from '@date-fns/tz';
 import type { IsoDate, IsoDateTime, Url } from '../types/misc';
 
 export function getDateFromApiIsoString(isoStringFromApi: string) {
-  return new Date(isoStringFromApi.replace('+00:00', '.000Z'));
+  return new Date(isoStringFromApi);
 }
 
 export function getMsFromApiIsoString(isoStringFromApi: string) {
