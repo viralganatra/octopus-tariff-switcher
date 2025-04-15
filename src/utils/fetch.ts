@@ -1,5 +1,6 @@
 import { FetchError } from '../errors/fetch-error';
 import type { HeadersInit, Url } from '../types/misc';
+import { sleep } from './helpers';
 
 export async function getData({ url, headers = {} }: { url: Url; headers?: HeadersInit }) {
   const response = await fetch(url, {
@@ -36,4 +37,26 @@ export async function sendData({
   }
 
   return response.json();
+}
+
+export async function retryWithExponentialBackoff<T>(
+  fn: () => Promise<T>,
+  { retries = 3, delayMs = 250 }: { retries?: number; delayMs?: number } = {},
+): Promise<T> {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      if (attempt === retries) {
+        throw error;
+      }
+
+      const delay = delayMs * 2 ** attempt;
+
+      await sleep(delay);
+    }
+  }
+
+  // Shouldn't be reachable
+  throw new Error('Unexpected error in retry logic');
 }
