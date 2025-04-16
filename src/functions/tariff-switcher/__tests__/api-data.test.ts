@@ -343,10 +343,6 @@ describe('API Data', () => {
   });
 
   describe('Verifying the agreement', () => {
-    beforeEach(() => {
-      vi.runAllTimersAsync();
-    });
-
     it('should verify the new agreement', async () => {
       expect(await verifyNewAgreement()).toBe(true);
     });
@@ -362,7 +358,11 @@ describe('API Data', () => {
 
       server.events.on('request:start', dispatchRequest);
 
-      const data = await verifyNewAgreement();
+      const promise = verifyNewAgreement();
+
+      await vi.runAllTimersAsync();
+
+      const data = await promise;
 
       expect(data).toBe(false);
       expect(dispatchRequest).toHaveBeenCalledTimes(3);
