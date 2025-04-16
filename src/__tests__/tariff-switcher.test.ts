@@ -11,13 +11,16 @@ describe('Tariff Switcher', () => {
   const context = {} as Context;
 
   beforeEach(() => {
-    vi.runAllTimersAsync();
     vi.setSystemTime(new Date(2025, 2, 3));
   });
 
   it('should switch to the cheapest tariff and send a notification', async () => {
     const spy = vi.spyOn(email, 'sendEmail');
-    const data = await tariffSwitcher(proxy, context);
+    const promise = tariffSwitcher(proxy, context);
+
+    await vi.runAllTimersAsync();
+
+    const data = await promise;
 
     // @ts-ignore
     const emailData = spy.mock.calls[0][0];
@@ -44,7 +47,11 @@ describe('Tariff Switcher', () => {
       }),
     );
 
-    const data = await tariffSwitcher(proxy, context);
+    const promise = tariffSwitcher(proxy, context);
+
+    await vi.runAllTimersAsync();
+
+    const data = await promise;
 
     expect(data).toMatchInlineSnapshot(`
       {
@@ -68,7 +75,11 @@ describe('Tariff Switcher', () => {
       }),
     );
 
-    const data = await tariffSwitcher(proxy, context);
+    const promise = tariffSwitcher(proxy, context);
+
+    await vi.runAllTimersAsync();
+
+    const data = await promise;
 
     // @ts-ignore
     const emailData = spy.mock.calls[0][0];
@@ -93,7 +104,11 @@ describe('Tariff Switcher', () => {
       }),
     );
 
-    const data = await tariffSwitcher(proxy, context);
+    const promise = tariffSwitcher(proxy, context);
+
+    await vi.runAllTimersAsync();
+
+    const data = await promise;
 
     // @ts-ignore
     const emailData = spy.mock.calls[0][0];
@@ -111,7 +126,11 @@ describe('Tariff Switcher', () => {
       http.get('https://api.octopus.energy/v1/products/COSY-22-12-08/', () => HttpResponse.error()),
     );
 
-    const data = await tariffSwitcher(proxy, context);
+    const promise = tariffSwitcher(proxy, context);
+
+    await vi.runAllTimersAsync();
+
+    const data = await promise;
 
     expect(data).toMatchInlineSnapshot(`
       {
@@ -134,16 +153,20 @@ describe('Tariff Switcher', () => {
 
     it('should not send an email if the DRY_RUN param is true', async () => {
       const spy = vi.spyOn(email, 'sendEmail');
+      const promise = tariffSwitcher(proxy, context);
 
-      await tariffSwitcher(proxy, context);
+      await vi.runAllTimersAsync();
+      await promise;
 
       expect(spy).not.toHaveBeenCalled();
     });
 
     it('should not switch the tariff if the DRY_RUN param is true', async () => {
       const spy = vi.spyOn(ApiData, 'getEnrollmentId');
+      const promise = tariffSwitcher(proxy, context);
 
-      await tariffSwitcher(proxy, context);
+      await vi.runAllTimersAsync();
+      await promise;
 
       expect(spy).not.toHaveBeenCalled();
     });
