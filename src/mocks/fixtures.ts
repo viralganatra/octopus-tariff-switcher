@@ -1,3 +1,5 @@
+import { addDays, format } from 'date-fns';
+
 export const productsFixture = {
   count: 49,
   next: null,
@@ -427,61 +429,66 @@ export const accountFixture = {
   },
 };
 
-export const unitRatesFixture = {
-  count: 7,
-  next: null,
-  previous: null,
-  results: [
-    {
-      value_exc_vat: 12.6016,
-      value_inc_vat: 13.23168,
-      valid_from: '2025-03-03T22:00:00Z',
-      valid_to: '2025-03-02T00:00:00Z',
-      payment_method: null,
-    },
-    {
-      value_exc_vat: 25.6966,
-      value_inc_vat: 26.98143,
-      valid_from: '2025-03-03T19:00:00Z',
-      valid_to: '2025-03-03T22:00:00Z',
-      payment_method: null,
-    },
-    {
-      value_exc_vat: 38.545,
-      value_inc_vat: 40.47225,
-      valid_from: '2025-03-03T16:00:00Z',
-      valid_to: '2025-03-03T19:00:00Z',
-      payment_method: null,
-    },
-    {
-      value_exc_vat: 12.6016,
-      value_inc_vat: 13.23168,
-      valid_from: '2025-03-03T13:00:00Z',
-      valid_to: '2025-03-03T16:00:00Z',
-      payment_method: null,
-    },
-    {
-      value_exc_vat: 25.6966,
-      value_inc_vat: 26.98143,
-      valid_from: '2025-03-03T07:00:00Z',
-      valid_to: '2025-03-03T13:00:00Z',
-      payment_method: null,
-    },
-    {
-      value_exc_vat: 12.6016,
-      value_inc_vat: 13.23168,
-      valid_from: '2025-03-03T04:00:00Z',
-      valid_to: '2025-03-03T07:00:00Z',
-      payment_method: null,
-    },
-    {
-      value_exc_vat: 25.6966,
-      value_inc_vat: 26.98143,
-      valid_from: '2025-03-03T00:00:00Z',
-      valid_to: '2025-03-03T04:00:00Z',
-      payment_method: null,
-    },
-  ],
+export const unitRatesFixture = (date = '2025-03-03') => {
+  const nextDay = addDays(new Date(date), 1);
+  const nextDateIso = format(nextDay, 'yyyy-MM-dd');
+
+  return {
+    count: 7,
+    next: null,
+    previous: null,
+    results: [
+      {
+        value_exc_vat: 12.6016,
+        value_inc_vat: 13.23168,
+        valid_from: `${date}T22:00:00Z`,
+        valid_to: `${nextDateIso}T00:00:00Z`,
+        payment_method: null,
+      },
+      {
+        value_exc_vat: 25.6966,
+        value_inc_vat: 26.98143,
+        valid_from: `${date}T19:00:00Z`,
+        valid_to: `${date}T22:00:00Z`,
+        payment_method: null,
+      },
+      {
+        value_exc_vat: 38.545,
+        value_inc_vat: 40.47225,
+        valid_from: `${date}T16:00:00Z`,
+        valid_to: `${date}T19:00:00Z`,
+        payment_method: null,
+      },
+      {
+        value_exc_vat: 12.6016,
+        value_inc_vat: 13.23168,
+        valid_from: `${date}T13:00:00Z`,
+        valid_to: `${date}T16:00:00Z`,
+        payment_method: null,
+      },
+      {
+        value_exc_vat: 25.6966,
+        value_inc_vat: 26.98143,
+        valid_from: `${date}T07:00:00Z`,
+        valid_to: `${date}T13:00:00Z`,
+        payment_method: null,
+      },
+      {
+        value_exc_vat: 12.6016,
+        value_inc_vat: 13.23168,
+        valid_from: `${date}T04:00:00Z`,
+        valid_to: `${date}T07:00:00Z`,
+        payment_method: null,
+      },
+      {
+        value_exc_vat: 25.6966,
+        value_inc_vat: 26.98143,
+        valid_from: `${date}T00:00:00Z`,
+        valid_to: `${date}T04:00:00Z`,
+        payment_method: null,
+      },
+    ],
+  };
 };
 
 export const unitRates2020Fixture = {
@@ -736,4 +743,647 @@ export const acceptTermsAndConditionsFxture = {
   acceptTermsAndConditions: {
     acceptedVersion: '789',
   },
+};
+
+export const standingChargeAgileFixture = {
+  count: 1,
+  next: null,
+  previous: null,
+  results: [
+    {
+      value_exc_vat: 45.3392,
+      value_inc_vat: 47.60616,
+      valid_from: '2025-03-31T23:00:00Z',
+      valid_to: null,
+      payment_method: null,
+    },
+  ],
+};
+
+export const standingChargeCosyFixture = {
+  count: 1,
+  next: null,
+  previous: null,
+  results: [
+    {
+      value_exc_vat: 145.3392,
+      value_inc_vat: 147.60616,
+      valid_from: '2025-03-31T23:00:00Z',
+      valid_to: null,
+      payment_method: null,
+    },
+  ],
+};
+
+export const consumptionAgileFixture = (date = '2025-03-17') => {
+  const nextDay = addDays(new Date(date), 1);
+  const nextDateIso = format(nextDay, 'yyyy-MM-dd');
+
+  return {
+    count: 48,
+    next: null,
+    previous: null,
+    results: [
+      {
+        consumption: 0.074,
+        interval_start: `${date}T00:00:00Z`,
+        interval_end: `${date}T00:30:00Z`,
+      },
+      {
+        consumption: 0.062,
+        interval_start: `${date}T00:30:00Z`,
+        interval_end: `${date}T01:00:00Z`,
+      },
+      {
+        consumption: 0.077,
+        interval_start: `${date}T01:00:00Z`,
+        interval_end: `${date}T01:30:00Z`,
+      },
+      {
+        consumption: 0.058,
+        interval_start: `${date}T01:30:00Z`,
+        interval_end: `${date}T02:00:00Z`,
+      },
+      {
+        consumption: 0.077,
+        interval_start: `${date}T02:00:00Z`,
+        interval_end: `${date}T02:30:00Z`,
+      },
+      {
+        consumption: 0.059,
+        interval_start: `${date}T02:30:00Z`,
+        interval_end: `${date}T03:00:00Z`,
+      },
+      {
+        consumption: 0.074,
+        interval_start: `${date}T03:00:00Z`,
+        interval_end: `${date}T03:30:00Z`,
+      },
+      {
+        consumption: 0.064,
+        interval_start: `${date}T03:30:00Z`,
+        interval_end: `${date}T04:00:00Z`,
+      },
+      {
+        consumption: 0.069,
+        interval_start: `${date}T04:00:00Z`,
+        interval_end: `${date}T04:30:00Z`,
+      },
+      {
+        consumption: 0.068,
+        interval_start: `${date}T04:30:00Z`,
+        interval_end: `${date}T05:00:00Z`,
+      },
+      {
+        consumption: 0.063,
+        interval_start: `${date}T05:00:00Z`,
+        interval_end: `${date}T05:30:00Z`,
+      },
+      {
+        consumption: 0.516,
+        interval_start: `${date}T05:30:00Z`,
+        interval_end: `${date}T06:00:00Z`,
+      },
+      {
+        consumption: 0.303,
+        interval_start: `${date}T06:00:00Z`,
+        interval_end: `${date}T06:30:00Z`,
+      },
+      {
+        consumption: 0.134,
+        interval_start: `${date}T06:30:00Z`,
+        interval_end: `${date}T07:00:00Z`,
+      },
+      {
+        consumption: 0.083,
+        interval_start: `${date}T07:00:00Z`,
+        interval_end: `${date}T07:30:00Z`,
+      },
+      {
+        consumption: 0.13,
+        interval_start: `${date}T07:30:00Z`,
+        interval_end: `${date}T08:00:00Z`,
+      },
+      {
+        consumption: 0.112,
+        interval_start: `${date}T08:00:00Z`,
+        interval_end: `${date}T08:30:00Z`,
+      },
+      {
+        consumption: 0.119,
+        interval_start: `${date}T08:30:00Z`,
+        interval_end: `${date}T09:00:00Z`,
+      },
+      {
+        consumption: 0.103,
+        interval_start: `${date}T09:00:00Z`,
+        interval_end: `${date}T09:30:00Z`,
+      },
+      {
+        consumption: 0.113,
+        interval_start: `${date}T09:30:00Z`,
+        interval_end: `${date}T10:00:00Z`,
+      },
+      {
+        consumption: 0.147,
+        interval_start: `${date}T10:00:00Z`,
+        interval_end: `${date}T10:30:00Z`,
+      },
+      {
+        consumption: 0.114,
+        interval_start: `${date}T10:30:00Z`,
+        interval_end: `${date}T11:00:00Z`,
+      },
+      {
+        consumption: 0.1,
+        interval_start: `${date}T11:00:00Z`,
+        interval_end: `${date}T11:30:00Z`,
+      },
+      {
+        consumption: 0.087,
+        interval_start: `${date}T11:30:00Z`,
+        interval_end: `${date}T12:00:00Z`,
+      },
+      {
+        consumption: 0.156,
+        interval_start: `${date}T12:00:00Z`,
+        interval_end: `${date}T12:30:00Z`,
+      },
+      {
+        consumption: 0.118,
+        interval_start: `${date}T12:30:00Z`,
+        interval_end: `${date}T13:00:00Z`,
+      },
+      {
+        consumption: 0.175,
+        interval_start: `${date}T13:00:00Z`,
+        interval_end: `${date}T13:30:00Z`,
+      },
+      {
+        consumption: 0.287,
+        interval_start: `${date}T13:30:00Z`,
+        interval_end: `${date}T14:00:00Z`,
+      },
+      {
+        consumption: 0.795,
+        interval_start: `${date}T14:00:00Z`,
+        interval_end: `${date}T14:30:00Z`,
+      },
+      {
+        consumption: 0.493,
+        interval_start: `${date}T14:30:00Z`,
+        interval_end: `${date}T15:00:00Z`,
+      },
+      {
+        consumption: 0.108,
+        interval_start: `${date}T15:00:00Z`,
+        interval_end: `${date}T15:30:00Z`,
+      },
+      {
+        consumption: 0.142,
+        interval_start: `${date}T15:30:00Z`,
+        interval_end: `${date}T16:00:00Z`,
+      },
+      {
+        consumption: 0.126,
+        interval_start: `${date}T16:00:00Z`,
+        interval_end: `${date}T16:30:00Z`,
+      },
+      {
+        consumption: 0.212,
+        interval_start: `${date}T16:30:00Z`,
+        interval_end: `${date}T17:00:00Z`,
+      },
+      {
+        consumption: 0.179,
+        interval_start: `${date}T17:00:00Z`,
+        interval_end: `${date}T17:30:00Z`,
+      },
+      {
+        consumption: 0.176,
+        interval_start: `${date}T17:30:00Z`,
+        interval_end: `${date}T18:00:00Z`,
+      },
+      {
+        consumption: 0.299,
+        interval_start: `${date}T18:00:00Z`,
+        interval_end: `${date}T18:30:00Z`,
+      },
+      {
+        consumption: 0.219,
+        interval_start: `${date}T18:30:00Z`,
+        interval_end: `${date}T19:00:00Z`,
+      },
+      {
+        consumption: 0.197,
+        interval_start: `${date}T19:00:00Z`,
+        interval_end: `${date}T19:30:00Z`,
+      },
+      {
+        consumption: 0.158,
+        interval_start: `${date}T19:30:00Z`,
+        interval_end: `${date}T20:00:00Z`,
+      },
+      {
+        consumption: 0.152,
+        interval_start: `${date}T20:00:00Z`,
+        interval_end: `${date}T20:30:00Z`,
+      },
+      {
+        consumption: 0.172,
+        interval_start: `${date}T20:30:00Z`,
+        interval_end: `${date}T21:00:00Z`,
+      },
+      {
+        consumption: 0.163,
+        interval_start: `${date}T21:00:00Z`,
+        interval_end: `${date}T21:30:00Z`,
+      },
+      {
+        consumption: 0.116,
+        interval_start: `${date}T21:30:00Z`,
+        interval_end: `${date}T22:00:00Z`,
+      },
+      {
+        consumption: 0.088,
+        interval_start: `${date}T22:00:00Z`,
+        interval_end: `${date}T22:30:00Z`,
+      },
+      {
+        consumption: 0.064,
+        interval_start: `${date}T22:30:00Z`,
+        interval_end: `${date}T23:00:00Z`,
+      },
+      {
+        consumption: 0.077,
+        interval_start: `${date}T23:00:00Z`,
+        interval_end: `${date}T23:30:00Z`,
+      },
+      {
+        consumption: 0.061,
+        interval_start: `${date}T23:30:00Z`,
+        interval_end: `${nextDateIso}T00:00:00Z`,
+      },
+    ],
+  };
+};
+
+export const consumptionCosyFixture = {
+  count: 48,
+  next: null,
+  previous: null,
+  results: [
+    {
+      consumption: 0.072,
+      interval_start: '2020-02-15T01:00:00+01:00',
+      interval_end: '2020-02-15T01:30:00+01:00',
+    },
+    {
+      consumption: 0.897,
+      interval_start: '2020-02-15T01:30:00+01:00',
+      interval_end: '2020-02-15T02:00:00+01:00',
+    },
+    {
+      consumption: 0.314,
+      interval_start: '2020-02-15T02:00:00+01:00',
+      interval_end: '2020-02-15T02:30:00+01:00',
+    },
+    {
+      consumption: 0.328,
+      interval_start: '2020-02-15T02:30:00+01:00',
+      interval_end: '2020-02-15T03:00:00+01:00',
+    },
+    {
+      consumption: 0.335,
+      interval_start: '2020-02-15T03:00:00+01:00',
+      interval_end: '2020-02-15T03:30:00+01:00',
+    },
+    {
+      consumption: 0.314,
+      interval_start: '2020-02-15T03:30:00+01:00',
+      interval_end: '2020-02-15T04:00:00+01:00',
+    },
+    {
+      consumption: 0.288,
+      interval_start: '2020-02-15T04:00:00+01:00',
+      interval_end: '2020-02-15T04:30:00+01:00',
+    },
+    {
+      consumption: 0.308,
+      interval_start: '2020-02-15T04:30:00+01:00',
+      interval_end: '2020-02-15T05:00:00+01:00',
+    },
+    {
+      consumption: 0.267,
+      interval_start: '2020-02-15T05:00:00+01:00',
+      interval_end: '2020-02-15T05:30:00+01:00',
+    },
+    {
+      consumption: 0.302,
+      interval_start: '2020-02-15T05:30:00+01:00',
+      interval_end: '2020-02-15T06:00:00+01:00',
+    },
+    {
+      consumption: 0.063,
+      interval_start: '2020-02-15T06:00:00+01:00',
+      interval_end: '2020-02-15T06:30:00+01:00',
+    },
+    {
+      consumption: 0.095,
+      interval_start: '2020-02-15T06:30:00+01:00',
+      interval_end: '2020-02-15T07:00:00+01:00',
+    },
+    {
+      consumption: 0.073,
+      interval_start: '2020-02-15T07:00:00+01:00',
+      interval_end: '2020-02-15T07:30:00+01:00',
+    },
+    {
+      consumption: 0.108,
+      interval_start: '2020-02-15T07:30:00+01:00',
+      interval_end: '2020-02-15T08:00:00+01:00',
+    },
+    {
+      consumption: 0.093,
+      interval_start: '2020-02-15T08:00:00+01:00',
+      interval_end: '2020-02-15T08:30:00+01:00',
+    },
+    {
+      consumption: 0.159,
+      interval_start: '2020-02-15T08:30:00+01:00',
+      interval_end: '2020-02-15T09:00:00+01:00',
+    },
+    {
+      consumption: 0.087,
+      interval_start: '2020-02-15T09:00:00+01:00',
+      interval_end: '2020-02-15T09:30:00+01:00',
+    },
+    {
+      consumption: 0.08,
+      interval_start: '2020-02-15T09:30:00+01:00',
+      interval_end: '2020-02-15T10:00:00+01:00',
+    },
+    {
+      consumption: 0.083,
+      interval_start: '2020-02-15T10:00:00+01:00',
+      interval_end: '2020-02-15T10:30:00+01:00',
+    },
+    {
+      consumption: 0.062,
+      interval_start: '2020-02-15T10:30:00+01:00',
+      interval_end: '2020-02-15T11:00:00+01:00',
+    },
+    {
+      consumption: 0.196,
+      interval_start: '2020-02-15T11:00:00+01:00',
+      interval_end: '2020-02-15T11:30:00+01:00',
+    },
+    {
+      consumption: 0.152,
+      interval_start: '2020-02-15T11:30:00+01:00',
+      interval_end: '2020-02-15T12:00:00+01:00',
+    },
+    {
+      consumption: 0.068,
+      interval_start: '2020-02-15T12:00:00+01:00',
+      interval_end: '2020-02-15T12:30:00+01:00',
+    },
+    {
+      consumption: 0.08,
+      interval_start: '2020-02-15T12:30:00+01:00',
+      interval_end: '2020-02-15T13:00:00+01:00',
+    },
+    {
+      consumption: 0.135,
+      interval_start: '2020-02-15T13:00:00+01:00',
+      interval_end: '2020-02-15T13:30:00+01:00',
+    },
+    {
+      consumption: 0.08,
+      interval_start: '2020-02-15T13:30:00+01:00',
+      interval_end: '2020-02-15T14:00:00+01:00',
+    },
+    {
+      consumption: 0.065,
+      interval_start: '2020-02-15T14:00:00+01:00',
+      interval_end: '2020-02-15T14:30:00+01:00',
+    },
+    {
+      consumption: 0.077,
+      interval_start: '2020-02-15T14:30:00+01:00',
+      interval_end: '2020-02-15T15:00:00+01:00',
+    },
+    {
+      consumption: 0.076,
+      interval_start: '2020-02-15T15:00:00+01:00',
+      interval_end: '2020-02-15T15:30:00+01:00',
+    },
+    {
+      consumption: 0.145,
+      interval_start: '2020-02-15T15:30:00+01:00',
+      interval_end: '2020-02-15T16:00:00+01:00',
+    },
+    {
+      consumption: 0.1,
+      interval_start: '2020-02-15T16:00:00+01:00',
+      interval_end: '2020-02-15T16:30:00+01:00',
+    },
+    {
+      consumption: 0.161,
+      interval_start: '2020-02-15T16:30:00+01:00',
+      interval_end: '2020-02-15T17:00:00+01:00',
+    },
+    {
+      consumption: 0.118,
+      interval_start: '2020-02-15T17:00:00+01:00',
+      interval_end: '2020-02-15T17:30:00+01:00',
+    },
+    {
+      consumption: 0.128,
+      interval_start: '2020-02-15T17:30:00+01:00',
+      interval_end: '2020-02-15T18:00:00+01:00',
+    },
+    {
+      consumption: 0.206,
+      interval_start: '2020-02-15T18:00:00+01:00',
+      interval_end: '2020-02-15T18:30:00+01:00',
+    },
+    {
+      consumption: 0.137,
+      interval_start: '2020-02-15T18:30:00+01:00',
+      interval_end: '2020-02-15T19:00:00+01:00',
+    },
+    {
+      consumption: 0.141,
+      interval_start: '2020-02-15T19:00:00+01:00',
+      interval_end: '2020-02-15T19:30:00+01:00',
+    },
+    {
+      consumption: 0.135,
+      interval_start: '2020-02-15T19:30:00+01:00',
+      interval_end: '2020-02-15T20:00:00+01:00',
+    },
+    {
+      consumption: 0.143,
+      interval_start: '2020-02-15T20:00:00+01:00',
+      interval_end: '2020-02-15T20:30:00+01:00',
+    },
+    {
+      consumption: 0.16,
+      interval_start: '2020-02-15T20:30:00+01:00',
+      interval_end: '2020-02-15T21:00:00+01:00',
+    },
+    {
+      consumption: 0.162,
+      interval_start: '2020-02-15T21:00:00+01:00',
+      interval_end: '2020-02-15T21:30:00+01:00',
+    },
+    {
+      consumption: 0.124,
+      interval_start: '2020-02-15T21:30:00+01:00',
+      interval_end: '2020-02-15T22:00:00+01:00',
+    },
+    {
+      consumption: 0.106,
+      interval_start: '2020-02-15T22:00:00+01:00',
+      interval_end: '2020-02-15T22:30:00+01:00',
+    },
+    {
+      consumption: 0.069,
+      interval_start: '2020-02-15T22:30:00+01:00',
+      interval_end: '2020-02-15T23:00:00+01:00',
+    },
+    {
+      consumption: 0.079,
+      interval_start: '2020-02-15T23:00:00+01:00',
+      interval_end: '2020-02-15T23:30:00+01:00',
+    },
+    {
+      consumption: 0.058,
+      interval_start: '2020-02-15T23:30:00+01:00',
+      interval_end: '2020-02-16T00:00:00+01:00',
+    },
+    {
+      consumption: 0.078,
+      interval_start: '2020-02-16T00:00:00+01:00',
+      interval_end: '2020-02-16T00:30:00+01:00',
+    },
+    {
+      consumption: 0.056,
+      interval_start: '2020-02-16T00:30:00+01:00',
+      interval_end: '2020-02-16T01:00:00+01:00',
+    },
+  ],
+};
+
+export const accountRestFixture = {
+  number: 'A-12345678',
+  properties: [
+    {
+      id: 21321312,
+      moved_in_at: '2026-01-22T00:00:00Z',
+      moved_out_at: null,
+      address_line_1: 'ADDRESS 1',
+      address_line_2: 'ADDRESS 2',
+      address_line_3: 'ADDRESS 3',
+      town: 'TOWN',
+      county: 'COUNTY',
+      postcode: 'POSTCODE',
+      electricity_meter_points: [
+        {
+          mpan: '10128536911',
+          meters: [
+            {
+              serial_number: '123',
+              registers: [
+                {
+                  identifier: '01',
+                  rate: 'STANDARD',
+                  is_settlement_register: true,
+                },
+              ],
+            },
+          ],
+          agreements: [
+            {
+              tariff_code: 'E-1R-VAR-22-11-01-A',
+              valid_from: '2024-02-22T00:00:00Z',
+              valid_to: '2024-07-10T00:00:00+01:00',
+            },
+            {
+              tariff_code: 'E-1R-AGILE-24-04-03-A',
+              valid_from: '2024-07-10T00:00:00+01:00',
+              valid_to: '2025-01-20T00:00:00Z',
+            },
+            {
+              tariff_code: 'E-1R-COSY-22-12-08-A',
+              valid_from: '2025-01-20T00:00:00Z',
+              valid_to: '2025-02-24T00:00:00Z',
+            },
+            {
+              tariff_code: 'E-1R-AGILE-24-10-01-A',
+              valid_from: '2025-02-24T00:00:00Z',
+              valid_to: '2025-03-12T00:00:00Z',
+            },
+            {
+              tariff_code: 'E-1R-GO-VAR-22-10-14-A',
+              valid_from: '2025-03-12T00:00:00Z',
+              valid_to: '2025-03-13T00:00:00Z',
+            },
+            {
+              tariff_code: 'E-1R-COSY-22-12-08-A',
+              valid_from: '2025-03-13T00:00:00Z',
+              valid_to: '2025-03-18T00:00:00Z',
+            },
+            {
+              tariff_code: 'E-1R-AGILE-24-10-01-A',
+              valid_from: '2025-03-18T00:00:00Z',
+              valid_to: '2025-03-20T00:00:00Z',
+            },
+            {
+              tariff_code: 'E-1R-AGILE-24-10-01-A',
+              valid_from: '2025-03-20T00:00:00Z',
+              valid_to: '2025-03-20T00:00:00Z',
+            },
+            {
+              tariff_code: 'E-1R-AGILE-24-10-01-A',
+              valid_from: '2025-03-20T00:00:00Z',
+              valid_to: '2025-03-20T00:00:00Z',
+            },
+            {
+              tariff_code: 'E-1R-AGILE-24-10-01-A',
+              valid_from: '2025-03-20T00:00:00Z',
+              valid_to: '2025-03-21T00:00:00Z',
+            },
+            {
+              tariff_code: 'E-1R-AGILE-24-10-01-A',
+              valid_from: '2025-03-21T00:00:00Z',
+              valid_to: '2025-03-21T00:00:00Z',
+            },
+            {
+              tariff_code: 'E-1R-AGILE-24-10-01-A',
+              valid_from: '2025-03-21T00:00:00Z',
+              valid_to: '2025-03-21T00:00:00Z',
+            },
+            {
+              tariff_code: 'E-1R-AGILE-24-10-01-A',
+              valid_from: '2025-03-21T00:00:00Z',
+              valid_to: '2025-03-31T00:00:00+01:00',
+            },
+            {
+              tariff_code: 'E-1R-GO-VAR-22-10-14-A',
+              valid_from: '2025-03-31T00:00:00+01:00',
+              valid_to: '2025-04-02T00:00:00+01:00',
+            },
+            {
+              tariff_code: 'E-1R-AGILE-24-10-01-A',
+              valid_from: '2025-04-02T00:00:00+01:00',
+              valid_to: '2026-04-02T00:00:00+01:00',
+            },
+          ],
+          is_export: false,
+        },
+      ],
+    },
+  ],
 };

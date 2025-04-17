@@ -92,8 +92,8 @@ exports[`API Data > should fetch the potential rates and standing charge for tod
       "unitCostInPence": 13.23168,
       "validFrom": "2025-03-03T22:00:00Z",
       "validFromMs": 1741039200000,
-      "validTo": "2025-03-02T00:00:00Z",
-      "validToMs": 1740873600000,
+      "validTo": "2025-03-04T00:00:00Z",
+      "validToMs": 1741046400000,
     },
     {
       "unitCostInPence": 26.98143,
