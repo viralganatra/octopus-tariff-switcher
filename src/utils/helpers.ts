@@ -51,3 +51,29 @@ export function makeUrl(value: string): Url {
     throw new Error(`Invalid URL: ${value}`);
   }
 }
+
+export function scrubKeys<T>({ data, keysToScrub }: { data: T; keysToScrub: string[] }): T {
+  const SCRUBBED_VALUE = '[SCRUBBED]';
+
+  if (Array.isArray(data)) {
+    return data.map((item) => scrubKeys({ data: item, keysToScrub })) as T;
+  }
+
+  if (data !== null && typeof data === 'object') {
+    const result: Record<string, unknown> = {};
+
+    for (const key of Object.keys(data)) {
+      const value = (data as Record<string, unknown>)[key];
+
+      if (keysToScrub.includes(key)) {
+        result[key] = SCRUBBED_VALUE;
+      } else {
+        result[key] = scrubKeys({ data: value, keysToScrub });
+      }
+    }
+
+    return result as T;
+  }
+
+  return data;
+}
