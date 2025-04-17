@@ -1,5 +1,5 @@
 import { expectTypeOf } from 'vitest';
-import { makeUrl, toIsoDateString, toIsoDateTime } from '../helpers';
+import { makeUrl, scrubKeys, toIsoDateString, toIsoDateTime } from '../helpers';
 import type { IsoDate, IsoDateTime, Url } from '../../types/misc';
 
 describe('Utils -> Helpers', () => {
@@ -28,5 +28,57 @@ describe('Utils -> Helpers', () => {
     expect(() => {
       makeUrl('test.com');
     }).toThrowError('Invalid URL: test.com');
+  });
+
+  it('should scrub keys from a given object', () => {
+    const data = {
+      number: 'number',
+      properties: [
+        {
+          id: 21321312,
+          moved_in_at: '2026-01-22T00:00:00Z',
+          moved_out_at: null,
+          address_line_1: 'ADDRESS 1',
+          address_line_2: 'ADDRESS 2',
+          address_line_3: 'ADDRESS 3',
+          town: 'TOWN',
+          county: 'COUNTY',
+          postcode: 'POSTCODE',
+        },
+      ],
+      town: 'TOWN',
+    };
+
+    expect(
+      scrubKeys({
+        data,
+        keysToScrub: [
+          'moved_in_at',
+          'moved_out_at',
+          'address_line_1',
+          'address_line_2',
+          'address_line_3',
+          'town',
+          'county',
+          'postcode',
+        ],
+      }),
+    ).toMatchObject({
+      number: 'number',
+      properties: [
+        {
+          id: 21321312,
+          address_line_1: '[SCRUBBED]',
+          address_line_2: '[SCRUBBED]',
+          address_line_3: '[SCRUBBED]',
+          county: '[SCRUBBED]',
+          moved_in_at: '[SCRUBBED]',
+          moved_out_at: '[SCRUBBED]',
+          postcode: '[SCRUBBED]',
+          town: '[SCRUBBED]',
+        },
+      ],
+      town: '[SCRUBBED]',
+    });
   });
 });
