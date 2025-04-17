@@ -16,3 +16,5 @@ export type Tariff = {
 };
 
 export type TariffWithCost = Tariff & { cost: number };
+
+export type TariffSelectorWithDate = TariffSelector & { isoDate: IsoDate };

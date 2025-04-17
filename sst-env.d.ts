@@ -25,6 +25,11 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
+    "OctopusTariffSwitcherBackfill": {
+      "name": string
+      "type": "sst.aws.Function"
+      "url": string
+    }
     "SparkPostApiKey": {
       "type": "sst.sst.Secret"
       "value": string

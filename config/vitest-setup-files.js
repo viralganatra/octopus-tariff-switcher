@@ -42,6 +42,7 @@ beforeAll(() => {
 
 beforeEach(() => {
   vi.useFakeTimers();
+  vi.clearAllTimers();
 });
 
 afterEach(() => {

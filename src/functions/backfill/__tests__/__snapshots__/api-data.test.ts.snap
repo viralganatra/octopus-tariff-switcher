@@ -1,0 +1,557 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Enrich dates with tariff data > should enrich dates with tariff data > Agile consumption 1`] = `
+[
+  {
+    "consumptionDelta": 74,
+    "readAt": "2025-04-15T00:00:00Z",
+    "readAtMs": 1744675200000,
+  },
+  {
+    "consumptionDelta": 62,
+    "readAt": "2025-04-15T00:30:00Z",
+    "readAtMs": 1744677000000,
+  },
+  {
+    "consumptionDelta": 77,
+    "readAt": "2025-04-15T01:00:00Z",
+    "readAtMs": 1744678800000,
+  },
+  {
+    "consumptionDelta": 58,
+    "readAt": "2025-04-15T01:30:00Z",
+    "readAtMs": 1744680600000,
+  },
+  {
+    "consumptionDelta": 77,
+    "readAt": "2025-04-15T02:00:00Z",
+    "readAtMs": 1744682400000,
+  },
+  {
+    "consumptionDelta": 59,
+    "readAt": "2025-04-15T02:30:00Z",
+    "readAtMs": 1744684200000,
+  },
+  {
+    "consumptionDelta": 74,
+    "readAt": "2025-04-15T03:00:00Z",
+    "readAtMs": 1744686000000,
+  },
+  {
+    "consumptionDelta": 64,
+    "readAt": "2025-04-15T03:30:00Z",
+    "readAtMs": 1744687800000,
+  },
+  {
+    "consumptionDelta": 69,
+    "readAt": "2025-04-15T04:00:00Z",
+    "readAtMs": 1744689600000,
+  },
+  {
+    "consumptionDelta": 68,
+    "readAt": "2025-04-15T04:30:00Z",
+    "readAtMs": 1744691400000,
+  },
+  {
+    "consumptionDelta": 63,
+    "readAt": "2025-04-15T05:00:00Z",
+    "readAtMs": 1744693200000,
+  },
+  {
+    "consumptionDelta": 516,
+    "readAt": "2025-04-15T05:30:00Z",
+    "readAtMs": 1744695000000,
+  },
+  {
+    "consumptionDelta": 303,
+    "readAt": "2025-04-15T06:00:00Z",
+    "readAtMs": 1744696800000,
+  },
+  {
+    "consumptionDelta": 134,
+    "readAt": "2025-04-15T06:30:00Z",
+    "readAtMs": 1744698600000,
+  },
+  {
+    "consumptionDelta": 83,
+    "readAt": "2025-04-15T07:00:00Z",
+    "readAtMs": 1744700400000,
+  },
+  {
+    "consumptionDelta": 130,
+    "readAt": "2025-04-15T07:30:00Z",
+    "readAtMs": 1744702200000,
+  },
+  {
+    "consumptionDelta": 112,
+    "readAt": "2025-04-15T08:00:00Z",
+    "readAtMs": 1744704000000,
+  },
+  {
+    "consumptionDelta": 119,
+    "readAt": "2025-04-15T08:30:00Z",
+    "readAtMs": 1744705800000,
+  },
+  {
+    "consumptionDelta": 103,
+    "readAt": "2025-04-15T09:00:00Z",
+    "readAtMs": 1744707600000,
+  },
+  {
+    "consumptionDelta": 113,
+    "readAt": "2025-04-15T09:30:00Z",
+    "readAtMs": 1744709400000,
+  },
+  {
+    "consumptionDelta": 147,
+    "readAt": "2025-04-15T10:00:00Z",
+    "readAtMs": 1744711200000,
+  },
+  {
+    "consumptionDelta": 114,
+    "readAt": "2025-04-15T10:30:00Z",
+    "readAtMs": 1744713000000,
+  },
+  {
+    "consumptionDelta": 100,
+    "readAt": "2025-04-15T11:00:00Z",
+    "readAtMs": 1744714800000,
+  },
+  {
+    "consumptionDelta": 87,
+    "readAt": "2025-04-15T11:30:00Z",
+    "readAtMs": 1744716600000,
+  },
+  {
+    "consumptionDelta": 156,
+    "readAt": "2025-04-15T12:00:00Z",
+    "readAtMs": 1744718400000,
+  },
+  {
+    "consumptionDelta": 118,
+    "readAt": "2025-04-15T12:30:00Z",
+    "readAtMs": 1744720200000,
+  },
+  {
+    "consumptionDelta": 175,
+    "readAt": "2025-04-15T13:00:00Z",
+    "readAtMs": 1744722000000,
+  },
+  {
+    "consumptionDelta": 287,
+    "readAt": "2025-04-15T13:30:00Z",
+    "readAtMs": 1744723800000,
+  },
+  {
+    "consumptionDelta": 795,
+    "readAt": "2025-04-15T14:00:00Z",
+    "readAtMs": 1744725600000,
+  },
+  {
+    "consumptionDelta": 493,
+    "readAt": "2025-04-15T14:30:00Z",
+    "readAtMs": 1744727400000,
+  },
+  {
+    "consumptionDelta": 108,
+    "readAt": "2025-04-15T15:00:00Z",
+    "readAtMs": 1744729200000,
+  },
+  {
+    "consumptionDelta": 142,
+    "readAt": "2025-04-15T15:30:00Z",
+    "readAtMs": 1744731000000,
+  },
+  {
+    "consumptionDelta": 126,
+    "readAt": "2025-04-15T16:00:00Z",
+    "readAtMs": 1744732800000,
+  },
+  {
+    "consumptionDelta": 212,
+    "readAt": "2025-04-15T16:30:00Z",
+    "readAtMs": 1744734600000,
+  },
+  {
+    "consumptionDelta": 179,
+    "readAt": "2025-04-15T17:00:00Z",
+    "readAtMs": 1744736400000,
+  },
+  {
+    "consumptionDelta": 176,
+    "readAt": "2025-04-15T17:30:00Z",
+    "readAtMs": 1744738200000,
+  },
+  {
+    "consumptionDelta": 299,
+    "readAt": "2025-04-15T18:00:00Z",
+    "readAtMs": 1744740000000,
+  },
+  {
+    "consumptionDelta": 219,
+    "readAt": "2025-04-15T18:30:00Z",
+    "readAtMs": 1744741800000,
+  },
+  {
+    "consumptionDelta": 197,
+    "readAt": "2025-04-15T19:00:00Z",
+    "readAtMs": 1744743600000,
+  },
+  {
+    "consumptionDelta": 158,
+    "readAt": "2025-04-15T19:30:00Z",
+    "readAtMs": 1744745400000,
+  },
+  {
+    "consumptionDelta": 152,
+    "readAt": "2025-04-15T20:00:00Z",
+    "readAtMs": 1744747200000,
+  },
+  {
+    "consumptionDelta": 172,
+    "readAt": "2025-04-15T20:30:00Z",
+    "readAtMs": 1744749000000,
+  },
+  {
+    "consumptionDelta": 163,
+    "readAt": "2025-04-15T21:00:00Z",
+    "readAtMs": 1744750800000,
+  },
+  {
+    "consumptionDelta": 116,
+    "readAt": "2025-04-15T21:30:00Z",
+    "readAtMs": 1744752600000,
+  },
+  {
+    "consumptionDelta": 88,
+    "readAt": "2025-04-15T22:00:00Z",
+    "readAtMs": 1744754400000,
+  },
+  {
+    "consumptionDelta": 64,
+    "readAt": "2025-04-15T22:30:00Z",
+    "readAtMs": 1744756200000,
+  },
+  {
+    "consumptionDelta": 77,
+    "readAt": "2025-04-15T23:00:00Z",
+    "readAtMs": 1744758000000,
+  },
+  {
+    "consumptionDelta": 61,
+    "readAt": "2025-04-15T23:30:00Z",
+    "readAtMs": 1744759800000,
+  },
+]
+`;
+
+exports[`Enrich dates with tariff data > should enrich dates with tariff data > Agile unit rates 1`] = `
+[
+  {
+    "unitCostInPence": 13.23168,
+    "validFrom": "2025-04-15T22:00:00Z",
+    "validFromMs": 1744754400000,
+    "validTo": "2025-04-16T00:00:00Z",
+    "validToMs": 1744761600000,
+  },
+  {
+    "unitCostInPence": 26.98143,
+    "validFrom": "2025-04-15T19:00:00Z",
+    "validFromMs": 1744743600000,
+    "validTo": "2025-04-15T22:00:00Z",
+    "validToMs": 1744754400000,
+  },
+  {
+    "unitCostInPence": 40.47225,
+    "validFrom": "2025-04-15T16:00:00Z",
+    "validFromMs": 1744732800000,
+    "validTo": "2025-04-15T19:00:00Z",
+    "validToMs": 1744743600000,
+  },
+  {
+    "unitCostInPence": 13.23168,
+    "validFrom": "2025-04-15T13:00:00Z",
+    "validFromMs": 1744722000000,
+    "validTo": "2025-04-15T16:00:00Z",
+    "validToMs": 1744732800000,
+  },
+  {
+    "unitCostInPence": 26.98143,
+    "validFrom": "2025-04-15T07:00:00Z",
+    "validFromMs": 1744700400000,
+    "validTo": "2025-04-15T13:00:00Z",
+    "validToMs": 1744722000000,
+  },
+  {
+    "unitCostInPence": 13.23168,
+    "validFrom": "2025-04-15T04:00:00Z",
+    "validFromMs": 1744689600000,
+    "validTo": "2025-04-15T07:00:00Z",
+    "validToMs": 1744700400000,
+  },
+  {
+    "unitCostInPence": 26.98143,
+    "validFrom": "2025-04-15T00:00:00Z",
+    "validFromMs": 1744675200000,
+    "validTo": "2025-04-15T04:00:00Z",
+    "validToMs": 1744689600000,
+  },
+]
+`;
+
+exports[`Enrich dates with tariff data > should enrich dates with tariff data > Cosy consumption 1`] = `
+[
+  {
+    "consumptionDelta": 72,
+    "readAt": "2020-02-15T01:00:00+01:00",
+    "readAtMs": 1581724800000,
+  },
+  {
+    "consumptionDelta": 897,
+    "readAt": "2020-02-15T01:30:00+01:00",
+    "readAtMs": 1581726600000,
+  },
+  {
+    "consumptionDelta": 314,
+    "readAt": "2020-02-15T02:00:00+01:00",
+    "readAtMs": 1581728400000,
+  },
+  {
+    "consumptionDelta": 328,
+    "readAt": "2020-02-15T02:30:00+01:00",
+    "readAtMs": 1581730200000,
+  },
+  {
+    "consumptionDelta": 335,
+    "readAt": "2020-02-15T03:00:00+01:00",
+    "readAtMs": 1581732000000,
+  },
+  {
+    "consumptionDelta": 314,
+    "readAt": "2020-02-15T03:30:00+01:00",
+    "readAtMs": 1581733800000,
+  },
+  {
+    "consumptionDelta": 288,
+    "readAt": "2020-02-15T04:00:00+01:00",
+    "readAtMs": 1581735600000,
+  },
+  {
+    "consumptionDelta": 308,
+    "readAt": "2020-02-15T04:30:00+01:00",
+    "readAtMs": 1581737400000,
+  },
+  {
+    "consumptionDelta": 267,
+    "readAt": "2020-02-15T05:00:00+01:00",
+    "readAtMs": 1581739200000,
+  },
+  {
+    "consumptionDelta": 302,
+    "readAt": "2020-02-15T05:30:00+01:00",
+    "readAtMs": 1581741000000,
+  },
+  {
+    "consumptionDelta": 63,
+    "readAt": "2020-02-15T06:00:00+01:00",
+    "readAtMs": 1581742800000,
+  },
+  {
+    "consumptionDelta": 95,
+    "readAt": "2020-02-15T06:30:00+01:00",
+    "readAtMs": 1581744600000,
+  },
+  {
+    "consumptionDelta": 73,
+    "readAt": "2020-02-15T07:00:00+01:00",
+    "readAtMs": 1581746400000,
+  },
+  {
+    "consumptionDelta": 108,
+    "readAt": "2020-02-15T07:30:00+01:00",
+    "readAtMs": 1581748200000,
+  },
+  {
+    "consumptionDelta": 93,
+    "readAt": "2020-02-15T08:00:00+01:00",
+    "readAtMs": 1581750000000,
+  },
+  {
+    "consumptionDelta": 159,
+    "readAt": "2020-02-15T08:30:00+01:00",
+    "readAtMs": 1581751800000,
+  },
+  {
+    "consumptionDelta": 87,
+    "readAt": "2020-02-15T09:00:00+01:00",
+    "readAtMs": 1581753600000,
+  },
+  {
+    "consumptionDelta": 80,
+    "readAt": "2020-02-15T09:30:00+01:00",
+    "readAtMs": 1581755400000,
+  },
+  {
+    "consumptionDelta": 83,
+    "readAt": "2020-02-15T10:00:00+01:00",
+    "readAtMs": 1581757200000,
+  },
+  {
+    "consumptionDelta": 62,
+    "readAt": "2020-02-15T10:30:00+01:00",
+    "readAtMs": 1581759000000,
+  },
+  {
+    "consumptionDelta": 196,
+    "readAt": "2020-02-15T11:00:00+01:00",
+    "readAtMs": 1581760800000,
+  },
+  {
+    "consumptionDelta": 152,
+    "readAt": "2020-02-15T11:30:00+01:00",
+    "readAtMs": 1581762600000,
+  },
+  {
+    "consumptionDelta": 68,
+    "readAt": "2020-02-15T12:00:00+01:00",
+    "readAtMs": 1581764400000,
+  },
+  {
+    "consumptionDelta": 80,
+    "readAt": "2020-02-15T12:30:00+01:00",
+    "readAtMs": 1581766200000,
+  },
+  {
+    "consumptionDelta": 135,
+    "readAt": "2020-02-15T13:00:00+01:00",
+    "readAtMs": 1581768000000,
+  },
+  {
+    "consumptionDelta": 80,
+    "readAt": "2020-02-15T13:30:00+01:00",
+    "readAtMs": 1581769800000,
+  },
+  {
+    "consumptionDelta": 65,
+    "readAt": "2020-02-15T14:00:00+01:00",
+    "readAtMs": 1581771600000,
+  },
+  {
+    "consumptionDelta": 77,
+    "readAt": "2020-02-15T14:30:00+01:00",
+    "readAtMs": 1581773400000,
+  },
+  {
+    "consumptionDelta": 76,
+    "readAt": "2020-02-15T15:00:00+01:00",
+    "readAtMs": 1581775200000,
+  },
+  {
+    "consumptionDelta": 145,
+    "readAt": "2020-02-15T15:30:00+01:00",
+    "readAtMs": 1581777000000,
+  },
+  {
+    "consumptionDelta": 100,
+    "readAt": "2020-02-15T16:00:00+01:00",
+    "readAtMs": 1581778800000,
+  },
+  {
+    "consumptionDelta": 161,
+    "readAt": "2020-02-15T16:30:00+01:00",
+    "readAtMs": 1581780600000,
+  },
+  {
+    "consumptionDelta": 118,
+    "readAt": "2020-02-15T17:00:00+01:00",
+    "readAtMs": 1581782400000,
+  },
+  {
+    "consumptionDelta": 128,
+    "readAt": "2020-02-15T17:30:00+01:00",
+    "readAtMs": 1581784200000,
+  },
+  {
+    "consumptionDelta": 206,
+    "readAt": "2020-02-15T18:00:00+01:00",
+    "readAtMs": 1581786000000,
+  },
+  {
+    "consumptionDelta": 137,
+    "readAt": "2020-02-15T18:30:00+01:00",
+    "readAtMs": 1581787800000,
+  },
+  {
+    "consumptionDelta": 141,
+    "readAt": "2020-02-15T19:00:00+01:00",
+    "readAtMs": 1581789600000,
+  },
+  {
+    "consumptionDelta": 135,
+    "readAt": "2020-02-15T19:30:00+01:00",
+    "readAtMs": 1581791400000,
+  },
+  {
+    "consumptionDelta": 143,
+    "readAt": "2020-02-15T20:00:00+01:00",
+    "readAtMs": 1581793200000,
+  },
+  {
+    "consumptionDelta": 160,
+    "readAt": "2020-02-15T20:30:00+01:00",
+    "readAtMs": 1581795000000,
+  },
+  {
+    "consumptionDelta": 162,
+    "readAt": "2020-02-15T21:00:00+01:00",
+    "readAtMs": 1581796800000,
+  },
+  {
+    "consumptionDelta": 124,
+    "readAt": "2020-02-15T21:30:00+01:00",
+    "readAtMs": 1581798600000,
+  },
+  {
+    "consumptionDelta": 106,
+    "readAt": "2020-02-15T22:00:00+01:00",
+    "readAtMs": 1581800400000,
+  },
+  {
+    "consumptionDelta": 69,
+    "readAt": "2020-02-15T22:30:00+01:00",
+    "readAtMs": 1581802200000,
+  },
+  {
+    "consumptionDelta": 79,
+    "readAt": "2020-02-15T23:00:00+01:00",
+    "readAtMs": 1581804000000,
+  },
+  {
+    "consumptionDelta": 58,
+    "readAt": "2020-02-15T23:30:00+01:00",
+    "readAtMs": 1581805800000,
+  },
+  {
+    "consumptionDelta": 78,
+    "readAt": "2020-02-16T00:00:00+01:00",
+    "readAtMs": 1581807600000,
+  },
+  {
+    "consumptionDelta": 56,
+    "readAt": "2020-02-16T00:30:00+01:00",
+    "readAtMs": 1581809400000,
+  },
+]
+`;
+
+exports[`Enrich dates with tariff data > should enrich dates with tariff data > Cosy unit rates 1`] = `
+[
+  {
+    "unitCostInPence": 13.23168,
+    "validFrom": "2020-03-03T22:00:00Z",
+    "validFromMs": 1583272800000,
+    "validTo": "2020-03-02T00:00:00Z",
+    "validToMs": 1583107200000,
+  },
+]
+`;

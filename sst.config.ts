@@ -48,5 +48,22 @@ export default $config({
         },
       },
     });
+
+    new sst.aws.Function('OctopusTariffSwitcherBackfill', {
+      handler: 'handler.backfill',
+      runtime: 'nodejs22.x',
+      link: [secrets.AccNumber, secrets.ApiKey],
+      name: `${$app.stage}--${SERVICE_NAME}-backfill`,
+      timeout: '5 minutes',
+      url: true,
+      environment: {
+        SERVICE_NAME,
+        POWERTOOLS_DEV: String($dev),
+        BACKFILL_FROM_DATE: '2025-04-06',
+      },
+      logging: {
+        format: 'json',
+      },
+    });
   },
 });
