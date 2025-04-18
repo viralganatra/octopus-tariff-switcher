@@ -51,7 +51,7 @@ export async function retryWithExponentialBackoff<T>(
         throw error;
       }
 
-      const delay = delayMs * 2 ** attempt;
+      const delay = delayMs * 2 ** attempt + Math.random() * 100;
 
       await sleep(delay);
     }
