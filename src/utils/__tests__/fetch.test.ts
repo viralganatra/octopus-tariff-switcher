@@ -3,6 +3,11 @@ import { retryWithExponentialBackoff } from '../fetch';
 describe('Fetch', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.spyOn(global.Math, 'random').mockReturnValue(0.2);
+  });
+
+  afterEach(() => {
+    vi.spyOn(global.Math, 'random').mockRestore();
   });
 
   it('should resolve on first attempt with no retries', async () => {
@@ -42,7 +47,7 @@ describe('Fetch', () => {
     expect(mockFn).toHaveBeenCalledTimes(3); // initial + 2 retries
   });
 
-  it('should apply exponential backoff: 100ms, 200ms, 400ms', async () => {
+  it('should apply exponential backoff with jitter: 100ms, 200ms, 400ms', async () => {
     const mockFn = vi
       .fn()
       .mockRejectedValueOnce(new Error('fail 1'))
@@ -60,8 +65,8 @@ describe('Fetch', () => {
     expect(result).toBe('success');
     expect(mockFn).toHaveBeenCalledTimes(4);
 
-    expect(spy).toHaveBeenNthCalledWith(1, expect.any(Function), 100);
-    expect(spy).toHaveBeenNthCalledWith(2, expect.any(Function), 200);
-    expect(spy).toHaveBeenNthCalledWith(3, expect.any(Function), 400);
+    expect(spy).toHaveBeenNthCalledWith(1, expect.any(Function), 120);
+    expect(spy).toHaveBeenNthCalledWith(2, expect.any(Function), 220);
+    expect(spy).toHaveBeenNthCalledWith(3, expect.any(Function), 420);
   });
 });
