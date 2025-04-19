@@ -5,7 +5,6 @@ import { server } from '../../../mocks/node';
 import { http, HttpResponse } from 'msw';
 import {
   consumptionAgileFixture,
-  productsFixture,
   standingChargeAgileFixture,
   unitRatesFixture,
 } from '../../../mocks/fixtures';
@@ -163,16 +162,11 @@ describe('Enrich dates with tariff data', () => {
     ) as IsoDate[];
 
     // Track request counts
-    let productRequests = 0;
     let standingChargeRequests = 0;
     let unitRateRequests = 0;
     let consumptionRequests = 0;
 
     server.use(
-      http.get('https://api.octopus.energy/v1/products', () => {
-        productRequests += 1;
-        return HttpResponse.json(productsFixture);
-      }),
       http.get(
         'https://api.octopus.energy/v1/products/:productCode/electricity-tariffs/:tariffCode/standard-unit-rates',
         () => {
@@ -214,7 +208,6 @@ describe('Enrich dates with tariff data', () => {
     const result = await promise;
 
     expect(result.size).toBe(30);
-    expect(productRequests).toBe(1);
     expect(standingChargeRequests).toBe(30);
     expect(unitRateRequests).toBe(30);
     expect(consumptionRequests).toBe(30);
