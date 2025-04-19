@@ -3,7 +3,6 @@ import type { IsoDate } from '../../types/misc';
 import type { ConsumptionIntervals, EletricityAgreements } from './schema';
 import { chunkArray, processBatches } from '../../utils/batch';
 import { TARIFFS, type TariffDisplayName } from '../../constants/tariff';
-import { getProductByTariff } from '../tariff-switcher/api-data';
 import { retryWithExponentialBackoff } from '../../utils/fetch';
 import { fetchConsumption, fetchStandingCharge } from './queries';
 import { fetchUnitRatesByTariff } from '../tariff-switcher/queries';
@@ -19,8 +18,8 @@ type ItemCache = {
   consumption: ConsumptionIntervals;
 };
 
-type ItemCacheBuilder = Pick<ItemCache, 'isoDate' | 'tariffCode' | 'tariffName'> &
-  Partial<Omit<ItemCache, 'isoDate' | 'tariffCode' | 'tariffName'>>;
+type ItemCacheBuilder = Pick<ItemCache, 'isoDate' | 'tariffCode' | 'tariffName' | 'productCode'> &
+  Partial<Omit<ItemCache, 'isoDate' | 'tariffCode' | 'tariffName' | 'productCode'>>;
 
 const BATCH_SIZE = 25;
 
@@ -58,6 +57,22 @@ export function findMatchingTariffForDate({
   return matchingTariff;
 }
 
+// Find the tariff code is in the format E-1R-COSY-22-12-08-A, extract COSY-22-12-08
+// This isn't ideal, but there is no API endpoint that allows us to get a product code
+// from a tariff code. Using the products endpoint with an available_at param doesn't work
+// as you can be on an older tariff for a given date
+function findProductCodeByTariffCode(tariffCode: string) {
+  const regex = /(?:E-\dR-)(.*?)(?:-[A-Z])?$/;
+
+  const parts = regex.exec(tariffCode);
+
+  if (!parts || !parts[1]) {
+    throw new Error(`No product code found from tariff code: ${tariffCode}`);
+  }
+
+  return parts[1];
+}
+
 export async function enrichDatesWithTariffData({
   dates,
   pastTariffs,
@@ -70,6 +85,7 @@ export async function enrichDatesWithTariffData({
   // Build initial cache directly
   for (const isoDate of dates) {
     const { tariffCode } = findMatchingTariffForDate({ pastTariffs, isoDate });
+    const productCode = findProductCodeByTariffCode(tariffCode);
 
     const tariff = TARIFFS.find(({ tariffCodeMatcher }) => tariffCode.includes(tariffCodeMatcher));
 
@@ -80,32 +96,9 @@ export async function enrichDatesWithTariffData({
     itemCacheBuilder.set(isoDate, {
       isoDate,
       tariffCode,
+      productCode,
       tariffName: tariff.displayName,
     });
-  }
-
-  // Fetch product codes for unique tariff names
-  const uniqueTariffNames = new Set<ItemCache['tariffName']>();
-
-  for (const item of itemCacheBuilder.values()) {
-    uniqueTariffNames.add(item.tariffName);
-  }
-
-  const tariffToProduct = new Map<ItemCache['tariffName'], string>();
-
-  await Promise.all(
-    [...uniqueTariffNames].map(async (tariffName) => {
-      const { code } = await getProductByTariff(tariffName);
-
-      tariffToProduct.set(tariffName, code);
-    }),
-  );
-
-  // Add product codes to cache
-  for (const [isoDate, item] of itemCacheBuilder) {
-    const productCode = tariffToProduct.get(item.tariffName);
-
-    itemCacheBuilder.set(isoDate, { ...item, productCode });
   }
 
   // Fetch standing charge, unit rates & consumption in parallel batches
