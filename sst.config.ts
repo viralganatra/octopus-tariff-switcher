@@ -49,17 +49,23 @@ export default $config({
       },
     });
 
+    const tarrifWriteDLQ = new sst.aws.Queue('OctopusTariffWriteDLQ');
+
+    const tarrifWriteQueue = new sst.aws.Queue('OctopusTariffWriteQueue', {
+      dlq: tarrifWriteDLQ.arn,
+    });
+
     new sst.aws.Function('OctopusTariffSwitcherBackfill', {
       handler: 'handler.backfill',
       runtime: 'nodejs22.x',
-      link: [secrets.AccNumber, secrets.ApiKey],
+      link: [tarrifWriteQueue, secrets.AccNumber, secrets.ApiKey],
       name: `${$app.stage}--${SERVICE_NAME}-backfill`,
       timeout: '5 minutes',
       url: true,
       environment: {
         SERVICE_NAME,
         POWERTOOLS_DEV: String($dev),
-        BACKFILL_FROM_DATE: '2025-04-06',
+        BACKFILL_FROM_DATE: '2025-01-01',
       },
       logging: {
         format: 'json',
