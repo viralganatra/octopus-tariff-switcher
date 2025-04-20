@@ -30,6 +30,14 @@ declare module "sst" {
       "type": "sst.aws.Function"
       "url": string
     }
+    "OctopusTariffWriteDLQ": {
+      "type": "sst.aws.Queue"
+      "url": string
+    }
+    "OctopusTariffWriteQueue": {
+      "type": "sst.aws.Queue"
+      "url": string
+    }
     "SparkPostApiKey": {
       "type": "sst.sst.Secret"
       "value": string

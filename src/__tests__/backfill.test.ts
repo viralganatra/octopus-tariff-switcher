@@ -1,5 +1,9 @@
 import type { APIGatewayProxyEvent, Context } from 'aws-lambda';
+import { SQSClient, SendMessageBatchCommand } from '@aws-sdk/client-sqs';
+import { mockClient } from 'aws-sdk-client-mock';
 import { backfill } from '../backfill';
+
+const sqsMock = mockClient(SQSClient);
 
 describe('Backfill', () => {
   const proxy = {} as APIGatewayProxyEvent;
@@ -8,19 +12,7 @@ describe('Backfill', () => {
   beforeEach(() => {
     vi.stubEnv('BACKFILL_FROM_DATE', '2025-03-01');
     vi.setSystemTime(new Date(2025, 2, 3));
-  });
-
-  it('should calculate the daily cost and usage for each date', async () => {
-    const promise = backfill(proxy, context);
-
-    await vi.runAllTimersAsync();
-
-    expect(await promise).toMatchInlineSnapshot(`
-      {
-        "body": "{"message":"Backfill complete","data":{"2025-03-01":{"cost":220.0159},"2025-03-02":{"cost":220.0159}}}",
-        "statusCode": 200,
-      }
-    `);
+    sqsMock.reset();
   });
 
   it('should throw an error if the BACKFILL_FROM_DATE env var is not set', async () => {
@@ -34,5 +26,99 @@ describe('Backfill', () => {
         "statusCode": 500,
       }
     `);
+  });
+
+  it('should successfully send all daily usage data in a single batch', async () => {
+    sqsMock.on(SendMessageBatchCommand).resolves({
+      Failed: [],
+    });
+
+    const promise = backfill(proxy, context);
+
+    await vi.runAllTimersAsync();
+
+    expect(await promise).toMatchInlineSnapshot(`
+      {
+        "body": "{"message":"Backfill data successfully generated and sent to queue"}",
+        "statusCode": 200,
+      }
+    `);
+
+    const params = sqsMock.call(0).args.at(0)?.input as SendMessageBatchCommand['input'];
+
+    expect(params.QueueUrl).toBe('https://sqs.us-east-1.amazonaws.com/123456789/queue');
+    expect(params.Entries).toHaveLength(2);
+    expect(sqsMock).toHaveReceivedCommandTimes(SendMessageBatchCommand, 1);
+
+    const entries = params.Entries!;
+
+    expect(entries[0]?.Id).toBe('msg-0');
+    expect(JSON.parse(entries[0]!.MessageBody!)).toMatchObject({
+      isoDate: '2025-03-01',
+      productCode: 'AGILE-24-10-01',
+      tariffCode: 'E-1R-AGILE-24-10-01-A',
+      standingCharge: 47.6062,
+      tariffName: 'Agile Octopus',
+      consumption: expect.any(Array),
+      unitRates: expect.any(Array),
+      cost: 220.0159,
+      id: 'agile',
+    });
+  });
+
+  it('should retry sending failed messages and succeed', async () => {
+    sqsMock
+      .on(SendMessageBatchCommand)
+      .resolvesOnce({
+        Failed: [{ Id: 'msg-1', SenderFault: false, Code: 'Invalid' }],
+      })
+      .resolves({
+        Failed: [],
+      });
+
+    const promise = backfill(proxy, context);
+
+    await vi.runAllTimersAsync();
+
+    expect(await promise).toMatchInlineSnapshot(`
+      {
+        "body": "{"message":"Backfill data successfully generated and sent to queue"}",
+        "statusCode": 200,
+      }
+    `);
+
+    expect(sqsMock).toHaveReceivedCommandTimes(SendMessageBatchCommand, 2);
+    expect(sqsMock).toHaveReceivedNthCommandWith(1, SendMessageBatchCommand, {
+      Entries: expect.arrayContaining([
+        {
+          Id: 'msg-1',
+          MessageBody: expect.any(String),
+        },
+      ]),
+    });
+  });
+
+  it('should throw an error if a batch fails', async () => {
+    sqsMock.on(SendMessageBatchCommand).resolves({
+      Failed: [
+        { Id: 'msg-0', SenderFault: false, Code: 'Invalid' },
+        { Id: 'msg-1', SenderFault: false, Code: 'Invalid' },
+      ],
+    });
+
+    const promise = backfill(proxy, context);
+
+    await vi.runAllTimersAsync();
+
+    expect(await promise).toMatchInlineSnapshot(`
+      {
+        "body": "{
+        "message": "Some messages failed to send: 2025-03-01, 2025-03-02"
+      }",
+        "statusCode": 500,
+      }
+    `);
+
+    expect(sqsMock).toHaveReceivedCommandTimes(SendMessageBatchCommand, 4);
   });
 });

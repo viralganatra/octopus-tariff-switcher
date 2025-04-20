@@ -1,4 +1,5 @@
 import { server } from '../src/mocks/node';
+import 'aws-sdk-client-mock-jest/vitest';
 
 vi.stubEnv('POWERTOOLS_LOG_LEVEL', 'silent');
 vi.stubEnv('DRY_RUN', 'false');
@@ -23,6 +24,9 @@ vi.mock('sst', () => {
       },
       MjmlSecretKey: {
         value: 'MjmlSecretKey',
+      },
+      OctopusTariffWriteQueue: {
+        url: 'https://sqs.us-east-1.amazonaws.com/123456789/queue',
       },
     },
   };
