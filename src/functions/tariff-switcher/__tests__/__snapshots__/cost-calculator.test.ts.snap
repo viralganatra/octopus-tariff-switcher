@@ -1,0 +1,144 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Cost Calculator > should calculate the unit rates with cost 1`] = `
+[
+  {
+    "consumptionDelta": 133,
+    "readAt": "2025-02-28T00:30:00+00:00",
+    "readAtMs": 1740702600000,
+    "unitCostInPence": 3.5885,
+  },
+  {
+    "consumptionDelta": 89,
+    "readAt": "2025-02-28T01:00:00+00:00",
+    "readAtMs": 1740704400000,
+    "unitCostInPence": 2.4013,
+  },
+  {
+    "consumptionDelta": 87,
+    "readAt": "2025-02-28T01:30:00+00:00",
+    "readAtMs": 1740706200000,
+    "unitCostInPence": 2.3474,
+  },
+  {
+    "consumptionDelta": 69,
+    "readAt": "2025-02-28T02:00:00+00:00",
+    "readAtMs": 1740708000000,
+    "unitCostInPence": 1.8617,
+  },
+  {
+    "consumptionDelta": 74,
+    "readAt": "2025-02-28T02:30:00+00:00",
+    "readAtMs": 1740709800000,
+    "unitCostInPence": 1.9966,
+  },
+  {
+    "consumptionDelta": 74,
+    "readAt": "2025-02-28T03:00:00+00:00",
+    "readAtMs": 1740711600000,
+    "unitCostInPence": 1.9966,
+  },
+  {
+    "consumptionDelta": 73,
+    "readAt": "2025-02-28T03:30:00+00:00",
+    "readAtMs": 1740713400000,
+    "unitCostInPence": 1.9696,
+  },
+  {
+    "consumptionDelta": 85,
+    "readAt": "2025-02-28T04:00:00+00:00",
+    "readAtMs": 1740715200000,
+    "unitCostInPence": 1.1247,
+  },
+  {
+    "consumptionDelta": 71,
+    "readAt": "2025-02-28T04:30:00+00:00",
+    "readAtMs": 1740717000000,
+    "unitCostInPence": 0.9394,
+  },
+  {
+    "consumptionDelta": 85,
+    "readAt": "2025-02-28T05:00:00+00:00",
+    "readAtMs": 1740718800000,
+    "unitCostInPence": 1.1247,
+  },
+  {
+    "consumptionDelta": 70,
+    "readAt": "2025-02-28T05:30:00+00:00",
+    "readAtMs": 1740720600000,
+    "unitCostInPence": 0.9262,
+  },
+  {
+    "consumptionDelta": 756,
+    "readAt": "2025-02-28T06:00:00+00:00",
+    "readAtMs": 1740722400000,
+    "unitCostInPence": 10.0032,
+  },
+  {
+    "consumptionDelta": 152,
+    "readAt": "2025-02-28T06:30:00+00:00",
+    "readAtMs": 1740724200000,
+    "unitCostInPence": 2.0112,
+  },
+  {
+    "consumptionDelta": 75,
+    "readAt": "2025-02-28T07:00:00+00:00",
+    "readAtMs": 1740726000000,
+    "unitCostInPence": 2.0236,
+  },
+  {
+    "consumptionDelta": 127,
+    "readAt": "2025-02-28T07:30:00+00:00",
+    "readAtMs": 1740727800000,
+    "unitCostInPence": 3.4266,
+  },
+  {
+    "consumptionDelta": 138,
+    "readAt": "2025-02-28T08:00:00+00:00",
+    "readAtMs": 1740729600000,
+    "unitCostInPence": 3.7234,
+  },
+  {
+    "consumptionDelta": 114,
+    "readAt": "2025-02-28T08:30:00+00:00",
+    "readAtMs": 1740731400000,
+    "unitCostInPence": 3.0759,
+  },
+  {
+    "consumptionDelta": 122,
+    "readAt": "2025-02-28T09:00:00+00:00",
+    "readAtMs": 1740733200000,
+    "unitCostInPence": 3.2917,
+  },
+  {
+    "consumptionDelta": 155,
+    "readAt": "2025-02-28T09:30:00+00:00",
+    "readAtMs": 1740735000000,
+    "unitCostInPence": 4.1821,
+  },
+  {
+    "consumptionDelta": 234,
+    "readAt": "2025-02-28T10:00:00+00:00",
+    "readAtMs": 1740736800000,
+    "unitCostInPence": 6.3137,
+  },
+  {
+    "consumptionDelta": 117,
+    "readAt": "2025-02-28T10:30:00+00:00",
+    "readAtMs": 1740738600000,
+    "unitCostInPence": 3.1568,
+  },
+  {
+    "consumptionDelta": 106,
+    "readAt": "2025-02-28T11:00:00+00:00",
+    "readAtMs": 1740740400000,
+    "unitCostInPence": 2.86,
+  },
+  {
+    "consumptionDelta": 11,
+    "readAt": "2025-02-28T11:30:00+00:00",
+    "readAtMs": 1740742200000,
+    "unitCostInPence": 0.2968,
+  },
+]
+`;
