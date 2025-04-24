@@ -8,7 +8,7 @@ import { fetchConsumption, fetchStandingCharge } from './queries';
 import { fetchUnitRatesByTariff } from '../tariff-switcher/queries';
 import type { TariffUnitRates } from '../tariff-switcher/schema';
 
-type ItemCache = {
+export type TariffData = {
   isoDate: IsoDate;
   tariffCode: string;
   tariffName: TariffDisplayName;
@@ -18,8 +18,8 @@ type ItemCache = {
   consumption: ConsumptionIntervals;
 };
 
-type ItemCacheBuilder = Pick<ItemCache, 'isoDate' | 'tariffCode' | 'tariffName' | 'productCode'> &
-  Partial<Omit<ItemCache, 'isoDate' | 'tariffCode' | 'tariffName' | 'productCode'>>;
+type ItemCacheBuilder = Pick<TariffData, 'isoDate' | 'tariffCode' | 'tariffName' | 'productCode'> &
+  Partial<Omit<TariffData, 'isoDate' | 'tariffCode' | 'tariffName' | 'productCode'>>;
 
 const BATCH_SIZE = 25;
 
@@ -125,7 +125,7 @@ export async function enrichDatesWithTariffData({
   });
 
   // Populate item cache with standing charge, unit rates & consumption
-  const itemCache = new Map<IsoDate, ItemCache>();
+  const itemCache = new Map<IsoDate, TariffData>();
 
   for (const {
     isoDate,

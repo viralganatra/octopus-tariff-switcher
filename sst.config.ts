@@ -67,7 +67,7 @@ export default $config({
     });
 
     new sst.aws.Function(`${SERVICE_NAME}BackfillMessagePublisher`, {
-      handler: 'handler.backfill',
+      handler: 'handler.publishBackfillMessages',
       link: [backfillWriteFifoQueue, secrets.AccNumber, secrets.ApiKey],
       name: `${$app.stage}--${SERVICE_ID}-backfill-message-publisher`,
       timeout: '5 minutes',

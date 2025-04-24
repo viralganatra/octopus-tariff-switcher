@@ -1,7 +1,7 @@
 import type { APIGatewayProxyEvent, Context } from 'aws-lambda';
 import { SQSClient, SendMessageBatchCommand } from '@aws-sdk/client-sqs';
 import { mockClient } from 'aws-sdk-client-mock';
-import { backfill } from '../backfill';
+import { publishBackfillMessages } from '../backfill-message-publisher';
 
 const sqsMock = mockClient(SQSClient);
 
@@ -18,7 +18,7 @@ describe('Backfill', () => {
   it('should throw an error if the BACKFILL_FROM_DATE env var is not set', async () => {
     vi.stubEnv('BACKFILL_FROM_DATE', undefined);
 
-    expect(await backfill(proxy, context)).toMatchInlineSnapshot(`
+    expect(await publishBackfillMessages(proxy, context)).toMatchInlineSnapshot(`
       {
         "body": "{
         "message": "BACKFILL_FROM_DATE env variable is not set"
@@ -33,7 +33,7 @@ describe('Backfill', () => {
       Failed: [],
     });
 
-    const promise = backfill(proxy, context);
+    const promise = publishBackfillMessages(proxy, context);
 
     await vi.runAllTimersAsync();
 
@@ -61,7 +61,6 @@ describe('Backfill', () => {
       tariffName: 'Agile Octopus',
       consumption: expect.any(Array),
       unitRates: expect.any(Array),
-      cost: 220.0159,
       id: 'agile',
     });
   });
@@ -76,7 +75,7 @@ describe('Backfill', () => {
         Failed: [],
       });
 
-    const promise = backfill(proxy, context);
+    const promise = publishBackfillMessages(proxy, context);
 
     await vi.runAllTimersAsync();
 
@@ -88,11 +87,14 @@ describe('Backfill', () => {
     `);
 
     expect(sqsMock).toHaveReceivedCommandTimes(SendMessageBatchCommand, 2);
+
     expect(sqsMock).toHaveReceivedNthCommandWith(1, SendMessageBatchCommand, {
       Entries: expect.arrayContaining([
         {
           Id: 'msg-1',
           MessageBody: expect.any(String),
+          MessageDeduplicationId: '2025-03-02',
+          MessageGroupId: 'service-id',
         },
       ]),
     });
@@ -106,7 +108,7 @@ describe('Backfill', () => {
       ],
     });
 
-    const promise = backfill(proxy, context);
+    const promise = publishBackfillMessages(proxy, context);
 
     await vi.runAllTimersAsync();
 

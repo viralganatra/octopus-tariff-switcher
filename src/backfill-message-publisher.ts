@@ -7,20 +7,19 @@ import {
 } from '@aws-sdk/client-sqs';
 import { eachDayOfInterval, formatISO, parseISO, subDays } from 'date-fns';
 import { getAccountInfo } from './functions/tariff-switcher/api-data';
-import { fetchAllPastTariffs } from './functions/backfill/queries';
-import { enrichDatesWithTariffData } from './functions/backfill/api-data';
+import { fetchAllPastTariffs } from './functions/backfill-message-publisher/queries';
+import { enrichDatesWithTariffData } from './functions/backfill-message-publisher/api-data';
 import { logger } from './utils/logger';
 import { toIsoDateString } from './utils/helpers';
 import type { IsoDate } from './types/misc';
-import { getDailyUsageCostByTariff } from './functions/tariff-switcher/cost-calculator';
 import { formatResponse } from './utils/format-response';
 import { TARIFFS } from './constants/tariff';
 import { retryWithExponentialBackoff } from './utils/fetch';
 
-const client = new SQSClient();
 const BATCH_SIZE = 10;
+const client = new SQSClient();
 
-function getDatesFromUntilYesterday(startDateISO: IsoDate) {
+function listIsoDatesUntilYesterday(startDateISO: IsoDate) {
   const start = parseISO(startDateISO);
   // Exclude today
   const end = subDays(new Date(), 1);
@@ -30,17 +29,11 @@ function getDatesFromUntilYesterday(startDateISO: IsoDate) {
   );
 }
 
-function createMessages(items: Awaited<ReturnType<typeof enrichDatesWithTariffData>>) {
-  const messages: SendMessageBatchRequestEntry[] = [];
-  let counter = 0;
+function buildQueueEntries(items: Awaited<ReturnType<typeof enrichDatesWithTariffData>>) {
+  const queueEntries: SendMessageBatchRequestEntry[] = [];
+  let msgCounter = 0;
 
   for (const item of items.values()) {
-    const cost = getDailyUsageCostByTariff({
-      standingCharge: item.standingCharge,
-      consumptionUnitRates: item.consumption,
-      tariffUnitRates: item.unitRates,
-    });
-
     const tariff = TARIFFS.find(({ tariffCodeMatcher }) =>
       item.tariffCode.includes(tariffCodeMatcher),
     );
@@ -49,16 +42,18 @@ function createMessages(items: Awaited<ReturnType<typeof enrichDatesWithTariffDa
       throw new Error(`No matching tariff for: ${item.tariffCode}`);
     }
 
-    messages.push({
-      Id: `msg-${counter++}`,
-      MessageBody: JSON.stringify({ ...item, cost, id: tariff.id }),
+    queueEntries.push({
+      Id: `msg-${msgCounter++}`,
+      MessageBody: JSON.stringify({ ...item, id: tariff.id }),
+      MessageGroupId: process.env.SERVICE_ID,
+      MessageDeduplicationId: item.isoDate,
     });
   }
 
-  return messages;
+  return queueEntries;
 }
 
-async function sendMessagesInBatches(entries: SendMessageBatchRequestEntry[]) {
+async function sendQueueEntriesInBatches(entries: SendMessageBatchRequestEntry[]) {
   for (let i = 0; i < entries.length; i += BATCH_SIZE) {
     const batch = entries.slice(i, i + BATCH_SIZE);
 
@@ -77,26 +72,26 @@ async function sendMessagesInBatches(entries: SendMessageBatchRequestEntry[]) {
       }
 
       const failedIds = new Set(failed.map((f) => f.Id));
-      const failedMessages = batch.filter((entry) => failedIds.has(entry.Id));
+      const failedEntries = batch.filter((entry) => failedIds.has(entry.Id));
 
-      const dates = failedMessages.map(({ MessageBody }) => {
+      const failedIsoDates = failedEntries.map(({ MessageBody }) => {
         if (MessageBody) {
           const { isoDate } = JSON.parse(MessageBody) as { isoDate: string };
           return isoDate;
         }
       });
 
-      logger.warn(`Retrying ${failedMessages.length} failed messages`);
+      logger.warn(`Retrying ${failedEntries.length} failed messages`);
       // Replace the original batch with failed messages for retry
       batch.length = 0;
-      batch.push(...failedMessages);
+      batch.push(...failedEntries);
 
-      throw new Error(`Some messages failed to send: ${dates.join(', ')}`);
+      throw new Error(`Some messages failed to send: ${failedIsoDates.join(', ')}`);
     });
   }
 }
 
-export async function backfill(
+export async function publishBackfillMessages(
   event: APIGatewayProxyEvent,
   context: Context,
 ): Promise<APIGatewayProxyResult> {
@@ -112,16 +107,16 @@ export async function backfill(
       getAccountInfo(),
     ]);
 
-    const dates = getDatesFromUntilYesterday(toIsoDateString(process.env.BACKFILL_FROM_DATE));
-    const enrichedItems = await enrichDatesWithTariffData({
+    const dates = listIsoDatesUntilYesterday(toIsoDateString(process.env.BACKFILL_FROM_DATE));
+    const enrichedDates = await enrichDatesWithTariffData({
       dates,
       pastTariffs,
       mpan,
       serialNumber,
     });
 
-    const messages = createMessages(enrichedItems);
-    await sendMessagesInBatches(messages);
+    const queueEntries = buildQueueEntries(enrichedDates);
+    await sendQueueEntriesInBatches(queueEntries);
 
     return {
       statusCode: 200,
