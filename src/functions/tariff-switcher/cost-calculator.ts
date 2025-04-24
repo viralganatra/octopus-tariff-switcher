@@ -3,8 +3,12 @@ import { roundTo4Digits } from '../../utils/helpers';
 import type { ConsumptionUnitRates, TariffUnitRates } from './schema';
 
 type UnitCostInPence = Pick<ConsumptionUnitRates[number], 'unitCostInPence'>;
-type ConsumptionUnitRatesWithoutCost = Omit<ConsumptionUnitRates[number], 'unitCostInPence'>[];
 type StandingCharge = number;
+
+export type ConsumptionUnitRatesWithoutCost = Omit<
+  ConsumptionUnitRates[number],
+  'unitCostInPence'
+>[];
 
 export function getTotalCost({
   unitRates,
@@ -23,12 +27,10 @@ export function getTotalCost({
   return roundTo4Digits(totalConsumptionInPence + standingCharge);
 }
 
-export function getDailyUsageCostByTariff({
-  standingCharge,
+export function getUnitRatesWithCost({
   consumptionUnitRates,
   tariffUnitRates,
 }: {
-  standingCharge: StandingCharge;
   consumptionUnitRates: ConsumptionUnitRatesWithoutCost;
   tariffUnitRates: TariffUnitRates;
 }) {
@@ -47,8 +49,26 @@ export function getDailyUsageCostByTariff({
     const costPerUnitRate = consumptionKwh * matchingRate.unitCostInPence;
 
     return {
+      ...halfHourlyUnitRate,
       unitCostInPence: roundTo4Digits(costPerUnitRate),
     };
+  });
+
+  return unitRatesWithCost;
+}
+
+export function getDailyUsageCostByTariff({
+  standingCharge,
+  consumptionUnitRates,
+  tariffUnitRates,
+}: {
+  standingCharge: StandingCharge;
+  consumptionUnitRates: ConsumptionUnitRatesWithoutCost;
+  tariffUnitRates: TariffUnitRates;
+}) {
+  const unitRatesWithCost = getUnitRatesWithCost({
+    consumptionUnitRates,
+    tariffUnitRates,
   });
 
   const potentialCost = getTotalCost({
