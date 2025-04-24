@@ -65,7 +65,7 @@ async function sendMessagesInBatches(entries: SendMessageBatchRequestEntry[]) {
     await retryWithExponentialBackoff(async () => {
       const response = await client.send(
         new SendMessageBatchCommand({
-          QueueUrl: Resource.OctopusTariffWriteQueue.url,
+          QueueUrl: Resource.OctopusTariffSwitcherWriteFifoQueue.url,
           Entries: batch,
         }),
       );

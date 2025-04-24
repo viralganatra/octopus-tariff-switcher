@@ -25,16 +25,16 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
-    "OctopusTariffSwitcherBackfill": {
+    "OctopusTariffSwitcherBackfillMessagePublisher": {
       "name": string
       "type": "sst.aws.Function"
       "url": string
     }
-    "OctopusTariffWriteDLQ": {
+    "OctopusTariffSwitcherWriteFifoDLQ": {
       "type": "sst.aws.Queue"
       "url": string
     }
-    "OctopusTariffWriteQueue": {
+    "OctopusTariffSwitcherWriteFifoQueue": {
       "type": "sst.aws.Queue"
       "url": string
     }
