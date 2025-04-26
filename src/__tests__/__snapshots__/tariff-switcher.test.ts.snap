@@ -4,21 +4,21 @@ exports[`Tariff Switcher > should not switch the tariff if it is already the che
 {
   "allTariffsByCost": [
     {
-      "cost": 80.324,
+      "costInPence": 80.324,
       "displayName": "Agile Octopus",
       "id": "agile",
       "productCode": "AGILE-24-10-01",
       "tariffCodeMatcher": "-AGILE-",
     },
     {
-      "cost": 87.452,
+      "costInPence": 87.452,
       "displayName": "Cosy Octopus",
       "id": "cosy",
       "productCode": "COSY-22-12-08",
       "tariffCodeMatcher": "-COSY-",
     },
     {
-      "cost": 87.452,
+      "costInPence": 87.452,
       "displayName": "Octopus Go",
       "id": "go",
       "productCode": "GO-VAR-22-10-14",
@@ -26,7 +26,7 @@ exports[`Tariff Switcher > should not switch the tariff if it is already the che
     },
   ],
   "currentTariffWithCost": {
-    "cost": 80.324,
+    "costInPence": 80.324,
     "displayName": "Agile Octopus",
     "id": "agile",
     "productCode": "AGILE-24-10-01",
@@ -40,21 +40,21 @@ exports[`Tariff Switcher > should not switch the tariff if the difference is les
 {
   "allTariffsByCost": [
     {
-      "cost": 78.6639,
+      "costInPence": 78.6639,
       "displayName": "Octopus Go",
       "id": "go",
       "productCode": "GO-VAR-22-10-14",
       "tariffCodeMatcher": "-GO-",
     },
     {
-      "cost": 80.324,
+      "costInPence": 80.324,
       "displayName": "Agile Octopus",
       "id": "agile",
       "productCode": "AGILE-24-10-01",
       "tariffCodeMatcher": "-AGILE-",
     },
     {
-      "cost": 87.452,
+      "costInPence": 87.452,
       "displayName": "Cosy Octopus",
       "id": "cosy",
       "productCode": "COSY-22-12-08",
@@ -62,7 +62,7 @@ exports[`Tariff Switcher > should not switch the tariff if the difference is les
     },
   ],
   "currentTariffWithCost": {
-    "cost": 80.324,
+    "costInPence": 80.324,
     "displayName": "Agile Octopus",
     "id": "agile",
     "productCode": "AGILE-24-10-01",
@@ -76,21 +76,21 @@ exports[`Tariff Switcher > should switch to the cheapest tariff and send a notif
 {
   "allTariffsByCost": [
     {
-      "cost": 47.452,
+      "costInPence": 47.452,
       "displayName": "Octopus Go",
       "id": "go",
       "productCode": "GO-VAR-22-10-14",
       "tariffCodeMatcher": "-GO-",
     },
     {
-      "cost": 80.324,
+      "costInPence": 80.324,
       "displayName": "Agile Octopus",
       "id": "agile",
       "productCode": "AGILE-24-10-01",
       "tariffCodeMatcher": "-AGILE-",
     },
     {
-      "cost": 87.452,
+      "costInPence": 87.452,
       "displayName": "Cosy Octopus",
       "id": "cosy",
       "productCode": "COSY-22-12-08",
@@ -98,7 +98,7 @@ exports[`Tariff Switcher > should switch to the cheapest tariff and send a notif
     },
   ],
   "currentTariffWithCost": {
-    "cost": 80.324,
+    "costInPence": 80.324,
     "displayName": "Agile Octopus",
     "id": "agile",
     "productCode": "AGILE-24-10-01",

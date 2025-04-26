@@ -29,7 +29,7 @@ describe('Email', () => {
         id: 'agile',
         displayName: 'Agile Octopus',
         tariffCodeMatcher: '-AGILE-',
-        cost: 100,
+        costInPence: 100,
       },
     });
 
@@ -51,7 +51,7 @@ describe('Email', () => {
         id: 'agile',
         displayName: 'Agile Octopus',
         tariffCodeMatcher: '-AGILE-',
-        cost: 100,
+        costInPence: 100,
       },
     });
 
@@ -65,7 +65,7 @@ describe('Email', () => {
       emailType: 'CHEAPER_TARIFF_EXISTS',
       allTariffsByCost: [
         {
-          cost: 95,
+          costInPence: 95,
           displayName: 'Octopus Cosy',
           id: 'cosy',
           tariffCodeMatcher: '-COSY-',
@@ -74,14 +74,14 @@ describe('Email', () => {
           id: 'agile',
           displayName: 'Agile Octopus',
           tariffCodeMatcher: '-AGILE-',
-          cost: 105,
+          costInPence: 105,
         },
       ],
       currentTariffWithCost: {
         id: 'agile',
         displayName: 'Agile Octopus',
         tariffCodeMatcher: '-AGILE-',
-        cost: 105,
+        costInPence: 105,
       },
     });
 
@@ -93,7 +93,7 @@ describe('Email', () => {
       emailType: 'ALREADY_ON_CHEAPEST_TARIFF',
       allTariffsByCost: [
         {
-          cost: 105,
+          costInPence: 105,
           displayName: 'Octopus Cosy',
           id: 'cosy',
           tariffCodeMatcher: '-COSY-',
@@ -102,14 +102,14 @@ describe('Email', () => {
           id: 'agile',
           displayName: 'Agile Octopus',
           tariffCodeMatcher: '-AGILE-',
-          cost: 65,
+          costInPence: 65,
         },
       ],
       currentTariffWithCost: {
         id: 'agile',
         displayName: 'Agile Octopus',
         tariffCodeMatcher: '-AGILE-',
-        cost: 65,
+        costInPence: 65,
       },
     });
 
@@ -121,7 +121,7 @@ describe('Email', () => {
       emailType: 'NOT_WORTH_SWITCHING_TARIFF',
       allTariffsByCost: [
         {
-          cost: 99,
+          costInPence: 99,
           displayName: 'Octopus Cosy',
           id: 'cosy',
           tariffCodeMatcher: '-COSY-',
@@ -130,14 +130,14 @@ describe('Email', () => {
           id: 'agile',
           displayName: 'Agile Octopus',
           tariffCodeMatcher: '-AGILE-',
-          cost: 100,
+          costInPence: 100,
         },
       ],
       currentTariffWithCost: {
         id: 'agile',
         displayName: 'Agile Octopus',
         tariffCodeMatcher: '-AGILE-',
-        cost: 100,
+        costInPence: 100,
       },
     });
 

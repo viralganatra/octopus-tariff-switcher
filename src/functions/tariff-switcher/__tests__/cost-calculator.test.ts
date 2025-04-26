@@ -1,9 +1,13 @@
 import { MatchingRateError } from '../../../errors/matching-rate-error';
-import { getDailyUsageCostByTariff, getTotalCost, getUnitRatesWithCost } from '../cost-calculator';
+import {
+  getDailyUsageCostByTariff,
+  getDailyCostInPence,
+  getUnitRatesWithCost,
+} from '../cost-calculator';
 
 describe('Cost Calculator', () => {
   it('should calculate the total cost based on the unit rates and service charge', () => {
-    const example1 = getTotalCost({
+    const example1 = getDailyCostInPence({
       standingCharge: 100,
       unitRates: [
         { unitCostInPence: 1 },
@@ -13,9 +17,9 @@ describe('Cost Calculator', () => {
       ],
     });
 
-    const example2 = getTotalCost({ standingCharge: 2, unitRates: [] });
+    const example2 = getDailyCostInPence({ standingCharge: 2, unitRates: [] });
 
-    const example3 = getTotalCost({
+    const example3 = getDailyCostInPence({
       standingCharge: 100,
       unitRates: [
         { unitCostInPence: 1.02 },

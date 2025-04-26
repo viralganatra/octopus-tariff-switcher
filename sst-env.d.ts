@@ -30,11 +30,11 @@ declare module "sst" {
       "type": "sst.aws.Function"
       "url": string
     }
-    "OctopusTariffSwitcherWriteFifoDLQ": {
+    "OctopusTariffSwitcherWriteDLQ": {
       "type": "sst.aws.Queue"
       "url": string
     }
-    "OctopusTariffSwitcherWriteFifoQueue": {
+    "OctopusTariffSwitcherWriteQueue": {
       "type": "sst.aws.Queue"
       "url": string
     }

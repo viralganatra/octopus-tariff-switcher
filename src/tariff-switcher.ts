@@ -9,7 +9,7 @@ import {
 } from './functions/tariff-switcher/api-data';
 import {
   getDailyUsageCostByTariff,
-  getTotalCost,
+  getDailyCostInPence,
 } from './functions/tariff-switcher/cost-calculator';
 import { penceToPoundWithCurrency, sleep } from './utils/helpers';
 import { logger } from './utils/logger';
@@ -23,7 +23,7 @@ function isDryRun() {
   return process.env.DRY_RUN === 'true';
 }
 
-function logAndFormatSuccessMessage(successMessage: string) {
+function logSuccessAndRespond(successMessage: string) {
   const message = isDryRun() ? `DRY RUN: ${successMessage}` : successMessage;
 
   logger.info(message);
@@ -31,7 +31,7 @@ function logAndFormatSuccessMessage(successMessage: string) {
   return formatResponse(200, { message });
 }
 
-function sendNotification(params: SendEmail) {
+function sendTariffEmail(params: SendEmail) {
   return isDryRun() ? Promise.resolve() : sendEmail(params);
 }
 
@@ -51,22 +51,22 @@ export async function tariffSwitcher(
       data: todaysConsumptionUnitRates,
     });
 
-    const todaysConsumptionCost = getTotalCost({
+    const todayCostInPence = getDailyCostInPence({
       unitRates: todaysConsumptionUnitRates,
       standingCharge: currentStandingCharge,
     });
 
-    const todaysConsumptionCostInPounds = penceToPoundWithCurrency(todaysConsumptionCost);
+    const todaysCostInPounds = penceToPoundWithCurrency(todayCostInPence);
 
-    logger.info(`Today's consumption cost is ${todaysConsumptionCostInPounds}`);
+    logger.info(`Today's consumption cost is ${todaysCostInPounds}`);
 
     const currentTariffWithCost = {
       ...currentTariff,
       productCode,
-      cost: todaysConsumptionCost,
+      costInPence: todayCostInPence,
     };
 
-    const allTariffCosts = [currentTariffWithCost];
+    const comparedTariffs = [currentTariffWithCost];
 
     for (const tariff of TARIFFS) {
       if (tariff.id === currentTariff.id) {
@@ -79,48 +79,52 @@ export async function tariffSwitcher(
           tariff: tariff.displayName,
         });
 
-      const potentialCost = getDailyUsageCostByTariff({
+      const potentialCostInPence = getDailyUsageCostByTariff({
         consumptionUnitRates: todaysConsumptionUnitRates,
         standingCharge: potentialStandingCharge,
         tariffUnitRates: potentialUnitRates,
       });
 
-      allTariffCosts.push({ ...tariff, cost: potentialCost, productCode: potentialProductCode });
+      comparedTariffs.push({
+        ...tariff,
+        costInPence: potentialCostInPence,
+        productCode: potentialProductCode,
+      });
     }
 
     // Find cheapest tariff
-    const allTariffsByCost = allTariffCosts.toSorted((a, b) => a.cost - b.cost);
+    const sortedTariffsByCost = comparedTariffs.toSorted((a, b) => a.costInPence - b.costInPence);
 
     logger.info('All tariffs by cost', {
-      data: allTariffCosts,
+      data: comparedTariffs,
     });
 
-    const cheapestTariff = allTariffsByCost.at(0) ?? currentTariffWithCost;
-    const cheapestTariffCostInPounds = penceToPoundWithCurrency(cheapestTariff.cost);
+    const cheapestTariff = sortedTariffsByCost.at(0) ?? currentTariffWithCost;
+    const cheapestTariffCostInPounds = penceToPoundWithCurrency(cheapestTariff.costInPence);
 
     if (cheapestTariff.id === currentTariff.id) {
-      await sendNotification({
-        allTariffsByCost,
+      await sendTariffEmail({
+        allTariffsByCost: sortedTariffsByCost,
         currentTariffWithCost,
         emailType: 'ALREADY_ON_CHEAPEST_TARIFF',
       });
 
-      return logAndFormatSuccessMessage(
-        `You are already on the cheapest tariff: ${cheapestTariff.displayName} - ${todaysConsumptionCostInPounds}`,
+      return logSuccessAndRespond(
+        `You are already on the cheapest tariff: ${cheapestTariff.displayName} - ${todaysCostInPounds}`,
       );
     }
 
-    const savings = todaysConsumptionCost - cheapestTariff.cost;
+    const savingsInPence = todayCostInPence - cheapestTariff.costInPence;
 
     // Not worth switching for 2p
-    if (savings <= 2) {
-      await sendNotification({
-        allTariffsByCost,
+    if (savingsInPence <= 2) {
+      await sendTariffEmail({
+        allTariffsByCost: sortedTariffsByCost,
         currentTariffWithCost,
         emailType: 'NOT_WORTH_SWITCHING_TARIFF',
       });
 
-      return logAndFormatSuccessMessage(
+      return logSuccessAndRespond(
         `Not worth switching to ${cheapestTariff.displayName} from ${currentTariff.displayName}`,
       );
     }
@@ -149,14 +153,14 @@ export async function tariffSwitcher(
       }
     }
 
-    await sendNotification({
-      allTariffsByCost,
+    await sendTariffEmail({
+      allTariffsByCost: sortedTariffsByCost,
       currentTariffWithCost,
       emailType: 'CHEAPER_TARIFF_EXISTS',
     });
 
-    return logAndFormatSuccessMessage(
-      `Going to switch to ${cheapestTariff.displayName} - ${cheapestTariffCostInPounds} from ${currentTariff.displayName} - ${todaysConsumptionCostInPounds}`,
+    return logSuccessAndRespond(
+      `Going to switch to ${cheapestTariff.displayName} - ${cheapestTariffCostInPounds} from ${currentTariff.displayName} - ${todaysCostInPounds}`,
     );
   } catch (error) {
     let message: string;
