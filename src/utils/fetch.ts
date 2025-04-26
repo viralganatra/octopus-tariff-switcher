@@ -1,6 +1,13 @@
 import { FetchError } from '../errors/fetch-error';
 import type { HeadersInit, Url } from '../types/misc';
+import { chunkArray } from './batch';
 import { sleep } from './helpers';
+import { logger } from './logger';
+
+type RetryOptions = {
+  retries?: number;
+  delayMs?: number;
+};
 
 export async function getData({ url, headers = {} }: { url: Url; headers?: HeadersInit }) {
   const response = await fetch(url, {
@@ -41,7 +48,7 @@ export async function sendData({
 
 export async function retryWithExponentialBackoff<T>(
   fn: () => Promise<T>,
-  { retries = 3, delayMs = 250 }: { retries?: number; delayMs?: number } = {},
+  { retries = 3, delayMs = 250 }: RetryOptions = {},
 ): Promise<T> {
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
@@ -59,4 +66,34 @@ export async function retryWithExponentialBackoff<T>(
 
   // Shouldn't be reachable
   throw new Error('Unexpected error in retry logic');
+}
+
+export async function batchWithRetry<T>({
+  entries,
+  batchSize,
+  sendBatch,
+  retryOptions,
+}: {
+  entries: T[];
+  batchSize: number;
+  sendBatch: (batch: T[]) => Promise<{ failed: T[]; reason: string }>;
+  retryOptions?: RetryOptions;
+}) {
+  const batches = chunkArray(entries, batchSize);
+
+  for (const batch of batches) {
+    await retryWithExponentialBackoff(async () => {
+      const { failed, reason } = await sendBatch(batch);
+
+      if (failed.length === 0) {
+        return;
+      }
+
+      logger.warn(`Retrying ${failed.length} failed items`);
+      batch.length = 0;
+      batch.push(...failed);
+
+      throw new Error(`Batch retry triggered: ${reason}`);
+    }, retryOptions);
+  }
 }

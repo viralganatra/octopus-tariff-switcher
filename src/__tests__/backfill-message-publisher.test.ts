@@ -115,7 +115,7 @@ describe('Backfill', () => {
     expect(await promise).toMatchInlineSnapshot(`
       {
         "body": "{
-        "message": "Some messages failed to send: 2025-03-01, 2025-03-02"
+        "message": "Batch retry triggered: Failed SQS messages: 2025-03-01, 2025-03-02"
       }",
         "statusCode": 500,
       }

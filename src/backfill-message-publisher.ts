@@ -11,10 +11,10 @@ import { fetchAllPastTariffs } from './functions/backfill-message-publisher/quer
 import { enrichDatesWithTariffData } from './functions/backfill-message-publisher/api-data';
 import { logger } from './utils/logger';
 import { toIsoDateString } from './utils/helpers';
-import type { IsoDate } from './types/misc';
 import { formatResponse } from './utils/format-response';
+import { batchWithRetry } from './utils/fetch';
+import type { IsoDate } from './types/misc';
 import { TARIFFS } from './constants/tariff';
-import { retryWithExponentialBackoff } from './utils/fetch';
 
 const BATCH_SIZE = 10;
 const client = new SQSClient();
@@ -53,42 +53,35 @@ function buildQueueEntries(items: Awaited<ReturnType<typeof enrichDatesWithTarif
   return queueEntries;
 }
 
-async function sendQueueEntriesInBatches(entries: SendMessageBatchRequestEntry[]) {
-  for (let i = 0; i < entries.length; i += BATCH_SIZE) {
-    const batch = entries.slice(i, i + BATCH_SIZE);
-
-    await retryWithExponentialBackoff(async () => {
+function sendQueueEntriesInBatches(entries: SendMessageBatchRequestEntry[]) {
+  return batchWithRetry({
+    entries,
+    batchSize: BATCH_SIZE,
+    sendBatch: async (batch) => {
       const response = await client.send(
         new SendMessageBatchCommand({
-          QueueUrl: Resource.OctopusTariffSwitcherWriteFifoQueue.url,
+          QueueUrl: Resource.OctopusTariffSwitcherWriteQueue.url,
           Entries: batch,
         }),
       );
 
-      const failed = response.Failed ?? [];
-
-      if (failed.length === 0) {
-        return;
-      }
-
-      const failedIds = new Set(failed.map((f) => f.Id));
+      const failedIds = new Set((response.Failed ?? []).map((f) => f.Id));
       const failedEntries = batch.filter((entry) => failedIds.has(entry.Id));
+      const failedIsoDates = failedEntries
+        .map(({ MessageBody }) =>
+          MessageBody ? (JSON.parse(MessageBody) as { isoDate: IsoDate }).isoDate : null,
+        )
+        .filter(Boolean)
+        .join(', ');
 
-      const failedIsoDates = failedEntries.map(({ MessageBody }) => {
-        if (MessageBody) {
-          const { isoDate } = JSON.parse(MessageBody) as { isoDate: string };
-          return isoDate;
-        }
-      });
+      const failedReason = failedIsoDates ? `Failed SQS messages: ${failedIsoDates}` : '';
 
-      logger.warn(`Retrying ${failedEntries.length} failed messages`);
-      // Replace the original batch with failed messages for retry
-      batch.length = 0;
-      batch.push(...failedEntries);
-
-      throw new Error(`Some messages failed to send: ${failedIsoDates.join(', ')}`);
-    });
-  }
+      return {
+        failed: failedEntries,
+        reason: failedReason,
+      };
+    },
+  });
 }
 
 export async function publishBackfillMessages(
