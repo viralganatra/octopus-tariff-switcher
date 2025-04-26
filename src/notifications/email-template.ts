@@ -54,7 +54,7 @@ function getCommonTariffTemplate({
                 return `
                 <tr ${rowHighlight}>
                   <td style="padding: 8px">${tariff.displayName}</td>
-                  <td style="padding: 8px">${penceToPoundWithCurrency(tariff.cost)}</td>
+                  <td style="padding: 8px">${penceToPoundWithCurrency(tariff.costInPence)}</td>
                 </tr>
               `;
               })
@@ -77,7 +77,9 @@ export function getCheaperTariffTemplate({
   title,
 }: TemplateData) {
   const cheapestTariff = allTariffsByCost.at(0) ?? currentTariffWithCost;
-  const saving = penceToPoundWithCurrency(currentTariffWithCost.cost - cheapestTariff.cost);
+  const saving = penceToPoundWithCurrency(
+    currentTariffWithCost.costInPence - cheapestTariff.costInPence,
+  );
 
   const htmlOutput = getCommonTariffTemplate({
     allTariffsByCost,
@@ -87,7 +89,7 @@ export function getCheaperTariffTemplate({
         You are currently on ${currentTariffWithCost.displayName}. I have automatically switched to ${cheapestTariff.displayName} as it is cheaper.
       </mj-text>
       <mj-text font-size="16px" line-height="24px" padding-top="10px" color="#525252">
-        You will pay ${penceToPoundWithCurrency(cheapestTariff.cost)} versus ${penceToPoundWithCurrency(currentTariffWithCost.cost)}, saving ${saving}.
+        You will pay ${penceToPoundWithCurrency(cheapestTariff.costInPence)} versus ${penceToPoundWithCurrency(currentTariffWithCost.costInPence)}, saving ${saving}.
       </mj-text>
     `,
     imageUrl: 'https://i.postimg.cc/y8DtP8TQ/robot-cheaper-tariff.png',

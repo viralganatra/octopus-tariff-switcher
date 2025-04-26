@@ -26,7 +26,7 @@ vi.mock('sst', () => {
       MjmlSecretKey: {
         value: 'MjmlSecretKey',
       },
-      OctopusTariffSwitcherWriteFifoQueue: {
+      OctopusTariffSwitcherWriteQueue: {
         url: 'https://sqs.us-east-1.amazonaws.com/123456789/queue',
       },
     },

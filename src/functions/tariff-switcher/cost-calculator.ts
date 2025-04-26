@@ -1,37 +1,33 @@
 import { MatchingRateError } from '../../errors/matching-rate-error';
 import { roundTo4Digits } from '../../utils/helpers';
 import type { ConsumptionUnitRates, TariffUnitRates } from './schema';
+import type { ConsumptionIntervals } from '../backfill-message-publisher/schema';
 
-type UnitCostInPence = Pick<ConsumptionUnitRates[number], 'unitCostInPence'>;
-type StandingCharge = number;
+type UnitCostPence = Pick<ConsumptionUnitRates[number], 'unitCostInPence'>;
+type StandingChargePence = number;
 
-export type ConsumptionUnitRatesWithoutCost = Omit<
-  ConsumptionUnitRates[number],
-  'unitCostInPence'
->[];
-
-export function getTotalCost({
+export function getDailyCostInPence({
   unitRates,
   standingCharge,
 }: {
-  unitRates: UnitCostInPence[];
-  standingCharge: StandingCharge;
+  unitRates: UnitCostPence[];
+  standingCharge: StandingChargePence;
 }) {
-  let totalConsumptionInPence = 0;
+  let costInPence = 0;
 
   // Gather total consumption for the day based upon the half hourly intervals
   for (const unitRate of unitRates) {
-    totalConsumptionInPence += unitRate.unitCostInPence;
+    costInPence += unitRate.unitCostInPence;
   }
 
-  return roundTo4Digits(totalConsumptionInPence + standingCharge);
+  return roundTo4Digits(costInPence + standingCharge);
 }
 
 export function getUnitRatesWithCost({
   consumptionUnitRates,
   tariffUnitRates,
 }: {
-  consumptionUnitRates: ConsumptionUnitRatesWithoutCost;
+  consumptionUnitRates: ConsumptionIntervals;
   tariffUnitRates: TariffUnitRates;
 }) {
   const unitRatesWithCost = consumptionUnitRates.map((halfHourlyUnitRate) => {
@@ -46,11 +42,11 @@ export function getUnitRatesWithCost({
     }
 
     const consumptionKwh = consumptionDelta / 1000;
-    const costPerUnitRate = consumptionKwh * matchingRate.unitCostInPence;
+    const costInPencePerUnitRate = consumptionKwh * matchingRate.unitCostInPence;
 
     return {
       ...halfHourlyUnitRate,
-      unitCostInPence: roundTo4Digits(costPerUnitRate),
+      unitCostInPence: roundTo4Digits(costInPencePerUnitRate),
     };
   });
 
@@ -62,8 +58,8 @@ export function getDailyUsageCostByTariff({
   consumptionUnitRates,
   tariffUnitRates,
 }: {
-  standingCharge: StandingCharge;
-  consumptionUnitRates: ConsumptionUnitRatesWithoutCost;
+  standingCharge: StandingChargePence;
+  consumptionUnitRates: ConsumptionIntervals;
   tariffUnitRates: TariffUnitRates;
 }) {
   const unitRatesWithCost = getUnitRatesWithCost({
@@ -71,10 +67,10 @@ export function getDailyUsageCostByTariff({
     tariffUnitRates,
   });
 
-  const potentialCost = getTotalCost({
+  const dailyCostPence = getDailyCostInPence({
     standingCharge,
     unitRates: unitRatesWithCost,
   });
 
-  return potentialCost;
+  return dailyCostPence;
 }

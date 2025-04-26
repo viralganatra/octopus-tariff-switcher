@@ -15,6 +15,6 @@ export type Tariff = {
   tariffCodeMatcher: string;
 };
 
-export type TariffWithCost = Tariff & { cost: number };
+export type TariffWithCost = Tariff & { costInPence: number };
 
 export type TariffSelectorWithDate = TariffSelector & { isoDate: IsoDate };

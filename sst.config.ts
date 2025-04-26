@@ -56,20 +56,20 @@ export default $config({
       },
     });
 
-    const backfillWriteFifoDLQ = new sst.aws.Queue(`${SERVICE_NAME}WriteFifoDLQ`, {
+    const backfillWriteDLQ = new sst.aws.Queue(`${SERVICE_NAME}WriteDLQ`, {
       fifo: true,
     });
 
-    const backfillWriteFifoQueue = new sst.aws.Queue(`${SERVICE_NAME}WriteFifoQueue`, {
+    const backfillWriteQueue = new sst.aws.Queue(`${SERVICE_NAME}WriteQueue`, {
       fifo: true,
-      dlq: backfillWriteFifoDLQ.arn,
-      visibilityTimeout: '5 seconds',
+      dlq: backfillWriteDLQ.arn,
+      visibilityTimeout: '45 seconds',
     });
 
     new sst.aws.Function(`${SERVICE_NAME}BackfillMessagePublisher`, {
       handler: 'handler.publishBackfillMessages',
-      link: [backfillWriteFifoQueue, secrets.AccNumber, secrets.ApiKey],
-      name: `${$app.stage}--${SERVICE_ID}-backfill-message-publisher`,
+      link: [backfillWriteQueue, secrets.AccNumber, secrets.ApiKey],
+      name: `${$app.stage}--${SERVICE_ID}-backfill-publisher`,
       timeout: '5 minutes',
       environment: {
         SERVICE_ID: `${SERVICE_ID}-backfill-message-publisher`,
