@@ -56,7 +56,7 @@ describe('Tariff Switcher', () => {
     expect(data).toMatchInlineSnapshot(`
       {
         "body": "{
-        "message": "Unable to verify new agreement after multiple retries. Please check your account and emails."
+        "message": "AgreementVerificationError: Unable to verify new agreement after multiple retries. Please check your account and emails."
       }",
         "statusCode": 500,
       }
@@ -135,7 +135,7 @@ describe('Tariff Switcher', () => {
     expect(data).toMatchInlineSnapshot(`
       {
         "body": "{
-        "message": "Failed to fetch"
+        "message": "TypeError: Failed to fetch"
       }",
         "statusCode": 500,
       }

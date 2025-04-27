@@ -13,7 +13,7 @@ import {
 } from './functions/tariff-switcher/cost-calculator';
 import { penceToPoundWithCurrency, sleep } from './utils/helpers';
 import { logger } from './utils/logger';
-import { formatResponse } from './utils/format-response';
+import { formatErrorResponse, formatResponse } from './utils/format-response';
 import { TARIFFS } from './constants/tariff';
 import { sendEmail } from './notifications/email';
 import { AgreementVerificationError } from './errors/agreement-verification-error';
@@ -45,7 +45,9 @@ export async function tariffSwitcher(
     const { deviceId, currentStandingCharge, regionCode, currentTariff, productCode, mpan } =
       await getAccountInfo();
 
-    const todaysConsumptionUnitRates = await getConsumptionInHalfHourlyRates({ deviceId });
+    const todaysConsumptionUnitRates = await getConsumptionInHalfHourlyRates({
+      deviceId,
+    });
 
     logger.info(`Recieved today's consumption unit rates`, {
       data: todaysConsumptionUnitRates,
@@ -163,18 +165,6 @@ export async function tariffSwitcher(
       `Going to switch to ${cheapestTariff.displayName} - ${cheapestTariffCostInPounds} from ${currentTariff.displayName} - ${todaysCostInPounds}`,
     );
   } catch (error) {
-    let message: string;
-
-    if (error instanceof Error) {
-      const err = error.toString();
-
-      message = error.message;
-
-      logger.error(err, error);
-    } else {
-      message = String(error);
-    }
-
-    return formatResponse(500, { message });
+    return formatErrorResponse(error as Error);
   }
 }
