@@ -5,7 +5,7 @@ import { publishBackfillMessages } from '../backfill-message-publisher';
 
 const sqsMock = mockClient(SQSClient);
 
-describe('Backfill', () => {
+describe('Backfill Message Publisher', () => {
   const proxy = {} as APIGatewayProxyEvent;
   const context = {} as Context;
 
@@ -21,7 +21,7 @@ describe('Backfill', () => {
     expect(await publishBackfillMessages(proxy, context)).toMatchInlineSnapshot(`
       {
         "body": "{
-        "message": "BACKFILL_FROM_DATE env variable is not set"
+        "message": "Error: BACKFILL_FROM_DATE env variable is not set"
       }",
         "statusCode": 500,
       }
@@ -115,7 +115,7 @@ describe('Backfill', () => {
     expect(await promise).toMatchInlineSnapshot(`
       {
         "body": "{
-        "message": "Batch retry triggered: Failed SQS messages: 2025-03-01, 2025-03-02"
+        "message": "Error: Batch retry triggered: Failed SQS messages: 2025-03-01, 2025-03-02"
       }",
         "statusCode": 500,
       }

@@ -11,7 +11,7 @@ import { fetchAllPastTariffs } from './functions/backfill-message-publisher/quer
 import { enrichDatesWithTariffData } from './functions/backfill-message-publisher/api-data';
 import { logger } from './utils/logger';
 import { toIsoDateString } from './utils/helpers';
-import { formatResponse } from './utils/format-response';
+import { formatErrorResponse } from './utils/format-response';
 import { batchWithRetry } from './utils/fetch';
 import type { IsoDate } from './types/misc';
 import { TARIFFS } from './constants/tariff';
@@ -118,18 +118,6 @@ export async function publishBackfillMessages(
       }),
     };
   } catch (error) {
-    let message: string;
-
-    if (error instanceof Error) {
-      const err = error.toString();
-
-      message = error.message;
-
-      logger.error(err, error);
-    } else {
-      message = String(error);
-    }
-
-    return formatResponse(500, { message });
+    return formatErrorResponse(error as Error);
   }
 }
