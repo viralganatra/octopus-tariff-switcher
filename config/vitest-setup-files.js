@@ -29,6 +29,9 @@ vi.mock('sst', () => {
       OctopusTariffSwitcherWriteQueue: {
         url: 'https://sqs.us-east-1.amazonaws.com/123456789/queue',
       },
+      OctopusTariffSwitcherDailyUsageTable: {
+        name: 'test-table',
+      },
     },
   };
 });

@@ -19,3 +19,4 @@ export const TARIFFS = [
 ] as const satisfies Tariff[];
 
 export type TariffDisplayName = (typeof TARIFFS)[number]['displayName'];
+export type TariffId = (typeof TARIFFS)[number]['id'];
