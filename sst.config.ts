@@ -105,7 +105,7 @@ export default $config({
     backfillWriteQueue.subscribe(
       {
         handler: 'handler.processBackfillQueue',
-        link: [sst.config.ts],
+        link: [dailyUsageTable],
         name: `${$app.stage}--${SERVICE_ID}-backfill-message-processor`,
         environment: {
           SERVICE_ID: `${SERVICE_ID}-backfill-message-processor`,
