@@ -42,6 +42,42 @@ export default $config({
 
     const allSecrets = Object.values(secrets);
 
+    const dailyUsageTable = new sst.aws.Dynamo(`${SERVICE_NAME}DailyUsageTable`, {
+      fields: {
+        PK: 'string', // Partition key (e.g., DATE#2025-04-01)
+        SK: 'string', // Sort key (e.g., SUMMARY or HH#05:30)
+        month: 'string', // For GSI partition key
+        usageTime: 'string', // For GSI sort key (e.g., "05:30")
+      },
+      primaryIndex: {
+        hashKey: 'PK',
+        rangeKey: 'SK',
+      },
+      globalIndexes: {
+        gsiByMonthTime: {
+          hashKey: 'month',
+          rangeKey: 'usageTime',
+        },
+      },
+      transform: {
+        table: {
+          billingMode: 'PROVISIONED',
+          readCapacity: 25,
+          writeCapacity: 25,
+          globalSecondaryIndexes: [
+            {
+              name: 'gsiByMonthTime',
+              hashKey: 'month',
+              rangeKey: 'usageTime',
+              projectionType: 'ALL',
+              readCapacity: 25,
+              writeCapacity: 25,
+            },
+          ],
+        },
+      },
+    });
+
     new sst.aws.Cron(`${SERVICE_NAME}Cron`, {
       schedule: 'cron(45 22 * * ? *)',
       job: {
@@ -65,6 +101,23 @@ export default $config({
       dlq: backfillWriteDLQ.arn,
       visibilityTimeout: '45 seconds',
     });
+
+    backfillWriteQueue.subscribe(
+      {
+        handler: 'handler.processBackfillQueue',
+        link: [sst.config.ts],
+        name: `${$app.stage}--${SERVICE_ID}-backfill-message-processor`,
+        environment: {
+          SERVICE_ID: `${SERVICE_ID}-backfill-message-processor`,
+        },
+        timeout: '30 seconds',
+      },
+      {
+        batch: {
+          partialResponses: true,
+        },
+      },
+    );
 
     new sst.aws.Function(`${SERVICE_NAME}BackfillMessagePublisher`, {
       handler: 'handler.publishBackfillMessages',

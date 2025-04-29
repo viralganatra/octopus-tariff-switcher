@@ -13,6 +13,10 @@ export function getDateInLocalTimeZone(date: Date) {
   return new TZDateMini(date).withTimeZone('Europe/London');
 }
 
+export function getDateInUTC(date: Date) {
+  return new TZDateMini(date).withTimeZone('UTC');
+}
+
 export function roundTo4Digits(num: number) {
   return Math.round(num * 1e4) / 1e4;
 }

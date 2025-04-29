@@ -30,6 +30,10 @@ declare module "sst" {
       "type": "sst.aws.Function"
       "url": string
     }
+    "OctopusTariffSwitcherDailyUsageTable": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
     "OctopusTariffSwitcherWriteDLQ": {
       "type": "sst.aws.Queue"
       "url": string
