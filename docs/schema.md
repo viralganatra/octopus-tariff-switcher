@@ -1,7 +1,7 @@
 # Database Schema Example
 
 ```
-|        PK       |      SK      | totalConsumption | tariffId |   tariffName  | tariffCost | tariffStandingCharge |        readAt       | consumptionDelta | costDeltaWithTax |
+|        PK       |      SK      |   dailyKwhTotal  | tariffId |   tariffName  | tariffCost | tariffStandingCharge |        readAt       | consumptionDelta | costDelta |
 |:---------------:|:------------:|:----------------:|:--------:|:-------------:|:----------:|:---------------------:|:-------------------:|:----------------:|:----------------:|
 | DATE#2025-04-04 | TOTAL        | 1534.00          | -        | -             | -          | -                     | -                   | -                | -                |
 | DATE#2025-04-04 | TARIFF#agile | -                | agile    | Agile Octopus | 139.1567   | 45.00                 | -                   | -                | -                |
