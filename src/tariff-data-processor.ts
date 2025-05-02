@@ -3,7 +3,7 @@ import { logger } from './utils/logger';
 import { schemaDailyUsage } from './functions/backfill-message-processor/schema';
 import { saveDailyUsage } from './functions/backfill-message-processor/db';
 
-export async function processBackfillQueue(event: SQSEvent, context: Context) {
+export async function processTariffDataQueue(event: SQSEvent, context: Context) {
   logger.addContext(context);
 
   const batchItemFailures: SQSBatchItemFailure[] = [];

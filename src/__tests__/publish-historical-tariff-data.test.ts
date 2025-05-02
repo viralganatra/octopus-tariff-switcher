@@ -1,27 +1,30 @@
 import type { APIGatewayProxyEvent, Context } from 'aws-lambda';
 import { SQSClient, SendMessageBatchCommand } from '@aws-sdk/client-sqs';
 import { mockClient } from 'aws-sdk-client-mock';
-import { publishBackfillMessages } from '../backfill-message-publisher';
+import { publishHistoricalTariffData } from '../publish-historical-tariff-data';
 
 const sqsMock = mockClient(SQSClient);
 
 describe('Backfill Message Publisher', () => {
-  const proxy = {} as APIGatewayProxyEvent;
+  const event = {
+    queryStringParameters: {
+      backfillFromDate: '2025-03-01',
+    },
+  } as unknown as APIGatewayProxyEvent;
   const context = {} as Context;
 
   beforeEach(() => {
-    vi.stubEnv('BACKFILL_FROM_DATE', '2025-03-01');
     vi.setSystemTime(new Date(2025, 2, 3));
     sqsMock.reset();
   });
 
-  it('should throw an error if the BACKFILL_FROM_DATE env var is not set', async () => {
-    vi.stubEnv('BACKFILL_FROM_DATE', undefined);
-
-    expect(await publishBackfillMessages(proxy, context)).toMatchInlineSnapshot(`
+  it('should throw an error if the backfillFromDate query param is missing', async () => {
+    expect(
+      await publishHistoricalTariffData({} as APIGatewayProxyEvent, context),
+    ).toMatchInlineSnapshot(`
       {
         "body": "{
-        "message": "Error: BACKFILL_FROM_DATE env variable is not set"
+        "message": "Error: backfillFromDate query parameter is missi¬ng, please provide a date in the format YYYY-MM-DD"
       }",
         "statusCode": 500,
       }
@@ -33,13 +36,15 @@ describe('Backfill Message Publisher', () => {
       Failed: [],
     });
 
-    const promise = publishBackfillMessages(proxy, context);
+    const promise = publishHistoricalTariffData(event, context);
 
     await vi.runAllTimersAsync();
 
     expect(await promise).toMatchInlineSnapshot(`
       {
-        "body": "{"message":"Backfill data successfully generated and sent to queue"}",
+        "body": "{
+        "message": "Backfill data from 2025-03-01 successfully generated and sent to the queue"
+      }",
         "statusCode": 200,
       }
     `);
@@ -75,13 +80,15 @@ describe('Backfill Message Publisher', () => {
         Failed: [],
       });
 
-    const promise = publishBackfillMessages(proxy, context);
+    const promise = publishHistoricalTariffData(event, context);
 
     await vi.runAllTimersAsync();
 
     expect(await promise).toMatchInlineSnapshot(`
       {
-        "body": "{"message":"Backfill data successfully generated and sent to queue"}",
+        "body": "{
+        "message": "Backfill data from 2025-03-01 successfully generated and sent to the queue"
+      }",
         "statusCode": 200,
       }
     `);
@@ -108,7 +115,7 @@ describe('Backfill Message Publisher', () => {
       ],
     });
 
-    const promise = publishBackfillMessages(proxy, context);
+    const promise = publishHistoricalTariffData(event, context);
 
     await vi.runAllTimersAsync();
 

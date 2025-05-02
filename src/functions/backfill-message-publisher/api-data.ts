@@ -18,6 +18,8 @@ export type TariffData = {
   consumption: ConsumptionIntervals;
 };
 
+export type TariffDataMap = Map<IsoDate, TariffData>;
+
 type ItemCacheBuilder = Pick<TariffData, 'isoDate' | 'tariffCode' | 'tariffName' | 'productCode'> &
   Partial<Omit<TariffData, 'isoDate' | 'tariffCode' | 'tariffName' | 'productCode'>>;
 
@@ -125,7 +127,7 @@ export async function enrichDatesWithTariffData({
   });
 
   // Populate item cache with standing charge, unit rates & consumption
-  const itemCache = new Map<IsoDate, TariffData>();
+  const itemCache: TariffDataMap = new Map();
 
   for (const {
     isoDate,

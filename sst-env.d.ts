@@ -25,9 +25,8 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
-    "OctopusTariffSwitcherBackfillMessagePublisher": {
-      "name": string
-      "type": "sst.aws.Function"
+    "OctopusTariffSwitcherApi": {
+      "type": "sst.aws.ApiGatewayV2"
       "url": string
     }
     "OctopusTariffSwitcherDailyUsageTable": {

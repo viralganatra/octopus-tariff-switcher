@@ -1,3 +1,3 @@
 export { tariffSwitcher } from './src/tariff-switcher';
-export { publishBackfillMessages } from './src/backfill-message-publisher';
-export { processBackfillQueue } from './src/backfill-message-processor';
+export { publishHistoricalTariffData } from './src/publish-historical-tariff-data';
+export { processTariffDataQueue } from './src/tariff-data-processor';

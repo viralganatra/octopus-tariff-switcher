@@ -42,6 +42,8 @@ export default $config({
 
     const allSecrets = Object.values(secrets);
 
+    const api = new sst.aws.ApiGatewayV2(`${SERVICE_NAME}Api`);
+
     const dailyUsageTable = new sst.aws.Dynamo(`${SERVICE_NAME}DailyUsageTable`, {
       fields: {
         PK: 'string', // Partition key (e.g., DATE#2025-04-01)
@@ -92,23 +94,23 @@ export default $config({
       },
     });
 
-    const backfillWriteDLQ = new sst.aws.Queue(`${SERVICE_NAME}WriteDLQ`, {
+    const tariffDataWriteDLQ = new sst.aws.Queue(`${SERVICE_NAME}WriteDLQ`, {
       fifo: true,
     });
 
-    const backfillWriteQueue = new sst.aws.Queue(`${SERVICE_NAME}WriteQueue`, {
+    const tariffDataWriteQueue = new sst.aws.Queue(`${SERVICE_NAME}WriteQueue`, {
       fifo: true,
-      dlq: backfillWriteDLQ.arn,
+      dlq: tariffDataWriteDLQ.arn,
       visibilityTimeout: '45 seconds',
     });
 
-    backfillWriteQueue.subscribe(
+    tariffDataWriteQueue.subscribe(
       {
-        handler: 'handler.processBackfillQueue',
+        handler: 'handler.processTariffDataQueue',
         link: [dailyUsageTable],
-        name: `${$app.stage}--${SERVICE_ID}-backfill-message-processor`,
+        name: `${$app.stage}--${SERVICE_ID}-tariff-data-queue-processor`,
         environment: {
-          SERVICE_ID: `${SERVICE_ID}-backfill-message-processor`,
+          SERVICE_ID: `${SERVICE_ID}-tariff-data-queue-processor`,
         },
         timeout: '30 seconds',
       },
@@ -119,15 +121,20 @@ export default $config({
       },
     );
 
-    new sst.aws.Function(`${SERVICE_NAME}BackfillMessagePublisher`, {
-      handler: 'handler.publishBackfillMessages',
-      link: [backfillWriteQueue, secrets.AccNumber, secrets.ApiKey],
-      name: `${$app.stage}--${SERVICE_ID}-backfill-publisher`,
-      timeout: '5 minutes',
-      environment: {
-        SERVICE_ID: `${SERVICE_ID}-backfill-message-publisher`,
-        BACKFILL_FROM_DATE: '2025-01-01',
+    api.route(
+      'GET /backfill',
+      {
+        handler: 'handler.publishHistoricalTariffData',
+        link: [tariffDataWriteQueue, secrets.AccNumber, secrets.ApiKey],
+        name: `${$app.stage}--${SERVICE_ID}-historical-message-publisher`,
+        timeout: '5 minutes',
+        environment: {
+          SERVICE_ID: `${SERVICE_ID}-historical-tariff-data-publisher`,
+        },
       },
-    });
+      {
+        auth: { iam: true },
+      },
+    );
   },
 });
