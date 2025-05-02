@@ -24,6 +24,8 @@ export default $config({
       args.url ??= $dev ? { authorization: 'iam' } : false;
       args.logging = {
         format: 'json',
+        retention: '1 year',
+        ...args.logging,
       };
       args.environment = {
         POWERTOOLS_DEV: String($dev),
@@ -130,6 +132,9 @@ export default $config({
         timeout: '5 minutes',
         environment: {
           SERVICE_ID: `${SERVICE_ID}-historical-tariff-data-publisher`,
+        },
+        logging: {
+          retention: '1 month',
         },
       },
       {
