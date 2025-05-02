@@ -7,12 +7,12 @@ import { logger } from './utils/logger';
 import { toIsoDateString } from './utils/helpers';
 import { formatErrorResponse, formatResponse } from './utils/format-response';
 import { buildQueueEntries, sendQueueEntriesInBatches } from './utils/queue';
-import type { IsoDate } from './types/misc';
 
-function listIsoDatesUntilYesterday(startDateISO: IsoDate) {
-  const start = parseISO(startDateISO);
-  // Exclude today
-  const end = subDays(new Date(), 1);
+function listIsoDatesInRange(fromDateIso: string, toDateIso: string | undefined) {
+  const start = parseISO(fromDateIso);
+
+  // Exclude today if toDateIso is not provided
+  const end = toDateIso ?? subDays(new Date(), 1);
 
   return eachDayOfInterval({ start, end }).map((date) =>
     toIsoDateString(formatISO(date, { representation: 'date' })),
@@ -26,6 +26,7 @@ export async function publishHistoricalTariffData(
   logger.addContext(context);
 
   const backfillFromDate = event.queryStringParameters?.backfillFromDate;
+  const backfillToDate = event.queryStringParameters?.backfillToDate;
 
   try {
     if (!backfillFromDate) {
@@ -39,7 +40,7 @@ export async function publishHistoricalTariffData(
       getAccountInfo(),
     ]);
 
-    const dates = listIsoDatesUntilYesterday(toIsoDateString(backfillFromDate));
+    const dates = listIsoDatesInRange(backfillFromDate, backfillToDate);
     const enrichedDates = await enrichDatesWithTariffData({
       dates,
       pastTariffs,
