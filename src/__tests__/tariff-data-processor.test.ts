@@ -2,7 +2,7 @@ import type { Context } from 'aws-lambda';
 import { BatchWriteItemCommand, DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { mockClient } from 'aws-sdk-client-mock';
 import { messagesFromQueueFixture } from '../mocks/fixtures';
-import { processBackfillQueue } from '../backfill-message-processor';
+import { processTariffDataQueue } from '../tariff-data-processor';
 
 const dynamoDbMock = mockClient(DynamoDBClient);
 
@@ -17,7 +17,7 @@ describe('Backfill Message Processor', () => {
   it('should batch write messages successfully', async () => {
     dynamoDbMock.on(BatchWriteItemCommand).resolves({ UnprocessedItems: {} });
 
-    const promise = processBackfillQueue({ Records: messagesFromQueueFixture }, context);
+    const promise = processTariffDataQueue({ Records: messagesFromQueueFixture }, context);
 
     await vi.runAllTimersAsync();
     const data = await promise;
@@ -71,7 +71,7 @@ describe('Backfill Message Processor', () => {
         UnprocessedItems: {},
       });
 
-    const promise = processBackfillQueue({ Records: messagesFromQueueFixture }, context);
+    const promise = processTariffDataQueue({ Records: messagesFromQueueFixture }, context);
 
     await vi.runAllTimersAsync();
     const data = await promise;
@@ -109,7 +109,7 @@ describe('Backfill Message Processor', () => {
       },
     });
 
-    const promise = processBackfillQueue({ Records: messagesFromQueueFixture }, context);
+    const promise = processTariffDataQueue({ Records: messagesFromQueueFixture }, context);
 
     await vi.runAllTimersAsync();
     const data = await promise;
