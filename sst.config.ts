@@ -21,7 +21,7 @@ export default $config({
   async run() {
     $transform(sst.aws.Function, (args) => {
       args.runtime = 'nodejs22.x';
-      args.url ??= true;
+      args.url ??= $dev ? { authorization: 'iam' } : false;
       args.logging = {
         format: 'json',
       };
