@@ -68,6 +68,10 @@ describe('Backfill Message Publisher', () => {
       unitRates: expect.any(Array),
       id: 'agile',
     });
+
+    expect(JSON.parse(entries.at(-1)!.MessageBody as string)).toMatchObject({
+      isoDate: '2025-03-02',
+    });
   });
 
   it('should retry sending failed messages and succeed', async () => {
@@ -129,5 +133,36 @@ describe('Backfill Message Publisher', () => {
     `);
 
     expect(sqsMock).toHaveReceivedCommandTimes(SendMessageBatchCommand, 4);
+  });
+
+  it('should backfill data from custom from and to dates', async () => {
+    vi.setSystemTime(new Date(2025, 2, 7));
+
+    const event = {
+      queryStringParameters: {
+        backfillFromDate: '2025-03-02',
+        backfillToDate: '2025-03-04',
+      },
+    } as unknown as APIGatewayProxyEvent;
+
+    sqsMock.on(SendMessageBatchCommand).resolves({
+      Failed: [],
+    });
+
+    const promise = publishHistoricalTariffData(event, context);
+
+    await vi.runAllTimersAsync();
+    await promise;
+
+    const params = sqsMock.call(0).args.at(0)?.input as SendMessageBatchCommand['input'];
+    const entries = params.Entries!;
+
+    expect(entries).toHaveLength(3);
+    expect(JSON.parse(entries.at(0)!.MessageBody as string)).toMatchObject({
+      isoDate: event.queryStringParameters!.backfillFromDate,
+    });
+    expect(JSON.parse(entries.at(-1)!.MessageBody as string)).toMatchObject({
+      isoDate: event.queryStringParameters!.backfillToDate,
+    });
   });
 });
