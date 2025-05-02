@@ -10,7 +10,7 @@ import {
   getDailyUsageCostByTariff,
   getUnitRatesWithCost,
 } from '../tariff-switcher/cost-calculator';
-import type { TariffData } from '../backfill-message-publisher/api-data';
+import type { TariffData } from '../publish-historical-tariff-data/api-data';
 import { getDateInUTC } from '../../utils/helpers';
 import { batchWithRetry } from '../../utils/fetch';
 import type { DailyUsage } from './schema';
