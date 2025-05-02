@@ -136,5 +136,18 @@ export default $config({
         auth: { iam: true },
       },
     );
+
+    new sst.aws.Cron(`${SERVICE_NAME}PublishYesterdaysTariffCron`, {
+      schedule: 'cron(* 22 * * ? *)',
+      job: {
+        handler: 'handler.publishYesterdaysTariff',
+        link: [tariffDataWriteQueue, secrets.AccNumber, secrets.ApiKey],
+        name: `${$app.stage}--${SERVICE_ID}-yesterdays-tariff-publisher`,
+        timeout: '1 minute',
+        environment: {
+          SERVICE_ID: `${SERVICE_ID}-yesterdays-tariff-publisher`,
+        },
+      },
+    });
   },
 });

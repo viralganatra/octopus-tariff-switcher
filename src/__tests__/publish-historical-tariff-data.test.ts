@@ -24,7 +24,7 @@ describe('Backfill Message Publisher', () => {
     ).toMatchInlineSnapshot(`
       {
         "body": "{
-        "message": "Error: backfillFromDate query parameter is missi¬ng, please provide a date in the format YYYY-MM-DD"
+        "message": "Error: backfillFromDate query parameter is missing, please provide a date in the format YYYY-MM-DD"
       }",
         "statusCode": 500,
       }
