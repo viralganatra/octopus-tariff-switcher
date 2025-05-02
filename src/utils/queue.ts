@@ -5,7 +5,7 @@ import {
 } from '@aws-sdk/client-sqs';
 import { Resource } from 'sst';
 import { TARIFFS } from '../constants/tariff';
-import type { TariffDataMap } from '../functions/backfill-message-publisher/api-data';
+import type { TariffDataMap } from '../functions/publish-historical-tariff-data/api-data';
 import type { IsoDate } from '../types/misc';
 import { batchWithRetry } from './fetch';
 
