@@ -143,7 +143,7 @@ export default $config({
     );
 
     new sst.aws.Cron(`${SERVICE_NAME}PublishYesterdaysTariffCron`, {
-      schedule: 'cron(* 22 * * ? *)',
+      schedule: 'cron(0 22 * * ? *)',
       job: {
         handler: 'handler.publishYesterdaysTariff',
         link: [tariffDataWriteQueue, secrets.AccNumber, secrets.ApiKey],
