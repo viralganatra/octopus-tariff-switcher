@@ -1,5 +1,7 @@
 /// <reference path="./.sst/platform/config.d.ts" />
 
+import * as aws from '@pulumi/aws';
+
 const SERVICE_ID = 'octopus-tariff-switcher';
 const SERVICE_NAME = 'OctopusTariffSwitcher';
 const AWS_REGION = 'eu-west-2';
@@ -82,20 +84,6 @@ export default $config({
       },
     });
 
-    new sst.aws.Cron(`${SERVICE_NAME}Cron`, {
-      schedule: 'cron(45 22 * * ? *)',
-      job: {
-        handler: 'handler.tariffSwitcher',
-        link: [...allSecrets],
-        name: `${$app.stage}--${SERVICE_ID}`,
-        timeout: '70 seconds',
-        environment: {
-          SERVICE_ID,
-          DRY_RUN: String($dev),
-        },
-      },
-    });
-
     const tariffDataWriteDLQ = new sst.aws.Queue(`${SERVICE_NAME}WriteDLQ`, {
       fifo: true,
     });
@@ -152,6 +140,51 @@ export default $config({
         environment: {
           SERVICE_ID: `${SERVICE_ID}-yesterdays-tariff-publisher`,
         },
+      },
+    });
+
+    const tariffSwitcher = new sst.aws.Function(SERVICE_NAME, {
+      handler: 'handler.tariffSwitcher',
+      link: [...allSecrets],
+      name: `${$app.stage}--${SERVICE_ID}`,
+      timeout: '70 seconds',
+      environment: {
+        SERVICE_ID,
+        DRY_RUN: String($dev),
+      },
+    });
+
+    const tariffSwitcherSchedulerRole = new aws.iam.Role('SchedulerRole', {
+      assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
+        Service: 'scheduler.amazonaws.com',
+      }),
+    });
+
+    new aws.iam.RolePolicy('InvokeLambdaPolicy', {
+      role: tariffSwitcherSchedulerRole.id,
+      policy: tariffSwitcher.arn.apply((arn) =>
+        JSON.stringify({
+          Version: '2012-10-17',
+          Statement: [
+            {
+              Effect: 'Allow',
+              Action: 'lambda:InvokeFunction',
+              Resource: arn,
+            },
+          ],
+        }),
+      ),
+    });
+
+    new aws.scheduler.Schedule(`${SERVICE_NAME}Scheduler`, {
+      scheduleExpression: 'cron(45 23 * * ? *)',
+      scheduleExpressionTimezone: 'Europe/London',
+      flexibleTimeWindow: {
+        mode: 'OFF',
+      },
+      target: {
+        arn: tariffSwitcher.arn,
+        roleArn: tariffSwitcherSchedulerRole.arn,
       },
     });
   },
