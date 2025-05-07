@@ -1,22 +1,7 @@
-import SparkPost from 'sparkpost';
 import { sendEmail } from '../email';
 import { server } from '../../mocks/node';
 
-const sendMock = vi.fn();
-
-vi.mock('sparkpost', () => ({
-  default: vi.fn(() => ({
-    transmissions: {
-      send: sendMock,
-    },
-  })),
-}));
-
 describe('Email', () => {
-  afterEach(() => {
-    sendMock.mockReset();
-  });
-
   it('call the email render api with the correct data', async () => {
     const dispatchRequest = vi.fn();
 
@@ -44,7 +29,7 @@ describe('Email', () => {
   });
 
   it('should call the sparkpost api with the correct data', async () => {
-    await sendEmail({
+    const result = (await sendEmail({
       emailType: 'CHEAPER_TARIFF_EXISTS',
       allTariffsByCost: [],
       currentTariffWithCost: {
@@ -53,15 +38,14 @@ describe('Email', () => {
         tariffCodeMatcher: '-AGILE-',
         costInPence: 100,
       },
-    });
+    })) as { url: string; headers: { Authorization: string } };
 
-    expect(SparkPost).toHaveBeenCalledWith('SparkPostApiKey', {
-      origin: 'https://api.eu.sparkpost.com:443',
-    });
+    expect(result.url).toBe('https://api.eu.sparkpost.com/api/v1/transmissions');
+    expect(result.headers.Authorization).toBe('SparkPostApiKey');
   });
 
   it('should send an email when a cheaper tariff exists', async () => {
-    await sendEmail({
+    const result = (await sendEmail({
       emailType: 'CHEAPER_TARIFF_EXISTS',
       allTariffsByCost: [
         {
@@ -83,13 +67,13 @@ describe('Email', () => {
         tariffCodeMatcher: '-AGILE-',
         costInPence: 105,
       },
-    });
+    })) as { data: object };
 
-    expect(sendMock.mock.calls).toMatchSnapshot();
+    expect(result.data).toMatchSnapshot();
   });
 
   it('should send an email when there is no cheaper tariff', async () => {
-    await sendEmail({
+    const result = (await sendEmail({
       emailType: 'ALREADY_ON_CHEAPEST_TARIFF',
       allTariffsByCost: [
         {
@@ -111,13 +95,13 @@ describe('Email', () => {
         tariffCodeMatcher: '-AGILE-',
         costInPence: 65,
       },
-    });
+    })) as { data: object };
 
-    expect(sendMock.mock.calls).toMatchSnapshot();
+    expect(result.data).toMatchSnapshot();
   });
 
   it('should send an email when it is not worth switching tariff', async () => {
-    await sendEmail({
+    const result = (await sendEmail({
       emailType: 'NOT_WORTH_SWITCHING_TARIFF',
       allTariffsByCost: [
         {
@@ -139,8 +123,8 @@ describe('Email', () => {
         tariffCodeMatcher: '-AGILE-',
         costInPence: 100,
       },
-    });
+    })) as { data: object };
 
-    expect(sendMock.mock.calls).toMatchSnapshot();
+    expect(result.data).toMatchSnapshot();
   });
 });
