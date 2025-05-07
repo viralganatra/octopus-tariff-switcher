@@ -8,6 +8,12 @@ import { toIsoDateString } from './utils/helpers';
 import { formatErrorResponse, formatResponse } from './utils/format-response';
 import { buildQueueEntries, sendQueueEntriesInBatches } from './utils/queue';
 
+function logSuccessAndRespond(message: string) {
+  logger.info(message);
+
+  return formatResponse(200, { message });
+}
+
 export async function publishYesterdaysTariff(
   event: APIGatewayProxyEvent,
   context: Context,
@@ -33,9 +39,9 @@ export async function publishYesterdaysTariff(
     const queueEntries = buildQueueEntries(enrichedDates);
     await sendQueueEntriesInBatches(queueEntries);
 
-    return formatResponse(200, {
-      message: `Yesterday's data successfully generated and sent to the queue: ${yesterdayIso}`,
-    });
+    return logSuccessAndRespond(
+      `Yesterday's data successfully generated and sent to the queue: ${yesterdayIso}`,
+    );
   } catch (error) {
     return formatErrorResponse(error as Error);
   }

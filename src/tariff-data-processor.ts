@@ -14,6 +14,8 @@ export async function processTariffDataQueue(event: SQSEvent, context: Context) 
       const dailyUsageItem = schemaDailyUsage.parse(item);
 
       await saveDailyUsage(dailyUsageItem);
+
+      logger.info(`Daily usage data saved successfully for: ${dailyUsageItem.isoDate}`);
     } catch (error) {
       batchItemFailures.push({ itemIdentifier: record.messageId });
 

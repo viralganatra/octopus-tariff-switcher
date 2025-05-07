@@ -8,6 +8,12 @@ import { toIsoDateString } from './utils/helpers';
 import { formatErrorResponse, formatResponse } from './utils/format-response';
 import { buildQueueEntries, sendQueueEntriesInBatches } from './utils/queue';
 
+function logSuccessAndRespond(message: string) {
+  logger.info(message);
+
+  return formatResponse(200, { message });
+}
+
 function listIsoDatesInRange(fromDateIso: string, toDateIso: string | undefined) {
   const start = parseISO(fromDateIso);
 
@@ -51,9 +57,9 @@ export async function publishHistoricalTariffData(
     const queueEntries = buildQueueEntries(enrichedDates);
     await sendQueueEntriesInBatches(queueEntries);
 
-    return formatResponse(200, {
-      message: `Backfill data from ${backfillFromDate} successfully generated and sent to the queue`,
-    });
+    return logSuccessAndRespond(
+      `Backfill data from ${backfillFromDate} successfully generated and sent to the queue`,
+    );
   } catch (error) {
     return formatErrorResponse(error as Error);
   }
