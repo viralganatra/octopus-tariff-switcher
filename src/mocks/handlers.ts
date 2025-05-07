@@ -87,6 +87,20 @@ export const handlers = [
       html: data.mjml,
     });
   }),
+  http.post('https://api.eu.sparkpost.com/api/v1/transmissions', async ({ request }) => {
+    return HttpResponse.json({
+      data: await request.json(),
+      url: request.url,
+      headers: {
+        Authorization: request.headers.get('Authorization'),
+      },
+      results: {
+        total_rejected_recipients: 0,
+        total_accepted_recipients: 1,
+        id: '11668787484950529',
+      },
+    });
+  }),
   graphql.mutation('ObtainKrakenToken', () => {
     return HttpResponse.json({
       data: {

@@ -1,15 +1,13 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`Email > should send an email when a cheaper tariff exists 1`] = `
-[
-  [
-    {
-      "content": {
-        "from": {
-          "email": "EmailFrom",
-          "name": "Octobot",
-        },
-        "html": "
+{
+  "content": {
+    "from": {
+      "email": "EmailFrom",
+      "name": "Octobot",
+    },
+    "html": "
     <mjml>
       <mj-body background-color="white">
         <mj-section background-color="#f0f0f0">
@@ -58,29 +56,25 @@ exports[`Email > should send an email when a cheaper tariff exists 1`] = `
       </mj-body>
     </mjml>
   ",
-        "subject": "Octopus Tariff Switcher: Cheaper Tariff Found",
-      },
-      "options": {
-        "transactional": true,
-      },
-      "recipients": {
-        "list_id": "octopus-tariff-switcher",
-      },
-    },
-  ],
-]
+    "subject": "Octopus Tariff Switcher: Cheaper Tariff Found",
+  },
+  "options": {
+    "transactional": true,
+  },
+  "recipients": {
+    "list_id": "octopus-tariff-switcher",
+  },
+}
 `;
 
 exports[`Email > should send an email when it is not worth switching tariff 1`] = `
-[
-  [
-    {
-      "content": {
-        "from": {
-          "email": "EmailFrom",
-          "name": "Octobot",
-        },
-        "html": "
+{
+  "content": {
+    "from": {
+      "email": "EmailFrom",
+      "name": "Octobot",
+    },
+    "html": "
     <mjml>
       <mj-body background-color="white">
         <mj-section background-color="#f0f0f0">
@@ -126,29 +120,25 @@ exports[`Email > should send an email when it is not worth switching tariff 1`] 
       </mj-body>
     </mjml>
   ",
-        "subject": "Octopus Tariff Switcher: Not worth switching tariff",
-      },
-      "options": {
-        "transactional": true,
-      },
-      "recipients": {
-        "list_id": "octopus-tariff-switcher",
-      },
-    },
-  ],
-]
+    "subject": "Octopus Tariff Switcher: Not worth switching tariff",
+  },
+  "options": {
+    "transactional": true,
+  },
+  "recipients": {
+    "list_id": "octopus-tariff-switcher",
+  },
+}
 `;
 
 exports[`Email > should send an email when there is no cheaper tariff 1`] = `
-[
-  [
-    {
-      "content": {
-        "from": {
-          "email": "EmailFrom",
-          "name": "Octobot",
-        },
-        "html": "
+{
+  "content": {
+    "from": {
+      "email": "EmailFrom",
+      "name": "Octobot",
+    },
+    "html": "
     <mjml>
       <mj-body background-color="white">
         <mj-section background-color="#f0f0f0">
@@ -194,15 +184,13 @@ exports[`Email > should send an email when there is no cheaper tariff 1`] = `
       </mj-body>
     </mjml>
   ",
-        "subject": "Octopus Tariff Switcher: You are already on the cheapest tariff",
-      },
-      "options": {
-        "transactional": true,
-      },
-      "recipients": {
-        "list_id": "octopus-tariff-switcher",
-      },
-    },
-  ],
-]
+    "subject": "Octopus Tariff Switcher: You are already on the cheapest tariff",
+  },
+  "options": {
+    "transactional": true,
+  },
+  "recipients": {
+    "list_id": "octopus-tariff-switcher",
+  },
+}
 `;
