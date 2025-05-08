@@ -88,7 +88,7 @@ A Lambda function:
 * Fetches your daily usage and current tariff costs
 * Retrieves unit rates for other tariffs
 * Compares all tariffs to find the cheapest
-* Runs **daily at 22:45 UTC** (planned to localise to Europe/London once supported by SST)
+* Runs **daily at 23:45 Europe/London**
 
 📂 Main entrypoint: `./src/tariff-switcher`
 
