@@ -95,14 +95,14 @@ async function batchWriteWithRetry(writeRequests: ReturnType<typeof createWriteR
     sendBatch: async (batch) => {
       const command = new BatchWriteItemCommand({
         RequestItems: {
-          [Resource.OctopusTariffSwitcherDailyUsageTable.name]: batch,
+          [Resource['octopus-tariff-switcher-daily-usage-table'].name]: batch,
         },
       });
 
       const response = await client.send(command);
 
       const unprocessedItems =
-        response.UnprocessedItems?.[Resource.OctopusTariffSwitcherDailyUsageTable.name] ?? [];
+        response.UnprocessedItems?.[Resource['octopus-tariff-switcher-daily-usage-table'].name] ?? [];
 
       const failedItems = unprocessedItems.filter(
         (item): item is { PutRequest: { Item: Record<string, AttributeValue> } } =>
