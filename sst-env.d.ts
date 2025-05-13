@@ -25,30 +25,30 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
-    "OctopusTariffSwitcher": {
+    "SparkPostApiKey": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "octopus-tariff-switcher": {
       "name": string
       "type": "sst.aws.Function"
       "url": string
     }
-    "OctopusTariffSwitcherApi": {
+    "octopus-tariff-switcher-api": {
       "type": "sst.aws.ApiGatewayV2"
       "url": string
     }
-    "OctopusTariffSwitcherDailyUsageTable": {
+    "octopus-tariff-switcher-daily-usage-table": {
       "name": string
       "type": "sst.aws.Dynamo"
     }
-    "OctopusTariffSwitcherWriteDLQ": {
+    "octopus-tariff-switcher-write-dlq": {
       "type": "sst.aws.Queue"
       "url": string
     }
-    "OctopusTariffSwitcherWriteQueue": {
+    "octopus-tariff-switcher-write-queue": {
       "type": "sst.aws.Queue"
       "url": string
-    }
-    "SparkPostApiKey": {
-      "type": "sst.sst.Secret"
-      "value": string
     }
   }
 }

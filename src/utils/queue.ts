@@ -43,7 +43,7 @@ export function sendQueueEntriesInBatches(entries: SendMessageBatchRequestEntry[
     sendBatch: async (batch) => {
       const response = await client.send(
         new SendMessageBatchCommand({
-          QueueUrl: Resource.OctopusTariffSwitcherWriteQueue.url,
+          QueueUrl: Resource['octopus-tariff-switcher-write-queue'].url,
           Entries: batch,
         }),
       );

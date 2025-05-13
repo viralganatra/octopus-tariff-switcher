@@ -1,10 +1,18 @@
 /// <reference path="./.sst/platform/config.d.ts" />
 
 import * as aws from '@pulumi/aws';
-
-const SERVICE_ID = 'octopus-tariff-switcher';
-const SERVICE_NAME = 'OctopusTariffSwitcher';
-const AWS_REGION = 'eu-west-2';
+import {
+  SERVICE_ID,
+  AWS_REGION,
+  DAILY_USAGE_TABLE_NAME,
+  API_NAME,
+  TARIFF_DATA_WRITE_DLQ_NAME,
+  TARIFF_DATA_WRITE_QUEUE_NAME,
+  TARIFF_DATA_QUEUE_PROCESSOR_NAME,
+  HISTORICAL_TARIFF_PUBLISHER_NAME,
+  YESTERDAYS_TARIFF_PUBLISHER_NAME,
+  TARIFF_SWITCHER_NAME,
+} from './config/infra';
 
 export default $config({
   app(input) {
@@ -46,9 +54,9 @@ export default $config({
 
     const allSecrets = Object.values(secrets);
 
-    const api = new sst.aws.ApiGatewayV2(`${SERVICE_NAME}Api`);
+    const api = new sst.aws.ApiGatewayV2(API_NAME);
 
-    const dailyUsageTable = new sst.aws.Dynamo(`${SERVICE_NAME}DailyUsageTable`, {
+    const dailyUsageTable = new sst.aws.Dynamo(DAILY_USAGE_TABLE_NAME, {
       fields: {
         PK: 'string', // Partition key (e.g., DATE#2025-04-01)
         SK: 'string', // Sort key (e.g., SUMMARY or HH#05:30)
@@ -84,11 +92,11 @@ export default $config({
       },
     });
 
-    const tariffDataWriteDLQ = new sst.aws.Queue(`${SERVICE_NAME}WriteDLQ`, {
+    const tariffDataWriteDLQ = new sst.aws.Queue(TARIFF_DATA_WRITE_DLQ_NAME, {
       fifo: true,
     });
 
-    const tariffDataWriteQueue = new sst.aws.Queue(`${SERVICE_NAME}WriteQueue`, {
+    const tariffDataWriteQueue = new sst.aws.Queue(TARIFF_DATA_WRITE_QUEUE_NAME, {
       fifo: true,
       dlq: tariffDataWriteDLQ.arn,
       visibilityTimeout: '45 seconds',
@@ -98,9 +106,9 @@ export default $config({
       {
         handler: 'handler.processTariffDataQueue',
         link: [dailyUsageTable],
-        name: `${$app.stage}--${SERVICE_ID}-tariff-data-queue-processor`,
+        name: `${$app.stage}--${TARIFF_DATA_QUEUE_PROCESSOR_NAME}`,
         environment: {
-          SERVICE_ID: `${SERVICE_ID}-tariff-data-queue-processor`,
+          SERVICE_ID: TARIFF_DATA_QUEUE_PROCESSOR_NAME,
         },
         timeout: '30 seconds',
       },
@@ -116,10 +124,10 @@ export default $config({
       {
         handler: 'handler.publishHistoricalTariffData',
         link: [tariffDataWriteQueue, secrets.AccNumber, secrets.ApiKey],
-        name: `${$app.stage}--${SERVICE_ID}-historical-message-publisher`,
+        name: `${$app.stage}--${HISTORICAL_TARIFF_PUBLISHER_NAME}`,
         timeout: '5 minutes',
         environment: {
-          SERVICE_ID: `${SERVICE_ID}-historical-tariff-data-publisher`,
+          SERVICE_ID: HISTORICAL_TARIFF_PUBLISHER_NAME,
         },
         logging: {
           retention: '1 month',
@@ -130,26 +138,26 @@ export default $config({
       },
     );
 
-    new sst.aws.Cron(`${SERVICE_NAME}PublishYesterdaysTariffCron`, {
+    new sst.aws.Cron(`${YESTERDAYS_TARIFF_PUBLISHER_NAME}-cron`, {
       schedule: 'cron(0 22 * * ? *)',
       job: {
         handler: 'handler.publishYesterdaysTariff',
         link: [tariffDataWriteQueue, secrets.AccNumber, secrets.ApiKey],
-        name: `${$app.stage}--${SERVICE_ID}-yesterdays-tariff-publisher`,
+        name: `${$app.stage}--${YESTERDAYS_TARIFF_PUBLISHER_NAME}`,
         timeout: '1 minute',
         environment: {
-          SERVICE_ID: `${SERVICE_ID}-yesterdays-tariff-publisher`,
+          SERVICE_ID: YESTERDAYS_TARIFF_PUBLISHER_NAME,
         },
       },
     });
 
-    const tariffSwitcher = new sst.aws.Function(SERVICE_NAME, {
+    const tariffSwitcher = new sst.aws.Function(TARIFF_SWITCHER_NAME, {
       handler: 'handler.tariffSwitcher',
       link: [...allSecrets],
-      name: `${$app.stage}--${SERVICE_ID}`,
+      name: `${$app.stage}--${TARIFF_SWITCHER_NAME}`,
       timeout: '70 seconds',
       environment: {
-        SERVICE_ID,
+        SERVICE_ID: TARIFF_SWITCHER_NAME,
         DRY_RUN: String($dev),
       },
     });
@@ -176,7 +184,7 @@ export default $config({
       ),
     });
 
-    new aws.scheduler.Schedule(`${SERVICE_NAME}Scheduler`, {
+    new aws.scheduler.Schedule(`${SERVICE_ID}-scheduler`, {
       scheduleExpression: 'cron(45 23 * * ? *)',
       scheduleExpressionTimezone: 'Europe/London',
       flexibleTimeWindow: {

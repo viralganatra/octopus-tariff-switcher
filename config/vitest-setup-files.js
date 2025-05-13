@@ -26,10 +26,10 @@ vi.mock('sst', () => {
       MjmlSecretKey: {
         value: 'MjmlSecretKey',
       },
-      OctopusTariffSwitcherWriteQueue: {
+      'octopus-tariff-switcher-write-queue': {
         url: 'https://sqs.us-east-1.amazonaws.com/123456789/queue',
       },
-      OctopusTariffSwitcherDailyUsageTable: {
+      'octopus-tariff-switcher-daily-usage-table': {
         name: 'test-table',
       },
     },
