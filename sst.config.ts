@@ -76,16 +76,16 @@ export default $config({
       transform: {
         table: {
           billingMode: 'PROVISIONED',
-          readCapacity: 25,
-          writeCapacity: 25,
+          readCapacity: 5,
+          writeCapacity: 5,
           globalSecondaryIndexes: [
             {
               name: 'gsiByMonthTime',
               hashKey: 'month',
               rangeKey: 'usageTime',
               projectionType: 'ALL',
-              readCapacity: 25,
-              writeCapacity: 25,
+              readCapacity: 5,
+              writeCapacity: 5,
             },
           ],
         },
