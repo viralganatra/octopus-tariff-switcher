@@ -32,7 +32,6 @@ declare module "sst" {
     "octopus-tariff-switcher": {
       "name": string
       "type": "sst.aws.Function"
-      "url": string
     }
     "octopus-tariff-switcher-api": {
       "type": "sst.aws.ApiGatewayV2"
