@@ -155,7 +155,7 @@ export default $config({
       handler: 'handler.tariffSwitcher',
       link: [...allSecrets],
       name: `${$app.stage}--${TARIFF_SWITCHER_NAME}`,
-      timeout: '70 seconds',
+      timeout: '300 seconds',
       environment: {
         SERVICE_ID: TARIFF_SWITCHER_NAME,
         DRY_RUN: String($dev),
