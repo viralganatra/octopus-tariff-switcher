@@ -15,7 +15,7 @@ import { getDateInUTC } from '../../utils/helpers';
 import { batchWithRetry } from '../../utils/fetch';
 import type { DailyUsage } from './schema';
 
-const BATCH_SIZE = 25;
+const BATCH_SIZE = 5;
 const client = new DynamoDBClient();
 
 function calculateCost(item: TariffData) {
@@ -102,7 +102,8 @@ async function batchWriteWithRetry(writeRequests: ReturnType<typeof createWriteR
       const response = await client.send(command);
 
       const unprocessedItems =
-        response.UnprocessedItems?.[Resource['octopus-tariff-switcher-daily-usage-table'].name] ?? [];
+        response.UnprocessedItems?.[Resource['octopus-tariff-switcher-daily-usage-table'].name] ??
+        [];
 
       const failedItems = unprocessedItems.filter(
         (item): item is { PutRequest: { Item: Record<string, AttributeValue> } } =>

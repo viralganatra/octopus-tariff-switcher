@@ -23,7 +23,7 @@ export type TariffDataMap = Map<IsoDate, TariffData>;
 type ItemCacheBuilder = Pick<TariffData, 'isoDate' | 'tariffCode' | 'tariffName' | 'productCode'> &
   Partial<Omit<TariffData, 'isoDate' | 'tariffCode' | 'tariffName' | 'productCode'>>;
 
-const BATCH_SIZE = 25;
+const BATCH_SIZE = 5;
 
 export function findMatchingTariffForDate({
   pastTariffs,
