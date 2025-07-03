@@ -86,6 +86,7 @@ export async function batchWithRetry<T>({
       const { failed, reason } = await sendBatch(batch);
 
       if (failed.length === 0) {
+        await sleep(1000);
         return;
       }
 

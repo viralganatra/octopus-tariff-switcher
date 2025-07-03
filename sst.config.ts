@@ -1,18 +1,17 @@
 /// <reference path="./.sst/platform/config.d.ts" />
 
-import * as aws from '@pulumi/aws';
-import {
+const {
   SERVICE_ID,
-  AWS_REGION,
   DAILY_USAGE_TABLE_NAME,
   API_NAME,
+  AWS_REGION,
   TARIFF_DATA_WRITE_DLQ_NAME,
   TARIFF_DATA_WRITE_QUEUE_NAME,
   TARIFF_DATA_QUEUE_PROCESSOR_NAME,
   HISTORICAL_TARIFF_PUBLISHER_NAME,
   YESTERDAYS_TARIFF_PUBLISHER_NAME,
   TARIFF_SWITCHER_NAME,
-} from './config/infra';
+} = await import('./config/infra');
 
 export default $config({
   app(input) {
@@ -99,7 +98,7 @@ export default $config({
     const tariffDataWriteQueue = new sst.aws.Queue(TARIFF_DATA_WRITE_QUEUE_NAME, {
       fifo: true,
       dlq: tariffDataWriteDLQ.arn,
-      visibilityTimeout: '45 seconds',
+      visibilityTimeout: '120 seconds',
     });
 
     tariffDataWriteQueue.subscribe(
@@ -110,11 +109,12 @@ export default $config({
         environment: {
           SERVICE_ID: TARIFF_DATA_QUEUE_PROCESSOR_NAME,
         },
-        timeout: '30 seconds',
+        timeout: '110 seconds',
       },
       {
         batch: {
           partialResponses: true,
+          size: 3,
         },
       },
     );

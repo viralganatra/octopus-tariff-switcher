@@ -23,13 +23,13 @@ describe('Backfill Message Processor', () => {
     const data = await promise;
 
     expect(data).toMatchObject({ batchItemFailures: [] });
-    expect(dynamoDbMock).toHaveReceivedCommandTimes(BatchWriteItemCommand, 6);
+    expect(dynamoDbMock).toHaveReceivedCommandTimes(BatchWriteItemCommand, 30);
 
     const sentCommand1 = dynamoDbMock.commandCalls(BatchWriteItemCommand)[0]!.args[0].input;
     const items1 = sentCommand1.RequestItems!['test-table'] ?? [];
 
     expect(sentCommand1.RequestItems).toHaveProperty('test-table');
-    expect(Object.values(items1)).toHaveLength(25);
+    expect(Object.values(items1)).toHaveLength(5);
     expect(items1).toMatchSnapshot();
 
     const sentCommand2 = dynamoDbMock.commandCalls(BatchWriteItemCommand)[1]!.args[0].input;
@@ -77,7 +77,7 @@ describe('Backfill Message Processor', () => {
     const data = await promise;
 
     expect(data).toMatchObject({ batchItemFailures: [] });
-    expect(dynamoDbMock).toHaveReceivedCommandTimes(BatchWriteItemCommand, 7);
+    expect(dynamoDbMock).toHaveReceivedCommandTimes(BatchWriteItemCommand, 31);
   });
 
   it('should fail gracefully if any retries fail', async () => {
