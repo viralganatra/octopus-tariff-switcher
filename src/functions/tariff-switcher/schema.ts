@@ -111,18 +111,30 @@ export const schemaProductDetails = snakeToCamelSchema(
   z.object({
     single_register_electricity_tariffs: z.record(
       z.string(),
-      z.record(
-        z.enum(['direct_debit_monthly', 'varying']),
-        z.object({
-          standing_charge_inc_vat: z.number(),
-          links: z.array(
-            z.object({
-              href: urlSchema,
-              rel: z.string(),
-            }),
-          ),
-        }),
-      ),
+      z.object({
+        direct_debit_monthly: z
+          .object({
+            standing_charge_inc_vat: z.number(),
+            links: z.array(
+              z.object({
+                href: urlSchema,
+                rel: z.string(),
+              }),
+            ),
+          })
+          .optional(),
+        varying: z
+          .object({
+            standing_charge_inc_vat: z.number(),
+            links: z.array(
+              z.object({
+                href: urlSchema,
+                rel: z.string(),
+              }),
+            ),
+          })
+          .optional(),
+      }),
     ),
   }),
 );

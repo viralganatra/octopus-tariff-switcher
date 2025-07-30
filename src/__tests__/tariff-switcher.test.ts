@@ -22,6 +22,8 @@ describe('Tariff Switcher', () => {
 
     const data = await promise;
 
+    expect(spy).toHaveBeenCalled();
+
     // @ts-ignore
     const emailData = spy.mock.calls[0][0];
 
