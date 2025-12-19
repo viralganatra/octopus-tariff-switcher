@@ -80,7 +80,12 @@ export async function enrichDatesWithTariffData({
   pastTariffs,
   mpan,
   serialNumber,
-}: { dates: IsoDate[]; pastTariffs: EletricityAgreements; mpan: string; serialNumber: string }) {
+}: {
+  dates: IsoDate[];
+  pastTariffs: EletricityAgreements;
+  mpan: string;
+  serialNumber: string;
+}) {
   const itemCacheBuilder = new Map<IsoDate, ItemCacheBuilder>();
   const batchesOfDates = chunkArray(dates, BATCH_SIZE);
 

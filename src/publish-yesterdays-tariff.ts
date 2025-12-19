@@ -15,7 +15,7 @@ function logSuccessAndRespond(message: string) {
 }
 
 export async function publishYesterdaysTariff(
-  event: APIGatewayProxyEvent,
+  _event: APIGatewayProxyEvent,
   context: Context,
 ): Promise<APIGatewayProxyResult> {
   logger.addContext(context);
