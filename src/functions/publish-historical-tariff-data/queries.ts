@@ -47,7 +47,11 @@ export async function fetchConsumption({
   mpan,
   serialNumber,
   isoDate,
-}: { mpan: string; serialNumber: string; isoDate: IsoDate }) {
+}: {
+  mpan: string;
+  serialNumber: string;
+  isoDate: IsoDate;
+}) {
   const token = await fetchToken();
 
   const params = {

@@ -184,7 +184,10 @@ export async function getEnrollmentId({
 export async function acceptNewAgreement({
   productCode,
   enrolmentId,
-}: { productCode: string; enrolmentId: string }) {
+}: {
+  productCode: string;
+  enrolmentId: string;
+}) {
   const { versionMajor, versionMinor } = await getTermsVersion(productCode);
 
   const acceptedVersion = await acceptTermsAndConditions({

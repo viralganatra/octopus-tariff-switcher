@@ -29,7 +29,11 @@ export async function sendData({
   url,
   body,
   headers = {},
-}: { url: Url; body: Record<string, string | object>; headers?: HeadersInit }) {
+}: {
+  url: Url;
+  body: Record<string, string | object>;
+  headers?: HeadersInit;
+}) {
   const response = await fetch(url, {
     method: 'POST',
     headers: {

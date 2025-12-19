@@ -36,7 +36,7 @@ function sendTariffEmail(params: SendEmail) {
 }
 
 export async function tariffSwitcher(
-  event: APIGatewayProxyEvent,
+  _event: APIGatewayProxyEvent,
   context: Context,
 ): Promise<APIGatewayProxyResult> {
   logger.addContext(context);

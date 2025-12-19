@@ -94,7 +94,11 @@ export async function fetchSmartMeterTelemetry({
   deviceId,
   startDate,
   endDate,
-}: { deviceId: string; startDate: IsoDateTime; endDate: IsoDateTime }) {
+}: {
+  deviceId: string;
+  startDate: IsoDateTime;
+  endDate: IsoDateTime;
+}) {
   const token = await fetchToken();
 
   logger.info('API: Getting smart meter telemetry via query SmartMeterTelemetry', {
@@ -303,7 +307,12 @@ export async function acceptTermsAndConditions({
   enrolmentId,
   versionMajor,
   versionMinor,
-}: { accountNumber: string; enrolmentId: string; versionMajor: number; versionMinor: number }) {
+}: {
+  accountNumber: string;
+  enrolmentId: string;
+  versionMajor: number;
+  versionMinor: number;
+}) {
   const token = await fetchToken();
 
   logger.info('API: Starting mutation AcceptTermsAndConditions', {
