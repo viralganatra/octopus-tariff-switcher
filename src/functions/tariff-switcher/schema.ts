@@ -8,57 +8,49 @@ export const schemaToken = z.object({
   }),
 });
 
-export const schemaAccount = z.object({
-  account: z.object({
-    electricityAgreements: z
-      .array(
-        z.object({
-          validFrom: z.string().datetime({ offset: true }),
-          validTo: z.string().datetime({ offset: true }).nullable(),
-          meterPoint: z.object({
-            mpan: z.string(),
-            meters: z
-              .array(
-                z.object({
-                  serialNumber: z.string(),
-                  smartDevices: z
-                    .array(
-                      z.object({
-                        deviceId: z.string(),
-                      }),
-                    )
-                    .nonempty(),
-                }),
-              )
-              .nonempty(),
-          }),
-          tariff: z.object({
-            productCode: z.string(),
-            tariffCode: z.string(),
-            standingCharge: z.number(),
-          }),
-        }),
-      )
-      .nonempty(),
+const smartDeviceSchema = z.object({
+  deviceId: z.string(),
+});
+
+const meterSchema = z.object({
+  serialNumber: z.string(),
+  smartDevices: z.tuple([smartDeviceSchema], smartDeviceSchema),
+});
+
+const electricityAgreementSchema = z.object({
+  validFrom: z.iso.datetime({ offset: true }),
+  validTo: z.iso.datetime({ offset: true }).nullable(),
+  meterPoint: z.object({
+    mpan: z.string(),
+    meters: z.tuple([meterSchema], meterSchema),
+  }),
+  tariff: z.object({
+    productCode: z.string(),
+    tariffCode: z.string(),
+    standingCharge: z.number(),
   }),
 });
 
+export const schemaAccount = z.object({
+  account: z.object({
+    electricityAgreements: z.tuple([electricityAgreementSchema], electricityAgreementSchema),
+  }),
+});
+
+const smartMeterTelemetryItemSchema = z
+  .object({
+    readAt: z.string(),
+    consumptionDelta: z.coerce.number(),
+    costDeltaWithTax: z.coerce.number(),
+  })
+  .transform(({ costDeltaWithTax, ...halfHourlyUnitRate }) => ({
+    ...halfHourlyUnitRate,
+    unitCostInPence: costDeltaWithTax,
+    readAtMs: getMsFromApiIsoString(halfHourlyUnitRate.readAt),
+  }));
+
 export const schemaSmartMeterTelemetry = z.object({
-  smartMeterTelemetry: z
-    .array(
-      z
-        .object({
-          readAt: z.string(),
-          consumptionDelta: z.coerce.number(),
-          costDeltaWithTax: z.coerce.number(),
-        })
-        .transform(({ costDeltaWithTax, ...halfHourlyUnitRate }) => ({
-          ...halfHourlyUnitRate,
-          unitCostInPence: costDeltaWithTax,
-          readAtMs: getMsFromApiIsoString(halfHourlyUnitRate.readAt),
-        })),
-    )
-    .nonempty(),
+  smartMeterTelemetry: z.tuple([smartMeterTelemetryItemSchema], smartMeterTelemetryItemSchema),
 });
 
 export type ConsumptionUnitRates = z.infer<typeof schemaSmartMeterTelemetry>['smartMeterTelemetry'];
@@ -83,25 +75,23 @@ export const schemaAllProducts = snakeToCamelSchema(
 
 export type AllProducts = z.infer<typeof schemaAllProducts>['results'];
 
+const unitRateItemSchema = z
+  .object({
+    value_inc_vat: z.number(),
+    valid_from: z.iso.datetime(),
+    valid_to: z.iso.datetime(),
+  })
+  .transform(({ value_inc_vat, valid_from, valid_to }) => ({
+    validFrom: valid_from,
+    validTo: valid_to,
+    validFromMs: getMsFromApiIsoString(valid_from),
+    validToMs: getMsFromApiIsoString(valid_to),
+    unitCostInPence: value_inc_vat,
+  }));
+
 export const schemaUnitRatesByTariff = snakeToCamelSchema(
   z.object({
-    results: z
-      .array(
-        z
-          .object({
-            value_inc_vat: z.number(),
-            valid_from: z.string().datetime(),
-            valid_to: z.string().datetime(),
-          })
-          .transform(({ value_inc_vat, valid_from, valid_to }) => ({
-            validFrom: valid_from,
-            validTo: valid_to,
-            validFromMs: getMsFromApiIsoString(valid_from),
-            validToMs: getMsFromApiIsoString(valid_to),
-            unitCostInPence: value_inc_vat,
-          })),
-      )
-      .nonempty(),
+    results: z.tuple([unitRateItemSchema], unitRateItemSchema),
   }),
 );
 
@@ -111,7 +101,7 @@ export const schemaProductDetails = snakeToCamelSchema(
   z.object({
     single_register_electricity_tariffs: z.record(
       z.string(),
-      z.record(
+      z.partialRecord(
         z.enum(['direct_debit_monthly', 'varying']),
         z.object({
           standing_charge_inc_vat: z.number(),
