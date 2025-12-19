@@ -1,7 +1,6 @@
 import { server } from '../src/mocks/node';
 import 'aws-sdk-client-mock-jest/vitest';
 
-vi.stubEnv('POWERTOOLS_LOG_LEVEL', 'silent');
 vi.stubEnv('DRY_RUN', 'false');
 vi.stubEnv('SERVICE_ID', 'service-id');
 

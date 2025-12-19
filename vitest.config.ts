@@ -4,5 +4,8 @@ export default defineConfig({
   test: {
     globals: true,
     setupFiles: ['./config/vitest-setup-files.js'],
+    env: {
+      POWERTOOLS_LOG_LEVEL: 'SILENT',
+    },
   },
 });
