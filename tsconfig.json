@@ -15,5 +15,5 @@
     "lib": ["ES2025"],
     "types": ["vitest/globals"]
   },
-  "exclude": ["node_modules", "sst.config.ts"]
+  "exclude": ["node_modules", "sst.config.ts", "wtf.sst"]
 }

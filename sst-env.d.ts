@@ -2,6 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 /* deno-fmt-ignore-file */
+/* biome-ignore-all lint: auto-generated */
 
 declare module "sst" {
   export interface Resource {
@@ -32,6 +33,7 @@ declare module "sst" {
     "octopus-tariff-switcher": {
       "name": string
       "type": "sst.aws.Function"
+      "url": string
     }
     "octopus-tariff-switcher-api": {
       "type": "sst.aws.ApiGatewayV2"
