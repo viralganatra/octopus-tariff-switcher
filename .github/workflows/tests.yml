@@ -1,6 +1,9 @@
 name: Tests
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [master]
+  pull_request:
 
 jobs:
   typecheck:
@@ -8,18 +11,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: ⬇️ Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: 📥 Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 11
-          run_install: false
+        uses: pnpm/action-setup@v6
 
       - name: ⎔ Setup node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version-file: '.nvmrc'
           cache: 'pnpm'
 
       - name: 📥 Install dependencies
@@ -33,18 +33,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: ⬇️ Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: 📥 Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 11
-          run_install: false
+        uses: pnpm/action-setup@v6
 
       - name: ⎔ Setup node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version-file: '.nvmrc'
           cache: 'pnpm'
 
       - name: 📥 Install dependencies
@@ -54,26 +51,23 @@ jobs:
         run: pnpm test
 
   lint:
-    name: 🃏 Lint
+    name: 🔍 Lint
     runs-on: ubuntu-latest
     steps:
       - name: ⬇️ Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: 📥 Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 11
-          run_install: false
+        uses: pnpm/action-setup@v6
 
       - name: ⎔ Setup node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version-file: '.nvmrc'
           cache: 'pnpm'
 
       - name: 📥 Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: 🃏 Lint
+      - name: 🔍 Lint
         run: pnpm lint
