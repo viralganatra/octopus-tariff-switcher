@@ -1,0 +1,16 @@
+allowBuilds:
+  aws-sdk: true
+  msw: true
+  protobufjs: true
+minimumReleaseAgeExclude:
+  - '@aws-sdk/client-dynamodb@3.1055.0'
+  - '@aws-sdk/client-sqs@3.1055.0'
+  - '@biomejs/biome@2.4.16'
+  - '@biomejs/cli-darwin-arm64@2.4.16'
+  - '@biomejs/cli-darwin-x64@2.4.16'
+  - '@biomejs/cli-linux-arm64-musl@2.4.16'
+  - '@biomejs/cli-linux-arm64@2.4.16'
+  - '@biomejs/cli-linux-x64-musl@2.4.16'
+  - '@biomejs/cli-linux-x64@2.4.16'
+  - '@biomejs/cli-win32-arm64@2.4.16'
+  - '@biomejs/cli-win32-x64@2.4.16'

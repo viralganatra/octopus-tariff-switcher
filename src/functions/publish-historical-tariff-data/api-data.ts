@@ -68,7 +68,7 @@ function findProductCodeByTariffCode(tariffCode: string) {
 
   const parts = regex.exec(tariffCode);
 
-  if (!parts || !parts[1]) {
+  if (!parts?.[1]) {
     throw new Error(`No product code found from tariff code: ${tariffCode}`);
   }
 
@@ -115,7 +115,7 @@ export async function enrichDatesWithTariffData({
       retryWithExponentialBackoff(async () => {
         const item = itemCacheBuilder.get(isoDate);
 
-        if (!item || !item.productCode) {
+        if (!item?.productCode) {
           throw new Error(`Missing item or productCode for date: ${isoDate}`);
         }
 
@@ -142,7 +142,7 @@ export async function enrichDatesWithTariffData({
   } of unitAndStandingChargesForDates) {
     const item = itemCacheBuilder.get(isoDate);
 
-    if (!item || !item.productCode) {
+    if (!item?.productCode) {
       throw new Error(`Missing cache item for date: ${isoDate}`);
     }
 
