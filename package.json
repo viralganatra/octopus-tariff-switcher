@@ -4,6 +4,7 @@
   "license": "MIT",
   "version": "1.0.0",
   "description": "Smart Tariff Calculator",
+  "packageManager": "pnpm@11.4.0",
   "scripts": {
     "deploy:dev": "sst deploy --stage development",
     "deploy:prod": "sst deploy --stage production",
