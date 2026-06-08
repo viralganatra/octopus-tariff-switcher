@@ -6,16 +6,16 @@ export const TARIFFS = [
     displayName: 'Agile Octopus',
     tariffCodeMatcher: '-AGILE-',
   },
-  {
-    id: 'cosy',
-    displayName: 'Cosy Octopus',
-    tariffCodeMatcher: '-COSY-',
-  },
-  {
-    id: 'go',
-    displayName: 'Octopus Go',
-    tariffCodeMatcher: '-GO-',
-  },
+  // {
+  //   id: 'cosy',
+  //   displayName: 'Cosy Octopus',
+  //   tariffCodeMatcher: '-COSY-',
+  // },
+  // {
+  //   id: 'go',
+  //   displayName: 'Octopus Go',
+  //   tariffCodeMatcher: '-GO-',
+  // },
 ] as const satisfies Tariff[];
 
 export type TariffDisplayName = (typeof TARIFFS)[number]['displayName'];

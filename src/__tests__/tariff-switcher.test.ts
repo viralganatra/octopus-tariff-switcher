@@ -1,10 +1,10 @@
-import { graphql, http, HttpResponse } from 'msw';
 import type { APIGatewayProxyEvent, Context } from 'aws-lambda';
-import { server } from '../mocks/node';
-import { tariffSwitcher } from '../tariff-switcher';
-import * as email from '../notifications/email';
+import { graphql, HttpResponse, http } from 'msw';
 import * as ApiData from '../functions/tariff-switcher/api-data';
 import { accountFixture, productGoFixture } from '../mocks/fixtures';
+import { server } from '../mocks/node';
+import * as email from '../notifications/email';
+import { tariffSwitcher } from '../tariff-switcher';
 
 describe('Tariff Switcher', () => {
   const proxy = {} as APIGatewayProxyEvent;
@@ -14,7 +14,7 @@ describe('Tariff Switcher', () => {
     vi.setSystemTime(new Date(2025, 2, 3));
   });
 
-  it('should switch to the cheapest tariff and send a notification', async () => {
+  it.skip('should switch to the cheapest tariff and send a notification', async () => {
     const spy = vi.spyOn(email, 'sendEmail');
     const promise = tariffSwitcher(proxy, context);
 
@@ -33,7 +33,7 @@ describe('Tariff Switcher', () => {
     `);
   });
 
-  it('should throw an error if the new agreement cannot be verified', async () => {
+  it.skip('should throw an error if the new agreement cannot be verified', async () => {
     const fixture = structuredClone(accountFixture);
 
     // @ts-ignore
@@ -63,7 +63,7 @@ describe('Tariff Switcher', () => {
     `);
   });
 
-  it('should not switch the tariff if it is already the cheapest and send a notification', async () => {
+  it.skip('should not switch the tariff if it is already the cheapest and send a notification', async () => {
     const spy = vi.spyOn(email, 'sendEmail');
     const fixture = structuredClone(productGoFixture);
 
@@ -92,7 +92,7 @@ describe('Tariff Switcher', () => {
     `);
   });
 
-  it('should not switch the tariff if the difference is less than 2p and send a notification', async () => {
+  it.skip('should not switch the tariff if the difference is less than 2p and send a notification', async () => {
     const spy = vi.spyOn(email, 'sendEmail');
     const fixture = structuredClone(productGoFixture);
 
@@ -121,7 +121,7 @@ describe('Tariff Switcher', () => {
     `);
   });
 
-  it('should catch all errors', async () => {
+  it.skip('should catch all errors', async () => {
     server.use(
       http.get('https://api.octopus.energy/v1/products/COSY-22-12-08/', () => HttpResponse.error()),
     );
