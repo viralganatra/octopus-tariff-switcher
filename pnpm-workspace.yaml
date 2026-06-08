@@ -1,5 +1,6 @@
 allowBuilds:
   aws-sdk: true
+  esbuild: set this to true or false
   msw: true
   protobufjs: true
 minimumReleaseAgeExclude:
