@@ -48,6 +48,6 @@
     "vitest": "^4.1.7"
   },
   "lint-staged": {
-    "*": "pnpm format"
+    "*": "biome format --write --no-errors-on-unmatched"
   }
 }
