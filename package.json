@@ -38,7 +38,7 @@
     "@biomejs/biome": "2.4.16",
     "@total-typescript/ts-reset": "^0.6.1",
     "@types/aws-lambda": "^8.10.161",
-    "@types/node": "^22.19.19",
+    "@types/node": "^24.13.1",
     "aws-sdk-client-mock": "^4.1.0",
     "aws-sdk-client-mock-jest": "^4.1.0",
     "husky": "^9.1.7",
