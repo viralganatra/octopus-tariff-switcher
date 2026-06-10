@@ -23,7 +23,7 @@ import { getCachedProducts, getCachedToken, setCachedProducts, setCachedToken } 
 export async function fetchToken() {
   const cachedToken = getCachedToken();
 
-  if (cachedToken?.length) {
+  if (cachedToken) {
     return cachedToken;
   }
 
