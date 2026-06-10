@@ -406,6 +406,6 @@ describe('Cost Calculator', () => {
         ],
       });
 
-    expect(example).toThrowError(MatchingRateError);
+    expect(example).toThrow(MatchingRateError);
   });
 });
