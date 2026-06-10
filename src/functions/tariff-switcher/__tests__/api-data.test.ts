@@ -365,7 +365,8 @@ describe('API Data', () => {
       const data = await promise;
 
       expect(data).toBe(false);
-      expect(dispatchRequest).toHaveBeenCalledTimes(3);
+      // 1 token request + 3 verification attempts (initial + 2 retries)
+      expect(dispatchRequest).toHaveBeenCalledTimes(4);
     });
 
     it('should verify the agreement when daylight savings is active', async () => {

@@ -1,7 +1,9 @@
 import { format, formatISO, isToday, startOfToday } from 'date-fns';
 import { Resource } from 'sst';
+import { TARIFFS, type TariffDisplayName } from '../../constants/tariff';
 import { UnknownProductError } from '../../errors/unknown-product-error';
 import { UnknownTariffError } from '../../errors/unknown-tariff-error';
+import type { IsoDate } from '../../types/misc';
 import {
   getDateFromApiIsoString,
   getDateInLocalTimeZone,
@@ -9,7 +11,6 @@ import {
   sleep,
   toIsoDateTime,
 } from '../../utils/helpers';
-import { TARIFFS, type TariffDisplayName } from '../../constants/tariff';
 import {
   acceptTermsAndConditions,
   fetchAccountInfo,
@@ -20,9 +21,6 @@ import {
   fetchUnitRatesByTariff,
   startOnboardingProcess,
 } from './queries';
-import type { IsoDate } from '../../types/misc';
-
-let timesVerified = 0;
 
 export async function getAccountInfo() {
   const results = await fetchAccountInfo();
@@ -200,7 +198,8 @@ export async function acceptNewAgreement({
   return acceptedVersion;
 }
 
-export async function verifyNewAgreement() {
+export async function verifyNewAgreement(retriesUsed = 0) {
+  const MAX_RETRIES = 2; // after the initial attempt
   const accountInfo = await fetchAccountInfo();
 
   const { electricityAgreements } = accountInfo.account;
@@ -214,12 +213,10 @@ export async function verifyNewAgreement() {
 
   const isVerified = isToday(getDateInLocalTimeZone(validFromDate));
 
-  timesVerified += 1;
-
   // Re-run if it fails
-  if (!isVerified && timesVerified < 3) {
+  if (!isVerified && retriesUsed < MAX_RETRIES) {
     await sleep(20_000);
-    return verifyNewAgreement();
+    return verifyNewAgreement(retriesUsed + 1);
   }
 
   return isVerified;
