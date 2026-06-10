@@ -131,7 +131,7 @@ describe('API Data', () => {
 
     const accountInfo = () => getAccountInfo();
 
-    await expect(accountInfo).rejects.toThrowError(UnknownTariffError);
+    await expect(accountInfo).rejects.toThrow(UnknownTariffError);
   });
 
   it('should fetch todays consumption', async () => {
@@ -208,7 +208,7 @@ describe('API Data', () => {
         regionCode: 'A',
       });
 
-    await expect(data).rejects.toThrowError('Unable to find self link for product');
+    await expect(data).rejects.toThrow('Unable to find self link for product');
   });
 
   it('should throw an error if no region is found', async () => {
@@ -229,7 +229,7 @@ describe('API Data', () => {
         regionCode: 'A',
       });
 
-    await expect(data).rejects.toThrowError('Region code not found in product: _A');
+    await expect(data).rejects.toThrow('Region code not found in product: _A');
   });
 
   it('should throw an error if the unit rates are missing', async () => {
@@ -250,7 +250,7 @@ describe('API Data', () => {
         regionCode: 'A',
       });
 
-    await expect(data).rejects.toThrowError('Standard unit rates link not found for region: _A');
+    await expect(data).rejects.toThrow('Standard unit rates link not found for region: _A');
   });
 
   it('should throw an error if no product is found', async () => {
@@ -271,7 +271,7 @@ describe('API Data', () => {
         regionCode: 'A',
       });
 
-    await expect(data).rejects.toThrowError(UnknownProductError);
+    await expect(data).rejects.toThrow(UnknownProductError);
   });
 
   it('should fetch the terms version', async () => {
@@ -306,7 +306,7 @@ describe('API Data', () => {
 
     const version = () => getTermsVersion('AGILE-24-10-01');
 
-    await expect(version).rejects.toThrowError(
+    await expect(version).rejects.toThrow(
       'Missing versions in fetching terms & conditions for product: 14',
     );
   });

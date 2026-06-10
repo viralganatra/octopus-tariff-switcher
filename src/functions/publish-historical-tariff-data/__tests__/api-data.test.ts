@@ -56,7 +56,7 @@ describe('Finding matching tariffs', () => {
         pastTariffs,
         isoDate: '2025-04-15' as IsoDate,
       });
-    }).toThrowError('Unable to find matching tariff for date: 2025-04-15');
+    }).toThrow('Unable to find matching tariff for date: 2025-04-15');
   });
 
   it('should handle boundary dates correctly (exclusive end)', () => {
@@ -112,7 +112,12 @@ describe('Enrich dates with tariff data', () => {
   const serialNumber = 'SN12345';
 
   it('should enrich dates with tariff data', async () => {
-    const data = await enrichDatesWithTariffData({ dates: ['2025-04-15'] as IsoDate[], pastTariffs, mpan, serialNumber });
+    const data = await enrichDatesWithTariffData({
+      dates: ['2025-04-15'] as IsoDate[],
+      pastTariffs,
+      mpan,
+      serialNumber,
+    });
 
     expect(data.size).toBe(1);
 
@@ -151,7 +156,7 @@ describe('Enrich dates with tariff data', () => {
 
     await expect(
       enrichDatesWithTariffData({ dates, mpan, serialNumber, pastTariffs: invalidPastTariffs }),
-    ).rejects.toThrowError('No matching tariff for: E-1R-TEST-22-12-08-A');
+    ).rejects.toThrow('No matching tariff for: E-1R-TEST-22-12-08-A');
   });
 
   it('should handle batching for multiple dates', async () => {

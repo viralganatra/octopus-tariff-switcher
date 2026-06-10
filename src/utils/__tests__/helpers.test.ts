@@ -9,7 +9,7 @@ describe('Utils -> Helpers', () => {
 
     expect(() => {
       toIsoDateString('2025-01-01T00:00:00Z');
-    }).toThrowError('Invalid ISO date format');
+    }).toThrow('Invalid ISO date format');
   });
 
   it('should validate and return a datetime string', () => {
@@ -18,7 +18,7 @@ describe('Utils -> Helpers', () => {
 
     expect(() => {
       toIsoDateTime('2025-01-01');
-    }).toThrowError('Invalid ISO 8601 datetime format');
+    }).toThrow('Invalid ISO 8601 datetime format');
   });
 
   it('should validate and return a url string', () => {
@@ -27,7 +27,7 @@ describe('Utils -> Helpers', () => {
 
     expect(() => {
       makeUrl('test.com');
-    }).toThrowError('Invalid URL: test.com');
+    }).toThrow('Invalid URL: test.com');
   });
 
   it('should scrub keys from a given object', () => {
