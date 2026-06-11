@@ -59,34 +59,16 @@ export default $config({
       fields: {
         PK: 'string', // Partition key (e.g., DATE#2025-04-01)
         SK: 'string', // Sort key (e.g., SUMMARY or HH#05:30)
-        month: 'string', // For GSI partition key
-        usageTime: 'string', // For GSI sort key (e.g., "05:30")
       },
       primaryIndex: {
         hashKey: 'PK',
         rangeKey: 'SK',
-      },
-      globalIndexes: {
-        gsiByMonthTime: {
-          hashKey: 'month',
-          rangeKey: 'usageTime',
-        },
       },
       transform: {
         table: {
           billingMode: 'PROVISIONED',
           readCapacity: 5,
           writeCapacity: 5,
-          globalSecondaryIndexes: [
-            {
-              name: 'gsiByMonthTime',
-              hashKey: 'month',
-              rangeKey: 'usageTime',
-              projectionType: 'ALL',
-              readCapacity: 5,
-              writeCapacity: 5,
-            },
-          ],
         },
       },
     });
