@@ -3,7 +3,13 @@ import { sleep } from './helpers';
 // Split an array of items into multiple batches,
 // e.g. [1, 2, 3, 4, 5] -> [[1, 2], [3, 4], [5]]
 export function chunkArray<T>(arr: T[], size: number): T[][] {
-  return arr.length === 0 ? [] : [arr.slice(0, size), ...chunkArray(arr.slice(size), size)];
+  const chunks: T[][] = [];
+
+  for (let i = 0; i < arr.length; i += size) {
+    chunks.push(arr.slice(i, i + size));
+  }
+
+  return chunks;
 }
 
 // Process batches of items, with a delay between each batch
