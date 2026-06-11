@@ -154,7 +154,7 @@ export async function fetchSmartMeterTelemetry({
 export async function fetchAllProducts() {
   const cachedProducts = getCachedProducts();
 
-  if (getCachedProducts().length) {
+  if (cachedProducts.length) {
     return cachedProducts;
   }
 
