@@ -2,6 +2,7 @@ import { Resource } from 'sst';
 import { formatISO } from 'date-fns';
 import { API_PRODUCTS } from '../../constants/api';
 import { getData, graphqlRequest } from '../../utils/fetch';
+import { OnboardingError } from '../../errors/onboarding-error';
 import { logger } from '../../utils/logger';
 import type { UnitRatesTariffSelector } from '../../types/tariff';
 import type { IsoDateTime, Url } from '../../types/misc';
@@ -294,6 +295,20 @@ export async function startOnboardingProcess({
   });
 
   const { startOnboardingProcess } = schemaStartOnboardingProcess.parse(result);
+
+  // Octopus reports onboarding failures as data (possibleErrors) with a null
+  // productEnrolment, rather than a top-level GraphQL error, so check it here.
+  if (startOnboardingProcess.possibleErrors?.length) {
+    const details = startOnboardingProcess.possibleErrors
+      .map(({ code, message }) => `${code}: ${message}`)
+      .join('; ');
+
+    throw new OnboardingError(`Unable to start onboarding process: ${details}`);
+  }
+
+  if (!startOnboardingProcess.productEnrolment) {
+    throw new OnboardingError('Onboarding process did not return a product enrolment id');
+  }
 
   return startOnboardingProcess.productEnrolment.id;
 }
