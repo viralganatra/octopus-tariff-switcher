@@ -53,6 +53,10 @@ export default $config({
 
     const allSecrets = Object.values(secrets);
 
+    // Recipient for the CloudWatch failure alarm.
+    // Set it per stage: `sst secret set AlarmEmail you@x.com`
+    const alarmEmail = new sst.Secret('AlarmEmail');
+
     const api = new sst.aws.ApiGatewayV2(API_NAME);
 
     const dailyUsageTable = new sst.aws.Dynamo(DAILY_USAGE_TABLE_NAME, {
@@ -175,7 +179,41 @@ export default $config({
       target: {
         arn: tariffSwitcher.arn,
         roleArn: tariffSwitcherSchedulerRole.arn,
+        // No auto-retry: the switch flow has money-moving side effects
+        // (onboarding + T&Cs acceptance) that aren't safe to replay. We want
+        // notification on failure, not a blind re-run.
+        retryPolicy: {
+          maximumRetryAttempts: 0,
+        },
       },
+    });
+
+    const alarmTopic = new aws.sns.Topic(`${SERVICE_ID}-alarm-topic`);
+
+    new aws.sns.TopicSubscription(`${SERVICE_ID}-alarm-subscription`, {
+      topic: alarmTopic.arn,
+      protocol: 'email',
+      endpoint: alarmEmail.value,
+    });
+
+    // Backstop for failures the in-handler email can't cover (SparkPost down,
+    // timeout, OOM, init errors). The Errors metric is "no data" most of the
+    // day for a once-daily job, hence treatMissingData: notBreaching.
+    new aws.cloudwatch.MetricAlarm(`${SERVICE_ID}-errors-alarm`, {
+      alarmDescription: 'Tariff switcher Lambda invocation errored',
+      namespace: 'AWS/Lambda',
+      metricName: 'Errors',
+      dimensions: {
+        FunctionName: `${$app.stage}--${TARIFF_SWITCHER_NAME}`,
+      },
+      statistic: 'Sum',
+      period: 86400,
+      evaluationPeriods: 1,
+      datapointsToAlarm: 1,
+      threshold: 1,
+      comparisonOperator: 'GreaterThanOrEqualToThreshold',
+      treatMissingData: 'notBreaching',
+      alarmActions: [alarmTopic.arn],
     });
   },
 });

@@ -1,15 +1,15 @@
-import { z } from 'zod';
 import { Resource } from 'sst';
+import { z } from 'zod';
 import { API_MJML } from '../constants/api';
+import type { SendEmail } from '../types/email';
 import { sendData } from '../utils/fetch';
+import { logger } from '../utils/logger';
 import {
   getAlreadyCheapestTariffTemplate,
   getCheaperTariffTemplate,
   notWorthSwitchingTariffTemplate,
 } from './email-template';
 import { sendSparkPostEmail } from './sparkpost';
-import { logger } from '../utils/logger';
-import type { SendEmail } from '../types/email';
 
 async function getHtml(content: string) {
   const mjmlAuth = `${Resource.MjmlAppId.value}:${Resource.MjmlSecretKey.value}`;
@@ -70,4 +70,26 @@ export async function sendEmail({ allTariffsByCost, currentTariffWithCost, email
   const html = await getHtml(emailContent);
 
   return sendSparkPostEmail({ html, subject: emailSubject });
+}
+
+function escapeHtml(value: string) {
+  return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// Build HTML manually and bypass MJML, incase the MJML API call itself be the
+// thing that fails.
+export function sendFailureEmail(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error);
+
+  const html = `
+    <html>
+      <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #525252;">
+        <h2>Octopus Tariff Switcher failed</h2>
+        <p>The nightly run did not complete successfully. The error was:</p>
+        <pre style="background:#f0f0f0;padding:12px;border-radius:4px;white-space:pre-wrap;">${escapeHtml(message)}</pre>
+      </body>
+    </html>
+  `;
+
+  return sendSparkPostEmail({ html, subject: 'Tariff Switcher Failed' });
 }
