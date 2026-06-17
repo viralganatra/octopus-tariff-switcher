@@ -51,16 +51,7 @@ describe('Tariff Switcher', () => {
 
     await vi.runAllTimersAsync();
 
-    const data = await promise;
-
-    expect(data).toMatchInlineSnapshot(`
-      {
-        "body": "{
-        "message": "AgreementVerificationError: Unable to verify new agreement after multiple retries. Please check your account and emails."
-      }",
-        "statusCode": 500,
-      }
-    `);
+    await expect(promise).rejects.toThrow('Unable to verify new agreement after multiple retries');
   });
 
   it.skip('should not switch the tariff if it is already the cheapest and send a notification', async () => {
@@ -121,7 +112,7 @@ describe('Tariff Switcher', () => {
     `);
   });
 
-  it.skip('should catch all errors', async () => {
+  it.skip('should rethrow errors so the invocation is marked failed', async () => {
     server.use(
       http.get('https://api.octopus.energy/v1/products/COSY-22-12-08/', () => HttpResponse.error()),
     );
@@ -130,16 +121,7 @@ describe('Tariff Switcher', () => {
 
     await vi.runAllTimersAsync();
 
-    const data = await promise;
-
-    expect(data).toMatchInlineSnapshot(`
-      {
-        "body": "{
-        "message": "TypeError: Failed to fetch"
-      }",
-        "statusCode": 500,
-      }
-    `);
+    await expect(promise).rejects.toThrow('Failed to fetch');
   });
 
   describe('DRY_RUN', () => {

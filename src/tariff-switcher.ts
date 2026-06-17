@@ -13,9 +13,9 @@ import {
 } from './functions/tariff-switcher/cost-calculator';
 import { penceToPoundWithCurrency, sleep } from './utils/helpers';
 import { logger } from './utils/logger';
-import { formatErrorResponse, formatResponse } from './utils/format-response';
+import { formatResponse } from './utils/format-response';
 import { TARIFFS } from './constants/tariff';
-import { sendEmail } from './notifications/email';
+import { sendEmail, sendFailureEmail } from './notifications/email';
 import { AgreementVerificationError } from './errors/agreement-verification-error';
 import type { SendEmail } from './types/email';
 
@@ -165,6 +165,25 @@ export async function tariffSwitcher(
       `Going to switch to ${cheapestTariff.displayName} - ${cheapestTariffCostInPounds} from ${currentTariff.displayName} - ${todaysCostInPounds}`,
     );
   } catch (error) {
-    return formatErrorResponse(error as Error);
+    logger.error('Tariff switcher failed', {
+      errorMessage: String(error),
+      originalError: error,
+    });
+
+    // Notify on failure, then rethrow so the invocation is marked failed and
+    // the CloudWatch Errors alarm fires. The failure email must never mask the
+    // original error, so any problem sending it is logged and swallowed.
+    if (!isDryRun()) {
+      try {
+        await sendFailureEmail(error);
+      } catch (emailError) {
+        logger.error('Failed to send failure notification email', {
+          errorMessage: String(emailError),
+          originalError: emailError,
+        });
+      }
+    }
+
+    throw error;
   }
 }
