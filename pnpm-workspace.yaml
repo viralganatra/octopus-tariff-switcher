@@ -1,3 +1,10 @@
+# aws-sdk-client-mock-jest's vitest shim imports chalk@5 (`new Chalk()`) but only
+# declares chalk in its devDependencies, so it relied on a hoisted chalk@5 that
+# graffle used to provide. Declare it as a real runtime dep so pnpm installs it.
+packageExtensions:
+  aws-sdk-client-mock-jest:
+    dependencies:
+      chalk: ^5.3.0
 allowBuilds:
   aws-sdk: true
   esbuild: set this to true or false

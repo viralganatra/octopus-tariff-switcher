@@ -1,3 +1,4 @@
+import { API_GRAPHQL } from '../constants/api';
 import { FetchError } from '../errors/fetch-error';
 import type { HeadersInit, Url } from '../types/misc';
 import { chunkArray } from './batch';
@@ -48,6 +49,40 @@ export async function sendData({
   }
 
   return response.json();
+}
+
+export async function graphqlRequest<T>({
+  query,
+  variables,
+  headers = {},
+}: {
+  query: string;
+  variables?: Record<string, unknown>;
+  headers?: HeadersInit;
+}): Promise<T> {
+  const response = await fetch(API_GRAPHQL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...headers,
+    },
+    body: JSON.stringify({ query, variables }),
+  });
+
+  if (!response.ok) {
+    throw new FetchError(`Request failed with status ${response.status} at url ${API_GRAPHQL}`);
+  }
+
+  const { data, errors } = (await response.json()) as {
+    data: T;
+    errors?: { message: string }[];
+  };
+
+  if (errors?.length) {
+    throw new FetchError(`GraphQL error: ${errors.map((error) => error.message).join('; ')}`);
+  }
+
+  return data;
 }
 
 export async function retryWithExponentialBackoff<T>(

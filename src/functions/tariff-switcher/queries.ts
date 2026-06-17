@@ -1,8 +1,7 @@
-import { Graffle } from 'graffle';
 import { Resource } from 'sst';
 import { formatISO } from 'date-fns';
-import { API_GRAPHQL, API_PRODUCTS } from '../../constants/api';
-import { getData } from '../../utils/fetch';
+import { API_PRODUCTS } from '../../constants/api';
+import { getData, graphqlRequest } from '../../utils/fetch';
 import { logger } from '../../utils/logger';
 import type { UnitRatesTariffSelector } from '../../types/tariff';
 import type { IsoDateTime, Url } from '../../types/misc';
@@ -29,17 +28,16 @@ export async function fetchToken() {
 
   logger.info('API: Getting token via mutation ObtainKrakenToken');
 
-  const graffle = Graffle.create().transport({
-    url: API_GRAPHQL,
-  });
-
-  const result = await graffle.gql`
+  const result = await graphqlRequest({
+    query: `
     mutation ObtainKrakenToken($input: ObtainJSONWebTokenInput!) {
       obtainKrakenToken(input: $input) {
         token
       }
     }
-  `.send({ input: { APIKey: Resource.ApiKey.value } });
+  `,
+    variables: { input: { APIKey: Resource.ApiKey.value } },
+  });
 
   const results = schemaToken.parse(result);
 
@@ -51,14 +49,8 @@ export async function fetchAccountInfo() {
 
   logger.info('API: Getting account info via query Account');
 
-  const graffle = Graffle.create().transport({
-    url: API_GRAPHQL,
-    headers: {
-      authorization: token,
-    },
-  });
-
-  const result = await graffle.gql`
+  const result = await graphqlRequest({
+    query: `
       query Account($accountNumber: String!) {
         account(accountNumber: $accountNumber) {
           electricityAgreements(active: true) {
@@ -83,7 +75,12 @@ export async function fetchAccountInfo() {
           }
         }
       }
-    `.send({ accountNumber: Resource.AccNumber.value });
+    `,
+    variables: { accountNumber: Resource.AccNumber.value },
+    headers: {
+      authorization: token,
+    },
+  });
 
   logger.info('API Response: Recieved account info', { apiResponse: result });
 
@@ -108,17 +105,11 @@ export async function fetchSmartMeterTelemetry({
     },
   });
 
-  const graffle = Graffle.create().transport({
-    url: API_GRAPHQL,
-    headers: {
-      authorization: token,
-    },
-  });
-
   // consumptionDelta - Energy consumption in Wh between the read_at and the next reading.
   // costDeltaWithTax - Energy cost including VAT for the consumption delta in pence.
   // readAt - The start_at time of the telemetry data
-  const result = await graffle.gql`
+  const result = await graphqlRequest({
+    query: `
     query smartMeterTelemetry(
       $deviceId: String!,
       $start: DateTime,
@@ -136,7 +127,12 @@ export async function fetchSmartMeterTelemetry({
         costDeltaWithTax
       }
     }
-  `.send({ deviceId, start: startDate, end: endDate, grouping: 'HALF_HOURLY' });
+  `,
+    variables: { deviceId, start: startDate, end: endDate, grouping: 'HALF_HOURLY' },
+    headers: {
+      authorization: token,
+    },
+  });
 
   logger.info('API Response: Recieved half hourly consumption data', {
     data: {
@@ -223,18 +219,17 @@ export async function fetchProductDetails({ url }: { url: Url }) {
 export async function fetchTermsVersion(productCode: string) {
   logger.info(`API: Getting terms version for ${productCode}`);
 
-  const graffle = Graffle.create().transport({
-    url: API_GRAPHQL,
-  });
-
-  const result = await graffle.gql`
+  const result = await graphqlRequest({
+    query: `
     query TermsAndConditionsForProduct($productCode: String!) {
       termsAndConditionsForProduct(productCode: $productCode) {
         name
         version
       }
     }
-  `.send({ productCode });
+  `,
+    variables: { productCode },
+  });
 
   logger.info(`API Response: Getting terms version for ${productCode}`, {
     apiResponse: result,
@@ -265,14 +260,8 @@ export async function startOnboardingProcess({
     },
   });
 
-  const graffle = Graffle.create().transport({
-    url: API_GRAPHQL,
-    headers: {
-      authorization: token,
-    },
-  });
-
-  const result = await graffle.gql`
+  const result = await graphqlRequest({
+    query: `
     mutation StartOnboardingProcess($input: StartSmartOnboardingProcessInput) {
       startOnboardingProcess(input: $input) {
         onboardingProcess {
@@ -287,7 +276,14 @@ export async function startOnboardingProcess({
         }
       }
     }
-  `.send({ input: { accountNumber, mpan, productCode, targetAgreementChangeDate: changeDate } });
+  `,
+    variables: {
+      input: { accountNumber, mpan, productCode, targetAgreementChangeDate: changeDate },
+    },
+    headers: {
+      authorization: token,
+    },
+  });
 
   logger.info('API Response: Starting tariff switch request for StartOnboardingProcess', {
     data: {
@@ -322,27 +318,26 @@ export async function acceptTermsAndConditions({
     },
   });
 
-  const graffle = Graffle.create().transport({
-    url: API_GRAPHQL,
-    headers: {
-      authorization: token,
-    },
-  });
-
-  const result = await graffle.gql`
+  const result = await graphqlRequest({
+    query: `
     mutation AcceptTermsAndConditions($input: AcceptTermsAndConditionsInput!) {
       acceptTermsAndConditions(input: $input) {
         acceptedVersion
       }
     }
-  `.send({
-    input: {
-      accountNumber,
-      enrolmentId,
-      termsVersion: {
-        versionMajor,
-        versionMinor,
+  `,
+    variables: {
+      input: {
+        accountNumber,
+        enrolmentId,
+        termsVersion: {
+          versionMajor,
+          versionMinor,
+        },
       },
+    },
+    headers: {
+      authorization: token,
     },
   });
 
