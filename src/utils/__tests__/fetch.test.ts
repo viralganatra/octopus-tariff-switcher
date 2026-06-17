@@ -1,4 +1,6 @@
-import { retryWithExponentialBackoff } from '../fetch';
+import { FetchError } from '../../errors/fetch-error';
+import { getData, graphqlRequest, retryWithExponentialBackoff } from '../fetch';
+import { makeUrl } from '../helpers';
 
 describe('Fetch', () => {
   beforeEach(() => {
@@ -68,5 +70,36 @@ describe('Fetch', () => {
     expect(spy).toHaveBeenNthCalledWith(1, expect.any(Function), 120);
     expect(spy).toHaveBeenNthCalledWith(2, expect.any(Function), 220);
     expect(spy).toHaveBeenNthCalledWith(3, expect.any(Function), 420);
+  });
+});
+
+describe('fetchJson', () => {
+  const url = makeUrl('https://api.octopus.energy/v1/');
+
+  it('should normalise a request timeout into a FetchError', async () => {
+    vi.spyOn(global, 'fetch').mockRejectedValue(new DOMException('timed out', 'TimeoutError'));
+
+    await expect(getData({ url })).rejects.toThrow(FetchError);
+    await expect(getData({ url })).rejects.toThrow('timed out after 15000ms');
+  });
+
+  it('should rethrow non-timeout errors unchanged', async () => {
+    vi.spyOn(global, 'fetch').mockRejectedValue(new TypeError('Failed to fetch'));
+
+    await expect(getData({ url })).rejects.toBeInstanceOf(TypeError);
+  });
+
+  it('should throw a FetchError on a non-ok response', async () => {
+    vi.spyOn(global, 'fetch').mockResolvedValue(new Response('nope', { status: 500 }));
+
+    await expect(getData({ url })).rejects.toThrow('status 500');
+  });
+
+  it('should throw a FetchError when the GraphQL response contains errors', async () => {
+    vi.spyOn(global, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ data: null, errors: [{ message: 'boom' }] }), { status: 200 }),
+    );
+
+    await expect(graphqlRequest({ query: 'query {}' })).rejects.toThrow('GraphQL error: boom');
   });
 });
