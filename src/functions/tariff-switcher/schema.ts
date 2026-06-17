@@ -131,9 +131,11 @@ export const schemaStartOnboardingProcess = z.object({
         id: z.string(),
       })
       .nullable(),
-    productEnrolment: z.object({
-      id: z.string(),
-    }),
+    productEnrolment: z
+      .object({
+        id: z.string(),
+      })
+      .nullable(),
     possibleErrors: z
       .array(
         z.object({

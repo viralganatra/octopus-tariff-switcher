@@ -1,4 +1,5 @@
 import { type GraphQLQuery, graphql, HttpResponse, http } from 'msw';
+import { OnboardingError } from '../../../errors/onboarding-error';
 import { UnknownProductError } from '../../../errors/unknown-product-error';
 import { UnknownTariffError } from '../../../errors/unknown-tariff-error';
 import {
@@ -327,6 +328,29 @@ describe('API Data', () => {
     expect(serverRequest.headers.get('authorization')).toBe('foo');
 
     await expect(serverRequest.json()).resolves.toMatchSnapshot();
+  });
+
+  it('should throw an OnboardingError when the API returns possibleErrors', async () => {
+    server.use(
+      graphql.mutation('StartOnboardingProcess', () =>
+        HttpResponse.json({
+          data: {
+            startOnboardingProcess: {
+              onboardingProcess: null,
+              productEnrolment: null,
+              possibleErrors: [{ code: 'KT-CT-1234', message: 'Account not eligible' }],
+            },
+          },
+        }),
+      ),
+    );
+
+    await expect(
+      getEnrollmentId({ mpan: 'mpan', targetProductCode: 'COSY-24-10-01' }),
+    ).rejects.toThrow(OnboardingError);
+    await expect(
+      getEnrollmentId({ mpan: 'mpan', targetProductCode: 'COSY-24-10-01' }),
+    ).rejects.toThrow('KT-CT-1234: Account not eligible');
   });
 
   it('should accept the new agreement', async () => {
