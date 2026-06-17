@@ -10,14 +10,26 @@ type RetryOptions = {
   delayMs?: number;
 };
 
-export async function getData({ url, headers = {} }: { url: Url; headers?: HeadersInit }) {
-  const response = await fetch(url, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      ...headers,
-    },
-  });
+const REQUEST_TIMEOUT_MS = 15_000;
+
+async function fetchJson(
+  url: Url,
+  init: RequestInit,
+  timeoutMs = REQUEST_TIMEOUT_MS,
+): Promise<unknown> {
+  let response: Response;
+
+  try {
+    response = await fetch(url, { ...init, signal: AbortSignal.timeout(timeoutMs) });
+  } catch (error) {
+    // AbortSignal.timeout rejects with a TimeoutError DOMException — normalise
+    // it to FetchError so retry/notification paths see a consistent error type.
+    if (error instanceof DOMException && error.name === 'TimeoutError') {
+      throw new FetchError(`Request timed out after ${timeoutMs}ms at url ${url}`);
+    }
+
+    throw error;
+  }
 
   if (!response.ok) {
     throw new FetchError(`Request failed with status ${response.status} at url ${url}`);
@@ -26,7 +38,17 @@ export async function getData({ url, headers = {} }: { url: Url; headers?: Heade
   return response.json();
 }
 
-export async function sendData({
+export function getData({ url, headers = {} }: { url: Url; headers?: HeadersInit }) {
+  return fetchJson(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      ...headers,
+    },
+  });
+}
+
+export function sendData({
   url,
   body,
   headers = {},
@@ -35,7 +57,7 @@ export async function sendData({
   body: Record<string, string | object>;
   headers?: HeadersInit;
 }) {
-  const response = await fetch(url, {
+  return fetchJson(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -43,12 +65,6 @@ export async function sendData({
     },
     body: JSON.stringify(body),
   });
-
-  if (!response.ok) {
-    throw new FetchError(`Request failed with status ${response.status} at url ${url}`);
-  }
-
-  return response.json();
 }
 
 export async function graphqlRequest<T>({
@@ -60,20 +76,14 @@ export async function graphqlRequest<T>({
   variables?: Record<string, unknown>;
   headers?: HeadersInit;
 }): Promise<T> {
-  const response = await fetch(API_GRAPHQL, {
+  const { data, errors } = (await fetchJson(API_GRAPHQL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       ...headers,
     },
     body: JSON.stringify({ query, variables }),
-  });
-
-  if (!response.ok) {
-    throw new FetchError(`Request failed with status ${response.status} at url ${API_GRAPHQL}`);
-  }
-
-  const { data, errors } = (await response.json()) as {
+  })) as {
     data: T;
     errors?: { message: string }[];
   };
