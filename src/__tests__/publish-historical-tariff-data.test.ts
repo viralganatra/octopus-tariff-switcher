@@ -1,5 +1,5 @@
+import { SendMessageBatchCommand, SQSClient } from '@aws-sdk/client-sqs';
 import type { APIGatewayProxyEvent, Context } from 'aws-lambda';
-import { SQSClient, SendMessageBatchCommand } from '@aws-sdk/client-sqs';
 import { mockClient } from 'aws-sdk-client-mock';
 import { publishHistoricalTariffData } from '../publish-historical-tariff-data';
 

@@ -1,18 +1,18 @@
 import {
+  type AttributeValue,
   BatchWriteItemCommand,
   DynamoDBClient,
-  type AttributeValue,
 } from '@aws-sdk/client-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
-import { Resource } from 'sst';
 import { format, parseISO } from 'date-fns';
+import { Resource } from 'sst';
+import { batchWithRetry } from '../../utils/fetch';
+import { getDateInUTC } from '../../utils/helpers';
+import type { TariffData } from '../publish-historical-tariff-data/api-data';
 import {
   getDailyUsageCostByTariff,
   getUnitRatesWithCost,
 } from '../tariff-switcher/cost-calculator';
-import type { TariffData } from '../publish-historical-tariff-data/api-data';
-import { getDateInUTC } from '../../utils/helpers';
-import { batchWithRetry } from '../../utils/fetch';
 import type { DailyUsage } from './schema';
 
 const BATCH_SIZE = 5;

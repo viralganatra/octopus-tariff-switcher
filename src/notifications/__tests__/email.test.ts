@@ -1,5 +1,5 @@
-import { sendEmail } from '../email';
 import { server } from '../../mocks/node';
+import { sendEmail } from '../email';
 
 describe('Email', () => {
   it('call the email render api with the correct data', async () => {

@@ -1,23 +1,23 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
+import { TARIFFS } from './constants/tariff';
+import { AgreementVerificationError } from './errors/agreement-verification-error';
 import {
   acceptNewAgreement,
   getAccountInfo,
+  getConsumptionInHalfHourlyRates,
   getEnrollmentId,
   getPotentialRatesAndStandingChargeByTariff,
-  getConsumptionInHalfHourlyRates,
   verifyNewAgreement,
 } from './functions/tariff-switcher/api-data';
 import {
-  getDailyUsageCostByTariff,
   getDailyCostInPence,
+  getDailyUsageCostByTariff,
 } from './functions/tariff-switcher/cost-calculator';
+import { sendEmail, sendFailureEmail } from './notifications/email';
+import type { SendEmail } from './types/email';
+import { formatResponse } from './utils/format-response';
 import { penceToPoundWithCurrency, sleep } from './utils/helpers';
 import { logger } from './utils/logger';
-import { formatResponse } from './utils/format-response';
-import { TARIFFS } from './constants/tariff';
-import { sendEmail, sendFailureEmail } from './notifications/email';
-import { AgreementVerificationError } from './errors/agreement-verification-error';
-import type { SendEmail } from './types/email';
 
 function isDryRun() {
   return process.env.DRY_RUN === 'true';

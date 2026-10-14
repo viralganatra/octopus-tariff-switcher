@@ -1,7 +1,7 @@
 import type { Context, SQSBatchItemFailure, SQSEvent } from 'aws-lambda';
-import { logger } from './utils/logger';
-import { schemaDailyUsage } from './functions/tariff-data-processor/schema';
 import { saveDailyUsage } from './functions/tariff-data-processor/db';
+import { schemaDailyUsage } from './functions/tariff-data-processor/schema';
+import { logger } from './utils/logger';
 
 export async function processTariffDataQueue(event: SQSEvent, context: Context) {
   logger.addContext(context);

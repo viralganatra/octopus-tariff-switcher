@@ -1,7 +1,7 @@
 import { MatchingRateError } from '../../../errors/matching-rate-error';
 import {
-  getDailyUsageCostByTariff,
   getDailyCostInPence,
+  getDailyUsageCostByTariff,
   getUnitRatesWithCost,
 } from '../cost-calculator';
 

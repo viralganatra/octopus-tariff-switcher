@@ -1,6 +1,6 @@
 import { expectTypeOf } from 'vitest';
-import { makeUrl, scrubKeys, toIsoDateString, toIsoDateTime } from '../helpers';
 import type { IsoDate, IsoDateTime, Url } from '../../types/misc';
+import { makeUrl, scrubKeys, toIsoDateString, toIsoDateTime } from '../helpers';
 
 describe('Utils -> Helpers', () => {
   it('should validate and return a date string', () => {

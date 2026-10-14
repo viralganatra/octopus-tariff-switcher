@@ -1,23 +1,23 @@
-import { http, HttpResponse, graphql } from 'msw';
 import { formatISO } from 'date-fns';
+import { graphql, HttpResponse, http } from 'msw';
 import {
   acceptTermsAndConditionsFxture,
   accountFixture,
+  accountRestFixture,
+  consumptionAgileFixture,
+  consumptionCosyFixture,
   onboardingProcessFixture,
   productAgileFixture,
   productCosyFixture,
   productGoFixture,
   productsFixture,
-  telemetryFixture,
-  termsAndConditionsForProductFixture,
-  unitRatesFixture,
-  unitRates2020Fixture,
-  telemetry2020Fixture,
   standingChargeAgileFixture,
   standingChargeCosyFixture,
-  consumptionAgileFixture,
-  consumptionCosyFixture,
-  accountRestFixture,
+  telemetry2020Fixture,
+  telemetryFixture,
+  termsAndConditionsForProductFixture,
+  unitRates2020Fixture,
+  unitRatesFixture,
 } from './fixtures';
 
 function extractYearFromDate(date: string) {

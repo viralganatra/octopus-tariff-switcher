@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { snakeToCamelSchema, urlSchema } from '../../utils/schema';
 import { getMsFromApiIsoString } from '../../utils/helpers';
+import { snakeToCamelSchema, urlSchema } from '../../utils/schema';
 
 export const schemaToken = z.object({
   obtainKrakenToken: z.object({

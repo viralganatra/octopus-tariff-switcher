@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { snakeToCamelSchema } from '../../utils/schema';
 import { getMsFromApiIsoString } from '../../utils/helpers';
+import { snakeToCamelSchema } from '../../utils/schema';
 
 const consumptionItemSchema = z
   .object({

@@ -1,7 +1,7 @@
 import { Resource } from 'sst';
-import { logger } from '../utils/logger';
 import { sendData } from '../utils/fetch';
 import { makeUrl } from '../utils/helpers';
+import { logger } from '../utils/logger';
 
 export async function sendSparkPostEmail({ subject, html }: { subject: string; html: string }) {
   const url = makeUrl('https://api.eu.sparkpost.com:443/api/v1/transmissions');

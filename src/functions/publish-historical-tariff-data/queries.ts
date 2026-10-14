@@ -1,12 +1,12 @@
 import { Resource } from 'sst';
 import { API, API_ACCOUNTS, API_PRODUCTS } from '../../constants/api';
-import { logger } from '../../utils/logger';
-import { getData } from '../../utils/fetch';
-import { makeUrl, scrubKeys, roundTo4Digits } from '../../utils/helpers';
-import type { TariffSelectorWithDate } from '../../types/tariff';
-import { schemaConsumption, schemaPastTariffs, schemaStandingCharge } from './schema';
-import { fetchToken } from '../tariff-switcher/queries';
 import type { IsoDate } from '../../types/misc';
+import type { TariffSelectorWithDate } from '../../types/tariff';
+import { getData } from '../../utils/fetch';
+import { makeUrl, roundTo4Digits, scrubKeys } from '../../utils/helpers';
+import { logger } from '../../utils/logger';
+import { fetchToken } from '../tariff-switcher/queries';
+import { schemaConsumption, schemaPastTariffs, schemaStandingCharge } from './schema';
 
 export async function fetchAllPastTariffs() {
   const token = await fetchToken();
