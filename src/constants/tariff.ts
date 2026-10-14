@@ -6,11 +6,11 @@ export const TARIFFS = [
     displayName: 'Agile Octopus',
     tariffCodeMatcher: '-AGILE-',
   },
-  // {
-  //   id: 'cosy',
-  //   displayName: 'Cosy Octopus',
-  //   tariffCodeMatcher: '-COSY-',
-  // },
+  {
+    id: 'cosy',
+    displayName: 'Cosy Octopus',
+    tariffCodeMatcher: '-COSY-',
+  },
   // {
   //   id: 'go',
   //   displayName: 'Octopus Go',
