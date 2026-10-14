@@ -10,6 +10,10 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
+    "AlarmEmail": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "ApiKey": {
       "type": "sst.sst.Secret"
       "value": string
@@ -33,6 +37,7 @@ declare module "sst" {
     "octopus-tariff-switcher": {
       "name": string
       "type": "sst.aws.Function"
+      "url": string
     }
     "octopus-tariff-switcher-api": {
       "type": "sst.aws.ApiGatewayV2"
