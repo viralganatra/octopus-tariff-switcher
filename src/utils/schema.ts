@@ -1,6 +1,6 @@
-import { z } from 'zod';
 import camelcaseKeys from 'camelcase-keys';
 import type { CamelCasedPropertiesDeep } from 'type-fest';
+import { z } from 'zod';
 import type { Url } from '../types/misc';
 
 export const urlSchema = z.url().transform<Url>((val) => val as Url);

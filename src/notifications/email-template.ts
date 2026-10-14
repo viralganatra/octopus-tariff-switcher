@@ -1,5 +1,5 @@
-import { penceToPoundWithCurrency } from '../utils/helpers';
 import type { TariffWithCost } from '../types/tariff';
+import { penceToPoundWithCurrency } from '../utils/helpers';
 
 type TemplateData = {
   allTariffsByCost: TariffWithCost[];

@@ -1,12 +1,13 @@
-import { Resource } from 'sst';
 import { formatISO } from 'date-fns';
+import { Resource } from 'sst';
 import { API_PRODUCTS } from '../../constants/api';
-import { getData, graphqlRequest } from '../../utils/fetch';
 import { OnboardingError } from '../../errors/onboarding-error';
-import { logger } from '../../utils/logger';
-import type { UnitRatesTariffSelector } from '../../types/tariff';
 import type { IsoDateTime, Url } from '../../types/misc';
+import type { UnitRatesTariffSelector } from '../../types/tariff';
+import { getData, graphqlRequest } from '../../utils/fetch';
 import { makeUrl } from '../../utils/helpers';
+import { logger } from '../../utils/logger';
+import { getCachedProducts, getCachedToken, setCachedProducts, setCachedToken } from './cache';
 import {
   schemaAcceptTsAndCs,
   schemaAccount,
@@ -18,7 +19,6 @@ import {
   schemaToken,
   schemaUnitRatesByTariff,
 } from './schema';
-import { getCachedProducts, getCachedToken, setCachedProducts, setCachedToken } from './cache';
 
 export async function fetchToken() {
   const cachedToken = getCachedToken();

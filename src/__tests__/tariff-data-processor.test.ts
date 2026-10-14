@@ -1,5 +1,5 @@
-import type { Context } from 'aws-lambda';
 import { BatchWriteItemCommand, DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import type { Context } from 'aws-lambda';
 import { mockClient } from 'aws-sdk-client-mock';
 import { messagesFromQueueFixture } from '../mocks/fixtures';
 import { processTariffDataQueue } from '../tariff-data-processor';

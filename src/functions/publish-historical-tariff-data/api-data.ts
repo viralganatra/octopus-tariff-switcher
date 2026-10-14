@@ -1,12 +1,12 @@
 import { isWithinInterval, parseISO } from 'date-fns';
-import type { IsoDate } from '../../types/misc';
-import type { ConsumptionIntervals, EletricityAgreements } from './schema';
-import { chunkArray, processBatches } from '../../utils/batch';
 import { TARIFFS, type TariffDisplayName } from '../../constants/tariff';
+import type { IsoDate } from '../../types/misc';
+import { chunkArray, processBatches } from '../../utils/batch';
 import { retryWithExponentialBackoff } from '../../utils/fetch';
-import { fetchConsumption, fetchStandingCharge } from './queries';
 import { fetchUnitRatesByTariff } from '../tariff-switcher/queries';
 import type { TariffUnitRates } from '../tariff-switcher/schema';
+import { fetchConsumption, fetchStandingCharge } from './queries';
+import type { ConsumptionIntervals, EletricityAgreements } from './schema';
 
 export type TariffData = {
   isoDate: IsoDate;

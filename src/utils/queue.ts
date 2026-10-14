@@ -1,7 +1,7 @@
 import {
   SendMessageBatchCommand,
-  SQSClient,
   type SendMessageBatchRequestEntry,
+  SQSClient,
 } from '@aws-sdk/client-sqs';
 import { Resource } from 'sst';
 import { TARIFFS } from '../constants/tariff';

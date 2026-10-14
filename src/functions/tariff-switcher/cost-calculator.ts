@@ -1,7 +1,7 @@
 import { MatchingRateError } from '../../errors/matching-rate-error';
 import { roundTo4Digits } from '../../utils/helpers';
-import type { ConsumptionUnitRates, TariffUnitRates } from './schema';
 import type { ConsumptionIntervals } from '../publish-historical-tariff-data/schema';
+import type { ConsumptionUnitRates, TariffUnitRates } from './schema';
 
 type UnitCostPence = Pick<ConsumptionUnitRates[number], 'unitCostInPence'>;
 type StandingChargePence = number;
