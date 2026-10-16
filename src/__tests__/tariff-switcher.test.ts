@@ -1,7 +1,8 @@
 import type { APIGatewayProxyEvent, Context } from 'aws-lambda';
-import { graphql, HttpResponse, http } from 'msw';
+import { HttpResponse, http } from 'msw/http';
 import * as ApiData from '../functions/tariff-switcher/api-data';
 import { accountFixture, productGoFixture } from '../mocks/fixtures';
+import { octopusGraphql } from '../mocks/handlers';
 import { server } from '../mocks/node';
 import * as email from '../notifications/email';
 import { tariffSwitcher } from '../tariff-switcher';
@@ -40,7 +41,7 @@ describe('Tariff Switcher', () => {
     fixture.account.electricityAgreements[0].validFrom = '2025-03-08T00:00:00+00:00';
 
     server.use(
-      graphql.query('Account', () => {
+      octopusGraphql.query('Account', () => {
         return HttpResponse.json({
           data: fixture,
         });

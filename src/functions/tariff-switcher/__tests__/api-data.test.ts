@@ -1,4 +1,5 @@
-import { type GraphQLQuery, graphql, HttpResponse, http } from 'msw';
+import type { GraphQLQuery } from 'msw/graphql';
+import { HttpResponse, http } from 'msw/http';
 import { OnboardingError } from '../../../errors/onboarding-error';
 import { UnknownProductError } from '../../../errors/unknown-product-error';
 import { UnknownTariffError } from '../../../errors/unknown-tariff-error';
@@ -8,6 +9,7 @@ import {
   productsFixture,
   termsAndConditionsForProductFixture,
 } from '../../../mocks/fixtures';
+import { octopusGraphql } from '../../../mocks/handlers';
 import { server } from '../../../mocks/node';
 import { toIsoDateString } from '../../../utils/helpers';
 import {
@@ -23,7 +25,7 @@ import { setCachedProducts, setCachedToken } from '../cache';
 
 function useServerHandlerForAccount(fixture: GraphQLQuery) {
   server.use(
-    graphql.query('Account', () => {
+    octopusGraphql.query('Account', () => {
       return HttpResponse.json({
         data: fixture,
       });
@@ -298,7 +300,7 @@ describe('API Data', () => {
     fixture.termsAndConditionsForProduct.version = '14';
 
     server.use(
-      graphql.query('TermsAndConditionsForProduct', () => {
+      octopusGraphql.query('TermsAndConditionsForProduct', () => {
         return HttpResponse.json({
           data: fixture,
         });
@@ -332,7 +334,7 @@ describe('API Data', () => {
 
   it('should throw an OnboardingError when the API returns possibleErrors', async () => {
     server.use(
-      graphql.mutation('StartOnboardingProcess', () =>
+      octopusGraphql.mutation('StartOnboardingProcess', () =>
         HttpResponse.json({
           data: {
             startOnboardingProcess: {

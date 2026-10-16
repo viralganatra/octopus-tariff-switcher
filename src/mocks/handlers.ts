@@ -1,5 +1,7 @@
 import { formatISO } from 'date-fns';
-import { graphql, HttpResponse, http } from 'msw';
+import { graphql } from 'msw/graphql';
+import { HttpResponse, http } from 'msw/http';
+import { API_GRAPHQL } from '../constants/api';
 import {
   acceptTermsAndConditionsFxture,
   accountFixture,
@@ -19,6 +21,8 @@ import {
   unitRates2020Fixture,
   unitRatesFixture,
 } from './fixtures';
+
+export const octopusGraphql = graphql.link(API_GRAPHQL);
 
 function extractYearFromDate(date: string) {
   return Number(date.split('-').at(0));
@@ -101,7 +105,7 @@ export const handlers = [
       },
     });
   }),
-  graphql.mutation('ObtainKrakenToken', () => {
+  octopusGraphql.mutation('ObtainKrakenToken', () => {
     return HttpResponse.json({
       data: {
         obtainKrakenToken: {
@@ -110,12 +114,12 @@ export const handlers = [
       },
     });
   }),
-  graphql.query('Account', () => {
+  octopusGraphql.query('Account', () => {
     return HttpResponse.json({
       data: accountFixture,
     });
   }),
-  graphql.query('smartMeterTelemetry', ({ variables }) => {
+  octopusGraphql.query('smartMeterTelemetry', ({ variables }) => {
     if (extractYearFromDate(variables.start) === 2020) {
       return HttpResponse.json({
         data: telemetry2020Fixture,
@@ -126,17 +130,17 @@ export const handlers = [
       data: telemetryFixture,
     });
   }),
-  graphql.query('TermsAndConditionsForProduct', () => {
+  octopusGraphql.query('TermsAndConditionsForProduct', () => {
     return HttpResponse.json({
       data: termsAndConditionsForProductFixture,
     });
   }),
-  graphql.mutation('StartOnboardingProcess', () => {
+  octopusGraphql.mutation('StartOnboardingProcess', () => {
     return HttpResponse.json({
       data: onboardingProcessFixture,
     });
   }),
-  graphql.mutation('AcceptTermsAndConditions', () => {
+  octopusGraphql.mutation('AcceptTermsAndConditions', () => {
     return HttpResponse.json({
       data: acceptTermsAndConditionsFxture,
     });
